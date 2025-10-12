@@ -11,7 +11,8 @@ function App() {
         <div className="col-span-3 bg-green-100 text-center">
           <h1>Post</h1>
           {/* <Post /> */}
-          <a href=""><PrePost /></a>
+          <PrePost />
+          <PrePost />
         </div>
         <div className="col-span-1 bg-yellow-100 ">
           <h1>don't know</h1>
