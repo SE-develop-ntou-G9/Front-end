@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { HiChevronDoubleRight } from "react-icons/hi";
 import { HiArrowRight } from "react-icons/hi";
-function PrePost() {
+import PostClass from './models/PostClass';
+import { format } from "date-fns";
+
+function PrePost(PostData = PostClass) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleContent = () => {
@@ -11,16 +14,16 @@ function PrePost() {
   return (
     <>
       {isExpanded ? (
-        <div className="col-span-3 bg-white text-left p-4 rounded shadow-md h-[45vh] w-[40vw] mx-auto my-4">
+        <div className="col-span-3 bg-white text-left p-4 rounded shadow-md h-[30vh] w-[40vw] mx-auto my-4">
           <div className="mb-4">
-            <h1 className='text-3xl font-bold inline-flex items-center'>海大校門口 <HiArrowRight /> 基隆火車站</h1>
-            <h1>時間: 2024/06/20 14:00</h1>
+            <h1 className='text-3xl font-bold inline-flex items-center'>{PostData.origin} <HiArrowRight /> {PostData.destination}</h1>
+            <h1>時間: {format(new Date(PostData.time), "yyyy/MM/dd HH:mm")}</h1>
           </div>
           <div className="mb-2">
-            <h1>集合地: 海大圖書館</h1>
-            <h1>聯絡方式: 0912345678</h1>
-            <h1>有沒有安全帽: 有</h1>
-            <h1>備註: 我會帶一點零食</h1>
+            <h1>集合地: {PostData.meetingPoint}</h1>
+            <h1>聯絡方式: {PostData.contact}</h1>
+            <h1>有沒有安全帽: {PostData.helmet ? "有" : "沒有"}</h1>
+            <h1>備註: {PostData.note}</h1>
           </div>
           <button 
             onClick={toggleContent} 
@@ -29,10 +32,10 @@ function PrePost() {
           </button>
         </div>
       ) : (
-        <div className="col-span-3 bg-white text-left p-4 rounded shadow-md h-[30vh] w-[40vw] mx-auto my-4">
+        <div className="col-span-3 bg-white text-left p-4 rounded shadow-md h-[20vh] w-[40vw] mx-auto my-4">
           <div className="mb-4">
-            <h1 className='text-3xl font-bold inline-flex items-center'>海大校門口 <HiArrowRight /> 基隆火車站</h1>
-            <h1>時間: 2024/06/20 14:00</h1>
+            <h1 className='text-3xl font-bold inline-flex items-center'>{PostData.origin} <HiArrowRight /> {PostData.destination}</h1>
+            <h1>時間: {format(new Date(PostData.time), "yyyy/MM/dd HH:mm")}</h1>
           </div>
           <p className="text-gray-500">點擊下方按鈕查看詳細內容...</p>
           <button 

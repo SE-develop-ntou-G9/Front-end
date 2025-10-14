@@ -17,7 +17,17 @@ function UploadPost() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`輸入的資料如下：
+
+    // 從 localStorage 取得現有的資料陣列
+    const existingPosts = JSON.parse(localStorage.getItem("posts")) || [];
+
+    // 將新的 post 加入陣列
+    const updatedPosts = [...existingPosts, post];
+
+    // 將更新後的陣列存回 localStorage
+    localStorage.setItem("posts", JSON.stringify(updatedPosts));
+
+    alert(`資料已儲存到 localStorage：
       出發地: ${post.origin}
       目的地: ${post.destination}
       出發時間: ${post.time}
@@ -26,6 +36,9 @@ function UploadPost() {
       是否有安全帽: ${post.helmet ? "是" : "否"}
       聯絡方式: ${post.contact}
     `);
+
+    // 清空表單
+    setPost(new PostClass("", "", "", "", "", false, ""));
   };
 
   return (
@@ -108,12 +121,19 @@ function UploadPost() {
             required
           />
         </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          提交貼文
-        </button>
+        <div>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            提交貼文
+          </button>
+          <button>
+            <a href="./" className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400 ml-4">
+              返回
+            </a>
+          </button>
+        </div>
       </form>
     </div>
   );
