@@ -7,14 +7,24 @@ function postCard({ postData }) {
     const tags = ['自備安全帽', '中途下車'];
 
     return (
-        <article className='postCard m-4 w-1/3'>
+        <article className='postCard m-4 w-1/2'>
             <div className = "flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
-                <img src="https://placehold.co/100x50?text=Demo+Image&font=roboto" alt="demo" className="rounded-xl shadow" />
+                <div className="flex">
+                    <img src="https://placehold.co/100x50?text=Demo+Image&font=roboto" alt="demo" className="rounded-xl shadow" />
+                </div>
+                
             </div>
-            <div className="space-y-3 text-xs">
+
+            <div className="space-y-3 text-sm text-center font-bold">
                 {/* 文字或顯示區塊 */}
                 {postData.origin} {"→"} {postData.destination}
             </div>
+
+            <div className="space-y-3 text-xs">
+                {/* 文字或顯示區塊 */}
+                {postData.description}
+            </div>
+
             <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => (
                     <span
@@ -24,6 +34,17 @@ function postCard({ postData }) {
                     {tag}
                     </span>
                 ))}
+            </div>
+
+            <div className="flex items-center h-5">
+                <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
+                    <img
+                        src="https://placehold.co/80x80"
+                        alt="driver"
+                        className="h-full w-full object-cover"
+                        />
+                </div>
+                <p className="text-xs">{postData.user}</p>
             </div>
 
             <div className="flex items-center justify-between text-gray-500">

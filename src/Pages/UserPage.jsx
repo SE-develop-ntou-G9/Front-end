@@ -59,11 +59,13 @@ function UserPage({ setIsLoggedIn, isLoggedIn }) {
 
     // 建立測試用的 post 物件
     const post = new PostClass(
+        'user123',
         '海大校門',
         '基隆火車站',
         '17:30',
         '北門集合',
         '尋找同路人！',
+        '路上可以一起聊聊天!',
         '自備安全帽',
         'Line: user123'
     );
