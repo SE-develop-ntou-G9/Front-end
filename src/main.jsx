@@ -7,6 +7,10 @@ import Header from './header.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Header />
-    <App />
+
+    {/* 把上面的標題固定，不會往下滑就不見 */}
+    <div className="pt-14">
+      <App />
+    </div>
   </StrictMode>,
 )
