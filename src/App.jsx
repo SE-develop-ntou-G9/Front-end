@@ -6,6 +6,7 @@ import PostClass from './models/PostClass';
 import UserPage from "./Pages/UserPage";
 import GuestPage from "./Pages/GuestPage";
 import { HiSearch } from "react-icons/hi"; // 圖示的韓式庫
+import PostCard from './Pages/Functions/postCard';
 
 function App() {
   const [posts, setPosts] = useState([]);

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import PrePost from "./Functions/prepost";
 import UploadPost from "./Functions/UploadPost";
+import PostCard from "./Functions/postCard";
+import PostClass from "../models/PostClass";
 
 function GuestPage({ setIsLoggedIn, isLoggedIn }) {
     const [posts, setPosts] = useState([]);
@@ -16,7 +18,18 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
         localStorage.removeItem("posts");
     }
 
-    return (
+    const post = new PostClass(
+        '海大校門',
+        '基隆火車站',
+        '17:30',
+        '北門集合',
+        '尋找同路人！',
+        '自備安全帽',
+        'Line: user123'
+    );
+
+
+    return (     
         <>
             {/* 測試用切換按鈕 */}
             <div className="fixed bottom-4 right-4">
@@ -38,6 +51,9 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
                 </div>
                 <div className="col-span-3 bg-green-100 text-center">
                     <h1>Post</h1>
+
+                    <PostCard postData={post}/>
+                    
                     <Routes>
                         <Route path="/" element={<div>
                             <button className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600" onClick={deletePost}>清空貼文</button>
