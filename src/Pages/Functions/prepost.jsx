@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { HiChevronDoubleRight } from "react-icons/hi";
 import { HiArrowRight } from "react-icons/hi";
-import PostClass from './models/PostClass';
+import PostClass from '../../models/PostClass';
 import { format } from "date-fns";
 
 function PrePost(PostData = PostClass) {
@@ -25,8 +25,8 @@ function PrePost(PostData = PostClass) {
             <h1>有沒有安全帽: {PostData.helmet ? "有" : "沒有"}</h1>
             <h1>備註: {PostData.note}</h1>
           </div>
-          <button 
-            onClick={toggleContent} 
+          <button
+            onClick={toggleContent}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             {isExpanded ? '收起內容' : '查看更多'}
           </button>
@@ -38,8 +38,8 @@ function PrePost(PostData = PostClass) {
             <h1>時間: {format(new Date(PostData.time), "yyyy/MM/dd HH:mm")}</h1>
           </div>
           <p className="text-gray-500">點擊下方按鈕查看詳細內容...</p>
-          <button 
-            onClick={toggleContent} 
+          <button
+            onClick={toggleContent}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             {isExpanded ? '收起內容' : '查看更多'}
           </button>
