@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import PrePost from "./prepost";
-import UploadPost from "./UploadPost";
+import PrePost from "./Pages/Functions/prepost";
+import UploadPost from "./Pages/Functions/UploadPost";
 import PostClass from './models/PostClass';
 import { HiSearch } from "react-icons/hi"; // 圖示的韓式庫
 

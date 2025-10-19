@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PostClass from "../src/models/PostClass";
+import PostClass from "../../models/PostClass";
 
 function UploadPost() {
   // 初始化 PostClass 實例
