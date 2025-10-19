@@ -1,6 +1,8 @@
+import React from 'react';
+
 function Post() {
   return (
-    <div className="col-span-3 bg-white text-left p-4 rounded shadow-md w-3/4 mx-auto">
+    <div className="col-span-3 bg-white text-left p-4 rounded shadow-md h-[30vh] w-[40vw] mx-auto">
         <div className="mb-4">
             <h1>From 海大校門口</h1>
             <h1>To 基隆火車站</h1>
