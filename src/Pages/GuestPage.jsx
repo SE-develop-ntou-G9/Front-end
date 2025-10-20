@@ -70,8 +70,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
                     </div>
 
                     {/* 把卡片塞進來這下面 */}
-                    {/* <PostCard postData={post} /> */}
-                    <UploadPost/>
+                    <PostCard postData={post} />
 
 
 

@@ -54,7 +54,7 @@ function UploadPost() {
     };
 
     return (
-        <div className="p-4 bg-white rounded shadow-md w-[40vw] mx-auto my-4">
+        <div className="p-4 bg-white rounded shadow-md mx-auto my-4">
             <h1 className="text-2xl font-bold mb-4">上傳貼文</h1>
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
@@ -70,37 +70,45 @@ function UploadPost() {
                 </div>
 
                 <div className="mb-4">
-                    <select
-                        value={address.city}
-                        onChange={(e) =>
-                            setAddress({ city: e.target.value, district: "", street: address.street })
-                        }>
-                        <option value="">選擇縣市</option>
-                        {Object.keys(cityDistrictMap).map((city) => (
-                            <option key={city} value={city}>{city}</option>
-                        ))}
-                    </select>
-
-                    <select
-                        value={address.district}
-                        onChange={(e) =>
-                            setAddress({ ...address, district: e.target.value })
-                        }
-                        disabled={!address.city}>
-                        <option value="">選擇鄉鎮市區</option>
-                        {(cityDistrictMap[address.city] || []).map((district) => (
-                            <option key={district} value={district}>{district}</option>
-                        ))}
-                    </select>
-
-                    <input
-                        type="text"
-                        placeholder="路名與門牌"
-                        value={address.street}
-                        onChange={(e) =>
-                            setAddress({ ...address, street: e.target.value })
-                        }
-                    />
+                    <label className="block mb-2">出發地址:</label>
+                    <div className="flex gap-2">
+                        <select 
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={address.city}
+                            onChange={(e) =>
+                                setAddress({ city: e.target.value, district: "", street: address.street })
+                            }>
+                            <option value="">選擇縣市</option>
+                            {Object.keys(cityDistrictMap).map((city) => (
+                                <option key={city} value={city}>{city}</option>
+                            ))}
+                        </select>
+                    
+                        <select
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={address.district}
+                            onChange={(e) =>
+                                setAddress({ ...address, district: e.target.value })
+                            }
+                            disabled={!address.city}>
+                            <option value="">選擇鄉鎮市區</option>
+                            {(cityDistrictMap[address.city] || []).map((district) => (
+                                <option key={district} value={district}>{district}</option>
+                            ))}
+                        </select>
+                    </div>
+                    
+                    <div className="mt-2">
+                        <input
+                            type="text"
+                            placeholder="路名與門牌"
+                            value={address.street}
+                            onChange={(e) =>
+                                setAddress({ ...address, street: e.target.value })
+                            }
+                            className="w-full p-2 border rounded"
+                        />
+                    </div>
                 </div>
 
                 <div className="mb-4">
