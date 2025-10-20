@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { useNavigate, BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import PrePost from "./Pages/Functions/prepost";
 import UploadPost from "./Pages/Functions/UploadPost";
 import PostClass from './models/PostClass';
 import Header from "./header.jsx";
 import UserPage from "./Pages/UserPage";
 import GuestPage from "./Pages/GuestPage";
+import LogInPage from "./Pages/LogInPage";
+import RegisterPage from "./Pages/RegisterPage";
 import { HiSearch } from "react-icons/hi"; // 圖示的韓式庫
 import PostCard from "./Pages/Functions/PostCard"
+
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -33,8 +36,12 @@ function App() {
         <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
 
         {/* 把上面的標題固定，不會往下滑就不見 */}
-        <div className="pt-14">
+        <div className="pt-12">
           <Routes>
+
+            <Route path="/login" element={<LogInPage />} /> {/*導到LogInPage */}
+            <Route path="/Regist" element={<RegisterPage />} />
+
             {isLoggedIn ? (
               <Route
                 path="/*"
