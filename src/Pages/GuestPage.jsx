@@ -23,11 +23,14 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
         'user123',
         '海大校門',
         '基隆火車站',
-        '17:30',
+        '基隆市中正區北寧路2號',
+        '基隆市中正區中正路236號',
+        '2025-10-10 17:30',
         '北門集合',
         '尋找同路人！',
         '路上可以一起聊聊天!',
-        '自備安全帽',
+        false,
+        false,
         'Line: user123'
     );
 
@@ -67,8 +70,8 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
                     </div>
 
                     {/* 把卡片塞進來這下面 */}
-                    <PostCard postData={post} />
-
+                    {/* <PostCard postData={post} /> */}
+                    <UploadPost/>
 
 
 
