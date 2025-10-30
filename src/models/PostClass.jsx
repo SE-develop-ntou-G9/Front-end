@@ -1,5 +1,5 @@
 export default class PostClass {
-  constructor(user, origin, destination, originAddress, desAddress, time, meetingPoint,description, note, helmet, leave, contact) {
+  constructor(user, origin, destination, originAddress, desAddress, time, meetingPoint, description, note, helmet, leave, contact) {
     this.user = user;                   // 使用者*
     this.origin = origin;               // 出發地
     this.destination = destination;     // 目的地

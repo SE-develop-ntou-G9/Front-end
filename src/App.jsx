@@ -10,6 +10,7 @@ import LogInPage from "./Pages/LogInPage";
 import RegisterPage from "./Pages/RegisterPage";
 import { HiSearch } from "react-icons/hi"; // 圖示的韓式庫
 import PostCard from "./Pages/Functions/PostCard"
+import ProfilePage from "./Pages/ProfilePage.jsx";
 
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
 
             <Route path="/login" element={<LogInPage />} /> {/*導到LogInPage */}
             <Route path="/Regist" element={<RegisterPage />} />
+            <Route path="/Profile" element={<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
 
             {isLoggedIn ? (
               <Route
