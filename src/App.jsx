@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import PrePost from "./prepost";
-import UploadPost from "./UploadPost";
+import { useNavigate, BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import PrePost from "./Pages/Functions/prepost";
+import UploadPost from "./Pages/Functions/UploadPost";
 import PostClass from './models/PostClass';
+import Header from "./header.jsx";
+import UserPage from "./Pages/UserPage";
+import GuestPage from "./Pages/GuestPage";
+import LogInPage from "./Pages/LogInPage";
+import RegisterPage from "./Pages/RegisterPage";
+import { HiSearch } from "react-icons/hi"; // 圖示的韓式庫
+import PostCard from "./Pages/Functions/PostCard"
+import ProfilePage from "./Pages/ProfilePage.jsx";
+
 
 function App() {
   const [posts, setPosts] = useState([]);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const storedPosts = JSON.parse(localStorage.getItem("posts")) || [];
@@ -17,33 +28,36 @@ function App() {
     localStorage.removeItem("posts");
   }
 
+
+
   return (
     <>
       <Router>
-      <div className="grid grid-cols-5 h-screen">
-        <div className="col-span-1 bg-blue-100 ">
-          <h1>Tool</h1>
-          <Link to="/upload" className="text-blue-500 hover:underline">
-            上傳貼文
-          </Link>
-        </div>
-        <div className="col-span-3 bg-green-100 text-center">
-          <h1>Post</h1>
+        {/* 傳是否登入給Header */}
+        <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+
+        {/* 把上面的標題固定，不會往下滑就不見 */}
+        <div className="pt-12">
           <Routes>
-            <Route path="/" element={<div>
-              <button className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600" onClick={deletePost}>清空貼文</button>
-              {posts.map((post, index) => (
-              <PrePost key={index} {...post} />
-              ))}
-            </div>} />
-            <Route path="/upload" element={<UploadPost />} />
+
+            <Route path="/login" element={<LogInPage />} /> {/*導到LogInPage */}
+            <Route path="/Regist" element={<RegisterPage />} />
+            <Route path="/Profile" element={<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
+
+            {isLoggedIn ? (
+              <Route
+                path="/*"
+                element={<UserPage setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />}
+              />
+            ) : (
+              <Route
+                path="/*"
+                element={<GuestPage setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />}
+              />
+            )}
           </Routes>
         </div>
-        <div className="col-span-1 bg-yellow-100 ">
-          <h1>don't know</h1>
-        </div>
-      </div>
-    </Router>
+      </Router>
     </>
   );
 }
