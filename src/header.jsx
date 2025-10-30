@@ -22,9 +22,12 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
         </button>
 
         {/* 中間的標題 */}
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-xl font-bold text-gray-800">
+        <button
+          onClick={() => navigate("/")}
+          className="absolute left-1/2 -translate-x-1/2 text-xl font-bold text-gray-80"
+        >
           NTOUber
-        </h1>
+        </button>
 
         {/* 右邊的登入登出 */}
         <div>
@@ -33,6 +36,7 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
             <button
               className="p-2 rounded-full hover:bg-gray-100 transition"
               title="個人頁面"
+              onClick={() => navigate("/Profile")}
             >
               <HiUser className="text-2xl text-gray-700" />
             </button>
@@ -43,7 +47,6 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
                 onClick={() => navigate("/login")} //按下去到login
               >
                 Login / SignOn
-
               </button>
             </>
           )}
