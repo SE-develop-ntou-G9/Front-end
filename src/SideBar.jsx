@@ -30,12 +30,20 @@ function SideBar({ isOpen, onClose, onToggleLogin, isLoggedIn }) {
                                 <HiMenu />
                             </button>
 
-                            <h1 className="font-bold text-gray-800 text-center text-xl">NTOUber</h1>
+                            <h1 className="font-bold text-gray-800 text-center text-xl md:hidden">NTOUber</h1>
                         </div>
 
                         <nav className="flex flex-col items-center mt-6 space-y-6 text-lg">
-                            <button className="hover:text-purple-600">首頁</button>
-                            <button className="hover:text-purple-600">個人頁面</button>
+                            <button
+                                className="hover:text-purple-600"
+                                onClick={() => navigate("/")}
+                            >首頁</button>
+
+                            <button
+                                className="hover:text-purple-600"
+                                onClick={() => navigate("/Profile")}
+                            >個人頁面</button>
+
                             <button className="hover:text-purple-600">目前貼文</button>
                             {isLoggedIn ? (
                                 <button
