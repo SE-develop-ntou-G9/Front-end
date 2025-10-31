@@ -84,6 +84,7 @@ function App() {
             <Route path="/login" element={<LogInPage setIsLoggedIn={setIsLoggedIn} />} /> {/*導到LogInPage */}
             <Route path="/Regist" element={<RegisterPage />} />
             <Route path="/Profile" element={<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/uploadPost" element={<UploadPost />} />
 
             {isLoggedIn ? (
               <Route
