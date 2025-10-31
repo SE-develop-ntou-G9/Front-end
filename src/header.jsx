@@ -4,11 +4,12 @@ import SideBar from "./SideBar"
 import { HiMenu } from "react-icons/hi"; // Side Bar的import
 import { HiUser } from "react-icons/hi"; //人頭import
 
-function Header({ isLoggedIn, setIsLoggedIn }) {
+function Header({ isLoggedIn, setIsLoggedIn, userRole, toggleRole }) {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <>
@@ -34,11 +35,23 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
           {isLoggedIn ? (
             // 這個是那個人頭的功能 要加
             <button
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-              title="個人頁面"
+              className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition"
               onClick={() => navigate("/Profile")}
             >
-              <HiUser className="text-2xl text-gray-700" />
+              <div className="w-10 h-10 bg-white-700 rounded-full flex items-center justify-center text-xl font-bold">
+                {user.picture ? (
+                  <img
+                    src={user.picture}
+                    alt="User Avatar"
+                    className="w-8 h-8 rounded-full border"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">
+                    {user.name ? user.name.charAt(0) : "?"}
+                  </div>
+                )}
+              </div>
+              <span className="hidden md:block text-sm"></span>
             </button>
           ) : (
             <>
@@ -57,8 +70,9 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
       <SideBar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        onToggleLogin={() => setIsLoggedIn(!isLoggedIn)}
         isLoggedIn={isLoggedIn}
+        userRole={userRole}
+        toggleRole={toggleRole}
       />
     </>
   );

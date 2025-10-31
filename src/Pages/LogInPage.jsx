@@ -11,6 +11,14 @@ function LoginPage({ setIsLoggedIn }) {
     const handleGoogleSuccess = (response) => {
         const user = jwtDecode(response.credential);
         console.log("Google 使用者資料：", user);
+
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("isLoggedIn", "true"); //存登入狀態進去localStorage
+
+        if (!localStorage.getItem("userRole")) {
+            localStorage.setItem("userRole", "乘客");
+        }
+
         setIsLoggedIn(true);
 
         alert(`歡迎回來，${user.name}！`);

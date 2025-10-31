@@ -5,17 +5,29 @@ import PostClass from "../models/PostClass";
 function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
     const navigate = useNavigate();
 
-    const user = {
-        name: "馬小眼",
-        email: "ming@example.com",
-        phone: "0912-345-678",
-        role: "乘客",
+    //Test
+    // const user = {
+    //     name: "馬小眼",
+    //     email: "ming@example.com",
+    //     phone: "0912-345-678",
+    //     role: "乘客",
+    // };
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const storedRole = localStorage.getItem("userRole") || "乘客";
+
+    const user = storedUser || {
+        name: "訪客",
+        email: "尚未登入帳號",
+        picture: "",
     };
 
     const handleLogout = () => {
+        localStorage.removeItem("user");
+        localStorage.removeItem("isLoggedIn");
         setIsLoggedIn(false);
         navigate("/login");
     };
+
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -51,7 +63,7 @@ function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
                                     : "bg-blue-100 text-blue-700"
                                     }`}
                             >
-                                {user.role}
+                                {storedRole}
                             </span>
                         </div>
 
