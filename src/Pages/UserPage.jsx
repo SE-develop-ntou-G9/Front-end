@@ -5,10 +5,11 @@ import UploadPost from "./Functions/UploadPost";
 import { HiSearch } from "react-icons/hi";
 import PostCard from "./Functions/PostCard";
 import PostClass from "../models/PostClass";
+import { useNavigate } from "react-router-dom";
 
 function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
     const [posts, setPosts] = useState([]);
-
+    const navigate = useNavigate();
 
     // 測試資料集開始
     // const mockPosts = [
@@ -112,7 +113,7 @@ function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
                             {userRole === "車主" ? (
                                 <button
                                     className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
-                                    onClick={() => alert("沒做啦!想怎樣!!!")}
+                                    onClick={() => navigate("/uploadPost")}
                                 >
                                     + 發布共乘貼文
                                 </button>
