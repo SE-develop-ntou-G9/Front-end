@@ -33,7 +33,7 @@ function UploadPost() {
         // 從 localStorage 取得現有的資料陣列
         const existingPosts = JSON.parse(localStorage.getItem("posts")) || [];
 
-        // 將新的 post 加入陣列
+        // 將新的 post 加入陣列，並串聯address
         const updatedPosts = [...existingPosts,  { ...post, desAddress: fullAddress }];
 
         // 將更新後的陣列存回 localStorage
