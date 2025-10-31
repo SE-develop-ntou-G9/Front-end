@@ -6,5 +6,6 @@ export default class UserClass {
     this.carType = carType;      // 車型
     this.licenseNum = licenseNum;// 車牌
     this.email = email;          // 電子郵件
+    this.role;
   }
 }
