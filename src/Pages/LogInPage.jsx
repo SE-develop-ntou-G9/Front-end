@@ -1,9 +1,25 @@
 import React from "react";
 import { useNavigate, BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
-function LoginPage() {
+
+function LoginPage({ setIsLoggedIn }) {
 
     const navigate = useNavigate();
+
+    const handleGoogleSuccess = (response) => {
+        const user = jwtDecode(response.credential);
+        console.log("Google 使用者資料：", user);
+        setIsLoggedIn(true);
+
+        alert(`歡迎回來，${user.name}！`);
+        navigate("/");
+    };
+
+    const handleGoogleError = () => {
+        alert("Google 登入失敗，請重試。");
+    };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
@@ -38,6 +54,19 @@ function LoginPage() {
                 >
                     log in
                 </button>
+
+                <div className="flex items-center my-4">
+                    <div className="flex-1 h-px bg-gray-300"></div>
+                    <span className="px-2 text-gray-500 text-sm">或使用</span>
+                    <div className="flex-1 h-px bg-gray-300"></div>
+                </div>
+
+                <div className="flex justify-center">
+                    <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                    />
+                </div>
 
                 {/* 註冊帳號 記密碼那個 */}
                 <div className="mt-3 text-sm flex justify-between text-gray-600">

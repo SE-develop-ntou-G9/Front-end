@@ -40,7 +40,7 @@ function App() {
         <div className="pt-12">
           <Routes>
 
-            <Route path="/login" element={<LogInPage />} /> {/*導到LogInPage */}
+            <Route path="/login" element={<LogInPage setIsLoggedIn={setIsLoggedIn} />} /> {/*導到LogInPage */}
             <Route path="/Regist" element={<RegisterPage />} />
             <Route path="/Profile" element={<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
 
