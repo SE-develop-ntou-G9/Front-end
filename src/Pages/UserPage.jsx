@@ -6,7 +6,7 @@ import { HiSearch } from "react-icons/hi";
 import PostCard from "./Functions/PostCard";
 import PostClass from "../models/PostClass";
 
-function UserPage({ setIsLoggedIn, isLoggedIn }) {
+function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
     const [posts, setPosts] = useState([]);
 
 
@@ -96,12 +96,33 @@ function UserPage({ setIsLoggedIn, isLoggedIn }) {
                             />
                             <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 text-xl" />
                         </div>
+
                     </div>
 
                     {/* 標題區 */}
                     <div className="mt-5">
-                        <h2 className="text-base font-bold text-gray-900">最新共乘邀請</h2>
-                        <p className="text-xs text-gray-500 mt-0.1">查查看其他用戶的共乘請求</p>
+
+                        <div className="mt-5 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-base font-bold text-gray-900">最新共乘邀請</h2>
+                                <p className="text-xs text-gray-500 mt-0.5">查查看其他用戶的共乘請求</p>
+                            </div>
+
+
+                            {userRole === "車主" ? (
+                                <button
+                                    className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
+                                    onClick={() => alert("沒做啦!想怎樣!!!")}
+                                >
+                                    + 發布共乘貼文
+                                </button>
+                            ) : (
+                                <p className="text-xs text-gray-400 italic">
+                                    升級成車主後可發布共乘邀請
+                                </p>
+                            )}
+                        </div>
+
                     </div>
 
                     {/* 把卡片塞進來這下面 */}

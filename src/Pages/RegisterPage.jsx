@@ -9,10 +9,10 @@ function RegisterPage() {
     );
 
     const handleChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         setUser({
-        ...user,
-        [name]: value
+            ...user,
+            [name]: value
         })
     };
 
@@ -30,7 +30,7 @@ function RegisterPage() {
         const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
         const updatedUsers = [...existingUsers, normalized];
         localStorage.setItem("users", JSON.stringify(updatedUsers));
-        
+
         alert(`註冊成功！
                 姓名：${normalized.userName}
                 Email：${normalized.email}
@@ -39,10 +39,10 @@ function RegisterPage() {
                 車牌：${normalized.licenseNum || "-"}`
         );
 
-    // 清空表單
-    setUser(new UserClass("", "", "", "", "", ""));
-    // if(navigate) navigate("/login");
-  };
+        // 清空表單
+        setUser(new UserClass("", "", "", "", "", ""));
+        // if(navigate) navigate("/login");
+    };
 
 
 
@@ -122,7 +122,7 @@ function RegisterPage() {
                     <button
                         type="submit"
                         className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
-                        >
+                    >
                         註冊帳號
                     </button>
 

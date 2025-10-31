@@ -15,26 +15,67 @@ import ProfilePage from "./Pages/ProfilePage.jsx";
 
 function App() {
   const [posts, setPosts] = useState([]);
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); //登入的State
+  const [userRole, setUserRole] = useState(null); //身分的Steate
 
   useEffect(() => {
     const storedPosts = JSON.parse(localStorage.getItem("posts")) || [];
     setPosts(storedPosts);
+
+    const storedLogin = localStorage.getItem("isLoggedIn") === "true";
+    setIsLoggedIn(storedLogin);
+
+    if (storedLogin) {
+      const storedRole = localStorage.getItem("userRole") || "乘客";
+      setUserRole(storedRole);
+    } else {
+      setUserRole(null);
+    }
   }, []);
+
+  //我獨自升級 
+  const toggleRole = () => {
+    //測試用
+    if (userRole === "車主") {
+      const newRole = "乘客";
+      setUserRole(newRole);
+      localStorage.setItem("userRole", newRole);
+      return;
+    };
+
+    if (!isLoggedIn) return;
+    if (userRole === "車主") return;
+
+    const newRole = "車主";
+    setUserRole(newRole);
+    localStorage.setItem("userRole", newRole);
+  };
+
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserRole(null);
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userRole");
+  };
+
 
   const deletePost = () => {
     setPosts([]);
     localStorage.removeItem("posts");
   }
 
-
-
   return (
     <>
       <Router>
         {/* 傳是否登入給Header */}
-        <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+        <Header
+          isLoggedIn={isLoggedIn}
+          setIsLoggedIn={setIsLoggedIn}
+          userRole={userRole}
+          toggleRole={toggleRole}
+        />
 
         {/* 把上面的標題固定，不會往下滑就不見 */}
         <div className="pt-12">
@@ -47,8 +88,7 @@ function App() {
             {isLoggedIn ? (
               <Route
                 path="/*"
-                element={<UserPage setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} />}
-              />
+                element={<UserPage setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn} userRole={userRole} />} />
             ) : (
               <Route
                 path="/*"

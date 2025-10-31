@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { HiMenu } from "react-icons/hi";
 import { useNavigate, BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
-function SideBar({ isOpen, onClose, onToggleLogin, isLoggedIn }) {
+function SideBar({ isOpen, onClose, isLoggedIn, userRole, toggleRole }) {
 
     const navigate = useNavigate();
 
@@ -46,11 +46,31 @@ function SideBar({ isOpen, onClose, onToggleLogin, isLoggedIn }) {
 
                             <button className="hover:text-purple-600">目前貼文</button>
                             {isLoggedIn ? (
-                                <button
-                                    className="hover:text-purple-600"
-                                >
-                                    切換身分
-                                </button>
+                                <>
+                                    <p className="text-gray-500 text-sm mb-2">
+                                        目前身分：{userRole}
+                                    </p>
+
+                                    {userRole === "乘客" ? (
+                                        <button
+                                            className="hover:text-purple-600"
+                                            onClick={() => {
+                                                // App.jsx的升級
+                                                toggleRole();
+                                                alert("升級成功！您現在是車主");
+                                            }}
+                                        >
+                                            升級成車主
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="text-gray-400 cursor-not-allowed"
+                                            disabled
+                                        >
+                                            您已是高等魔物(車主)
+                                        </button>
+                                    )}
+                                </>
                             ) : (
                                 <button
                                     className="hover:text-purple-600"
@@ -59,6 +79,14 @@ function SideBar({ isOpen, onClose, onToggleLogin, isLoggedIn }) {
                                     登入 / 註冊
                                 </button>
                             )}
+
+                            {/* 測試用回去乘客的 */}
+                            <button
+                                className="hover:text-purple-600"
+                                onClick={() => toggleRole()}
+                            >
+                                切換回乘客
+                            </button>
                         </nav>
                     </aside>
                 </>
