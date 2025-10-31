@@ -68,6 +68,7 @@ function App() {
 
   return (
     <>
+        <UploadPost />
       <Router>
         {/* 傳是否登入給Header */}
         <Header
