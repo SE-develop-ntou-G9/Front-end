@@ -1,13 +1,17 @@
 import React from 'react';
 import PostClass from '../../models/PostClass';
 import { HiArrowRight } from "react-icons/hi";
+import DetailPost from './DetailPost';
+import { Routes, Route, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function postCard({ postData }) {
+    const navigate = useNavigate();
     if (!postData) return null;
     const tags = ['自備安全帽', '中途下車'];
 
     return (
-        <article className='postCard m-4 w-1/2'>
+        <article className='postCard m-4 w-1/2 ' onClick={() => navigate(`/detailPost`)}>
             <div className = "flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
                 <div className="flex">
                     <img src="https://placehold.co/100x50?text=Demo+Image&font=roboto" alt="demo" className="rounded-xl shadow" />

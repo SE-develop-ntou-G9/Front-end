@@ -11,6 +11,8 @@ import RegisterPage from "./Pages/RegisterPage";
 import { HiSearch } from "react-icons/hi"; // 圖示的韓式庫
 import PostCard from "./Pages/Functions/PostCard"
 import ProfilePage from "./Pages/ProfilePage.jsx";
+import DetailPost from "./Pages/Functions/DetailPost.jsx";
+import EditProfilePage from "./Pages/EditProfilePage.jsx";
 
 
 function App() {
@@ -85,6 +87,8 @@ function App() {
             <Route path="/Regist" element={<RegisterPage />} />
             <Route path="/Profile" element={<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/uploadPost" element={<UploadPost />} />
+            <Route path="/EditProfile" element={<EditProfilePage />} />
+            <Route path="/detailPost" element={<DetailPost isLoggedIn={isLoggedIn} />} />
 
             {isLoggedIn ? (
               <Route
