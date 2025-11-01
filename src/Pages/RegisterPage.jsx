@@ -5,7 +5,7 @@ import UserClass from "../models/UserClass";
 function RegisterPage() {
     const navigate = useNavigate();
     const [user, setUser] = useState(
-        new UserClass("", "", "", "", "", "")
+        new UserClass("", "", "", "", "", "", false)
     );
 
     const handleChange = (e) => {
@@ -25,7 +25,8 @@ function RegisterPage() {
             user.phone,
             user.carType.trim(),
             user.licenseNum.trim().toUpperCase(),
-            user.email
+            user.email,
+            user.role
         )
         const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
         const updatedUsers = [...existingUsers, normalized];
@@ -40,7 +41,7 @@ function RegisterPage() {
         );
 
         // 清空表單
-        setUser(new UserClass("", "", "", "", "", ""));
+        setUser(new UserClass("", "", "", "", "", "", ""));
         // if(navigate) navigate("/login");
     };
 

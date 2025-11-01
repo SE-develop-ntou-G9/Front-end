@@ -2,6 +2,24 @@ import React, { useState } from "react";
 import PostClass from "../../models/PostClass";
 import cityDistrictMap from "../../models/Cities";
 
+function toApiJson(post, address){
+    const fullAddress = [address.city, address.district, address.street]
+        .filter(Boolean)     // 移掉沒填的欄位
+        .join("");
+    return {
+        driver_id: "Jackie",
+        starting_point:{ Name: post.origin || "", Address: fullAddress || ""},
+        destination: { Name: post.destination || "", Address: fullAddress || ""},
+        meet_point: {Name: post.meetingPoint || ""},
+        departure_time: post.time ? new Date(post.time).toISOString(): null,
+        notes: post.note || "",
+        description: "",
+        helmet: !!post.helmet,
+        contact_info: {Contact: post.contact || ""},
+        leave: !!post.leave,
+    }
+}
+
 function UploadPost() {
   // 初始化 PostClass 實例
     const [post, setPost] = useState(
@@ -22,35 +40,64 @@ function UploadPost() {
             street: ""
     });
 
-    const handleSubmit = (e) => {
+    const API = "http://ntouber-post.zeabur.app/api/posts";
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const fullAddress = [address.city, address.district, address.street]
-        .filter(Boolean)     // 移掉沒填的欄位
-        .join("");
-        
+        const payload = toApiJson(post, address);
+        setSubmitting(true);
 
-        // 從 localStorage 取得現有的資料陣列
-        const existingPosts = JSON.parse(localStorage.getItem("posts")) || [];
+        // const fullAddress = [address.city, address.district, address.street]
+        // .filter(Boolean)     // 移掉沒填的欄位
+        // .join("");
+        try {
+            const r = await fetch(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            // 若需要帶 token： headers: { "Content-Type":"application/json", "Authorization": "Bearer xxx" }
+            });
 
-        // 將新的 post 加入陣列，並串聯address
-        const updatedPosts = [...existingPosts,  { ...post, desAddress: fullAddress }];
+            const data = await r.json().catch(() => ({}));
+            if (!r.ok) {
+                // 後端若有 message 就顯示
+                throw new Error(data.message || `API 錯誤（${r.status})`);
+            }
 
-        // 將更新後的陣列存回 localStorage
-        localStorage.setItem("posts", JSON.stringify(updatedPosts));
+            // // 從 localStorage 取得現有的資料陣列
+            // const existingPosts = JSON.parse(localStorage.getItem("posts")) || [];
 
-        alert(`資料已儲存到 localStorage：
-            出發地: ${post.origin}
-            目的地: ${post.destination}
-            出發時間: ${post.time}
-            集合地點: ${post.meetingPoint}
-            備註: ${post.note}
-            是否有安全帽: ${post.helmet ? "是" : "否"}
-            聯絡方式: ${post.contact}
-        `);
+            // // 將新的 post 加入陣列，並串聯address
+            // const updatedPosts = [...existingPosts,  { ...post, desAddress: fullAddress }];
 
-        // 清空表單
-        setPost(new PostClass("", "", "", "", "", "", "", "", "", false, false, ""));
+            // // 將更新後的陣列存回 localStorage
+            // localStorage.setItem("posts", JSON.stringify(updatedPosts));
+
+            // alert(`資料已儲存到 localStorage：
+            //     出發地: ${post.origin}
+            //     目的地: ${post.destination}
+            //     出發時間: ${post.time}
+            //     集合地點: ${post.meetingPoint}
+            //     備註: ${post.note}
+            //     是否有安全帽: ${post.helmet ? "是" : "否"}
+            //     聯絡方式: ${post.contact}
+            // `);
+
+            // 清空表單
+            setPost(new PostClass("", "", "", "", "", "", "", "", "", false, false, ""));
+            setAddress({ city: "", district: "", street: "" });
+
+        }catch (err) {
+            console.error(err);
+            // 失敗時，你可以選擇同時備份到 localStorage，避免表單遺失
+            // const fallback = JSON.parse(localStorage.getItem("posts") || "[]");
+            // localStorage.setItem("posts", JSON.stringify([...fallback, payload]));
+            alert(`送出失敗：${err.message}`);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
