@@ -40,7 +40,7 @@ function UploadPost() {
             street: ""
     });
 
-    const API = "http://ntouber-post.zeabur.app/api/posts";
+    const API = "https://ntouber-post.zeabur.app/api/posts/";
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async (e) => {
