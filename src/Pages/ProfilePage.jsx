@@ -52,7 +52,32 @@ function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
                         {/* 使用者的資料 */}
                         <div>
                             <label className="block text-sm font-medium text-gray-500">電話號碼</label>
-                            <p className="text-base font-semibold">{user.phone}</p>
+                            <p
+                                className={`text-base font-semibold ${user.phone ? "text-gray-900" : "text-gray-400 italic"
+                                    }`}
+                            >
+                                {user.phone || "尚未新增電話號碼"}
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-500">車子型號</label>
+                            <p
+                                className={`text-base font-semibold ${user.carInfo ? "text-gray-900" : "text-gray-400 italic"
+                                    }`}
+                            >
+                                {user.carInfo || "尚未新增車子"}
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-500">車牌</label>
+                            <p
+                                className={`text-base font-semibold ${user.carNumber ? "text-gray-900" : "text-gray-400 italic"
+                                    }`}
+                            >
+                                {user.carNumber || "尚未新增車牌"}
+                            </p>
                         </div>
 
                         <div>
@@ -69,7 +94,7 @@ function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
 
                         <div className="pt-4 border-t border-gray-200">
                             <button
-                                onClick={() => alert("編輯功能沒做")}
+                                onClick={() => navigate("/EditProfile")}
                                 className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
                             >
                                 編輯資料

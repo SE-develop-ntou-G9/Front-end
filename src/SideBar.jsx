@@ -67,7 +67,7 @@ function SideBar({ isOpen, onClose, isLoggedIn, userRole, toggleRole }) {
                                             className="text-gray-400 cursor-not-allowed"
                                             disabled
                                         >
-                                            您已是高等魔物(車主)
+                                            您已是高等獵人(車主)
                                         </button>
                                     )}
                                 </>
