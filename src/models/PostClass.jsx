@@ -1,5 +1,5 @@
 export default class PostClass {
-  constructor(user, origin, destination, originAddress, desAddress, time, meetingPoint, description, note, helmet, leave, contact) {
+  constructor(user, origin, destination, originAddress, desAddress, time, meetingPoint, description, note, helmet, leave, contact, vehicle_info) {
     this.user = user;                   // 使用者*
     this.origin = origin;               // 出發地
     this.destination = destination;     // 目的地
@@ -12,5 +12,6 @@ export default class PostClass {
     this.helmet = helmet;               // 是否有安全帽
     this.leave = leave;                 // 是否中途下車
     this.contact = contact;             // 聯絡方式
+    this.vehicle_info = vehicle_info;   // vehicle的資訊 
   }
 }
