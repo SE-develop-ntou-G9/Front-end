@@ -8,21 +8,55 @@ function LoginPage({ setIsLoggedIn }) {
 
     const navigate = useNavigate();
 
-    const handleGoogleSuccess = (response) => {
-        const user = jwtDecode(response.credential);
-        console.log("Google 使用者資料：", user);
 
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("isLoggedIn", "true"); //存登入狀態進去localStorage
+    const handleGoogleSuccess = async (response) => {
+        try {
+            const credential = response.credential;
+            // console.log(response.credential)
+            const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ credential })
+            });
 
-        if (!localStorage.getItem("userRole")) {
-            localStorage.setItem("userRole", "乘客");
+            // console.log("Google OAuth raw response:", response);
+
+            if (!res.ok) {
+                throw new Error("驗證 Google 失敗");
+            }
+
+            const data = await res.json();
+            console.log("後端資料：", data);
+
+
+            // 拿到使用者資料與 token
+            const user = data.user;
+            const token = data.token;
+
+            console.log(user);
+            console.log(token);
+
+            localStorage.setItem("jwtToken", data.token);
+
+            localStorage.setItem("user", JSON.stringify(data.user));
+
+            localStorage.setItem("isLoggedIn", "true");
+
+            // 角色（你原本的設定）
+            if (!localStorage.getItem("userRole")) {
+                localStorage.setItem("userRole", "乘客");
+            }
+
+            setIsLoggedIn(true);
+            alert(`歡迎回來，${data.user.name}！`);
+            navigate("/");
+
+        } catch (error) {
+            console.error("Google OAuth 發生錯誤：", error);
+            alert("Google 登入失敗，請稍後再試");
         }
-
-        setIsLoggedIn(true);
-
-        alert(`歡迎回來，${user.name}！`);
-        navigate("/");
     };
 
     const handleGoogleError = () => {
