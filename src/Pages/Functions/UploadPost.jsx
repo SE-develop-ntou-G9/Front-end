@@ -2,42 +2,56 @@ import React, { useState } from "react";
 import PostClass from "../../models/PostClass";
 import cityDistrictMap from "../../models/Cities";
 
-function toApiJson(post, address){
+function toApiJson(post, address) {
     const fullAddress = [address.city, address.district, address.street]
         .filter(Boolean)     // 移掉沒填的欄位
         .join("");
     return {
-        driver_id: "Jackie",
-        starting_point:{ Name: post.origin || "", Address: fullAddress || ""},
-        destination: { Name: post.destination || "", Address: fullAddress || ""},
-        meet_point: {Name: post.meetingPoint || ""},
-        departure_time: post.time ? new Date(post.time).toISOString(): null,
+        // driver_id: "Jackie",
+        driver_id: post.user || crypto.randomUUID(), //亂數名稱
+        // starting_point: { Name: post.origin || "", Address: fullAddress || "" },
+        starting_point: { City: post.origin || "" },
+        // destination: { Name: post.destination || "", Address: fullAddress || "" },
+        destination: { City: post.destination || "" },
+        // meet_point: { Name: post.meetingPoint || "" },
+        meet_point: { City: post.meetingPoint || "" },
+        departure_time: post.time ? new Date(post.time).toISOString() : null,
         notes: post.note || "",
         description: "",
         helmet: !!post.helmet,
-        contact_info: {Contact: post.contact || ""},
+        // contact_info: { Contact: post.contact || "" },
+        contact_info: {
+            additionalProp1: post.contact || "",
+            additionalProp2: "",
+            additionalProp3: ""
+        },
         leave: !!post.leave,
+
+        vehicle_info: post.vehicle_info || "unknown",
+        status: "open",                       // 他說不能是空的我也不知道怎麼辦
+        timestamp: "2025-10-31T06:56:57.647Z" // 他說不能是空的我也不知道怎麼辦
+
     }
 }
 
 function UploadPost() {
-  // 初始化 PostClass 實例
+    // 初始化 PostClass 實例
     const [post, setPost] = useState(
-        new PostClass("", "", "", "", "", "", "", "", "", false, false, "")
+        new PostClass("", "", "", "", "", "", "", "", "", false, false, "", "")
     );
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setPost({
-        ...post,
-        [name]: type === "checkbox" ? checked : value,
+            ...post,
+            [name]: type === "checkbox" ? checked : value,
         });
     };
 
     const [address, setAddress] = useState({
-            city: "",
-            district: "",
-            street: ""
+        city: "",
+        district: "",
+        street: ""
     });
 
     const API = "https://ntouber-post.zeabur.app/api/posts/";
@@ -54,15 +68,16 @@ function UploadPost() {
         // .join("");
         try {
             const r = await fetch(API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-            // 若需要帶 token： headers: { "Content-Type":"application/json", "Authorization": "Bearer xxx" }
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+                // 若需要帶 token： headers: { "Content-Type":"application/json", "Authorization": "Bearer xxx" }
             });
 
             const data = await r.json().catch(() => ({}));
             if (!r.ok) {
                 // 後端若有 message 就顯示
+                console.log("後端回傳內容：", data);
                 throw new Error(data.message || `API 錯誤（${r.status})`);
             }
 
@@ -89,7 +104,7 @@ function UploadPost() {
             setPost(new PostClass("", "", "", "", "", "", "", "", "", false, false, ""));
             setAddress({ city: "", district: "", street: "" });
 
-        }catch (err) {
+        } catch (err) {
             console.error(err);
             // 失敗時，你可以選擇同時備份到 localStorage，避免表單遺失
             // const fallback = JSON.parse(localStorage.getItem("posts") || "[]");
@@ -119,7 +134,7 @@ function UploadPost() {
                 <div className="mb-4">
                     <label className="block mb-2">出發地址:</label>
                     <div className="flex gap-2">
-                        <select 
+                        <select
                             className="w-full p-2 border border-gray-300 rounded"
                             value={address.city}
                             onChange={(e) =>
@@ -130,7 +145,7 @@ function UploadPost() {
                                 <option key={city} value={city}>{city}</option>
                             ))}
                         </select>
-                    
+
                         <select
                             className="w-full p-2 border border-gray-300 rounded"
                             value={address.district}
@@ -144,7 +159,7 @@ function UploadPost() {
                             ))}
                         </select>
                     </div>
-                    
+
                     <div className="mt-2">
                         <input
                             type="text"
@@ -207,21 +222,21 @@ function UploadPost() {
                 <div className="mb-4">
                     <label className="block mb-2">
                         <input
-                        type="checkbox"
-                        name="helmet"
-                        checked={post.helmet}
-                        onChange={handleChange}
-                        className="mr-2"
+                            type="checkbox"
+                            name="helmet"
+                            checked={post.helmet}
+                            onChange={handleChange}
+                            className="mr-2"
                         />
                         是否提供安全帽
                     </label>
                     <label className="block mb-2">
                         <input
-                        type="checkbox"
-                        name="leave"
-                        checked={post.leave}
-                        onChange={handleChange}
-                        className="mr-2"
+                            type="checkbox"
+                            name="leave"
+                            checked={post.leave}
+                            onChange={handleChange}
+                            className="mr-2"
                         />
                         是否允許中途下車
                     </label>
@@ -246,10 +261,10 @@ function UploadPost() {
                     >
                         提交貼文
                     </button>
-                    
+
                     <button>
                         <a href="./" className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400 ml-4">
-                        返回
+                            返回
                         </a>
                     </button>
                 </div>
