@@ -4,68 +4,65 @@ import { useNavigate } from "react-router-dom";
 
 function EditProfilePage() {
     const navigate = useNavigate();
-    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {}; // 這哪來的?
 
-    const [name, setName] = useState(storedUser.name || "");
-    const [phone, setPhone] = useState(storedUser.phone || "");
-    const [carInfo, setCarInfo] = useState(storedUser.carInfo || "");
-    const [carNumber, setCarNumber] = useState(storedUser.carNumber || "");
+    const [name, setName] = useState(storedUser.Name || "");
+    const [phone, setPhone] = useState(storedUser.PhoneNumber || "");
+
 
     const handleSave = async () => {
-        if (!phone.trim()) {
-            alert("請輸入電話號碼！");
-            return;
-        }
-
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            alert("未登入，請重新登入！");
-            return;
-        }
-
-        const body = {
-            userName: name,
-            phone: phone,
-            carType: carInfo,
-            licenseNum: carNumber,
-            email: storedUser.email//  保持原本 email
-        };
-
         try {
-            const res = await fetch("https://ntouber-user.zeabur.app/v1/users/update", {
+            const user = JSON.parse(localStorage.getItem("user"));
+            console.log(JSON.parse(localStorage.getItem("user")));
+
+
+            if (!user || !user.id) {
+                alert("尚未登入");
+                return;
+            }
+
+            // 只傳送要修改的欄位
+            const updateData = {
+                ID: user.id,
+                Name: name,
+                PhoneNumber: phone,
+            };
+
+            console.log(updateData);
+            const res = await fetch("https://ntouber-user.zeabur.app/v1/users/mod", {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Content-Type": "application/json"
                 },
-                body: JSON.stringify(body)
+                body: JSON.stringify(updateData),
             });
 
             if (!res.ok) {
-                throw new Error("後端更新失敗");
+                const errorData = await res.text();
+                console.error("更新失敗:", errorData);
+                alert("更新失敗");
+                return;
             }
 
-            const data = await res.json();
-
-            // 更新 localStorage
+            // 更新 localStorage 中的使用者資料
             const updatedUser = {
-                ...storedUser,
-                ...data.user  // 後端回傳最新 user
+                ...user,
+                Name: name,
+                PhoneNumber: phone
             };
 
+            console.log(updatedUser);
+            console.log("更新後的使用者資料:", updatedUser);
             localStorage.setItem("user", JSON.stringify(updatedUser));
 
-            alert("資料已成功更新！");
-            navigate("/Profile");
+            alert("資料已更新！");
+            navigate("/profile");
 
-        } catch (error) {
-            console.error(error);
-            alert("更新失敗，請稍後再試！");
+        } catch (err) {
+            console.error("更新錯誤：", err);
+            alert("更新失敗，請稍後再試");
         }
     };
-
-
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
@@ -95,25 +92,24 @@ function EditProfilePage() {
                         />
                     </div>
 
+                    {/* 顯示不可編輯的資訊 */}
                     <div>
-                        <label className="block text-sm text-gray-500 mb-1">車子型號</label>
+                        <label className="block text-sm text-gray-500 mb-1">電子郵件 (不可修改)</label>
                         <input
                             type="text"
-                            value={carInfo}
-                            onChange={(e) => setCarInfo(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2"
-                            placeholder="輸入車子型號"
+                            value={storedUser.Email || ""}
+                            disabled
+                            className="w-full border rounded-md px-3 py-2 bg-gray-100 text-gray-500"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm text-gray-500 mb-1">車牌</label>
+                        <label className="block text-sm text-gray-500 mb-1">登入方式 (不可修改)</label>
                         <input
                             type="text"
-                            value={carNumber}
-                            onChange={(e) => setCarNumber(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2"
-                            placeholder="輸入車牌"
+                            value={storedUser.Provider || ""}
+                            disabled
+                            className="w-full border rounded-md px-3 py-2 bg-gray-100 text-gray-500"
                         />
                     </div>
                 </div>
