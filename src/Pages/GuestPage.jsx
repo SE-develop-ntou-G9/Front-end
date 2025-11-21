@@ -46,9 +46,7 @@ const post = new PostClass({
         description: "路上可以一起聊聊天!",
         helmet: false,
 
-        contact_info: {
-            line: "user123"
-        },
+        contact_info: {},
 
         leave: false
     });

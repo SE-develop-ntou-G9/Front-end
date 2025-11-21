@@ -17,15 +17,13 @@ function toApiJson(post, startAddress, destAddress) {
         // destination: { Name: post.destination || "", Address: fullAddress || "" },
         destination: { Name: post.destination.Name || "" , Address: fullDestAddress || ""},
         // meet_point: { Name: post.meetingPoint || "" },
-        meet_point: { City: post.meet_point || "" },
+        meet_point: { Name: post.meet_point || "" },
         departure_time: post.departure_time ? new Date(post.departure_time).toISOString() : null,
         notes: post.notes || "",
         description: "",
         helmet: !!post.helmet,
         // contact_info: { Contact: post.contact || "" },
-        contact_info: {
-            additionalProp1: post.contact_info || ""
-        },
+        contact_info: {},
         leave: !!post.leave,
 
         vehicle_info: post.vehicle_info || "unknown",
@@ -52,7 +50,6 @@ function UploadPost() {
             },
             meet_point: {
                 Name: "",
-                Address: ""
             },
             departure_time: "",
             notes: "",
@@ -62,6 +59,17 @@ function UploadPost() {
             leave: false
         })
     );
+
+    const updateNestedField = (parentKey, childKey, value) => {
+        setPost((prev) => ({
+            ...prev,
+            [parentKey]: {
+                ...prev[parentKey],
+                [childKey]: value,
+            },
+        }));
+    };
+
 
 
     const handleChange = (e) => {
@@ -107,6 +115,7 @@ function UploadPost() {
             const data = await r.json().catch(() => ({}));
             if (!r.ok) {
                 // 後端若有 message 就顯示
+                console.log("送出的 payload：", payload);
                 console.log("後端回傳內容：", data);
                 throw new Error(data.message || `API 錯誤（${r.status})`);
             }
@@ -156,7 +165,9 @@ function UploadPost() {
                         type="text"
                         name="starting_point"
                         value={post.starting_point.Name}
-                        onChange={handleChange}
+                        onChange={(e) =>
+                            updateNestedField("starting_point", "Name", e.target.value)
+                        }
                         className="w-full p-2 border rounded"
                         required
                     />
@@ -210,7 +221,9 @@ function UploadPost() {
                         type="text"
                         name="destination"
                         value={post.destination.Name}
-                        onChange={handleChange}
+                        onChange={(e) =>
+                            updateNestedField("destination", "Name", e.target.value)
+                        }
                         className="w-full p-2 border rounded"
                         required
                     />
@@ -276,8 +289,16 @@ function UploadPost() {
                     <input
                         type="text"
                         name="meet_point"
-                        value={post.meet_point}
-                        onChange={handleChange}
+                        value={post.meet_point.Name}
+                        onChange={(e) =>
+                            setPost((prev) => ({
+                                ...prev,
+                                meet_point: {
+                                    ...prev.meet_point,
+                                    Name: e.target.value,
+                                },
+                            }))
+                        }
                         className="w-full p-2 border rounded"
                         required
                     />
@@ -316,17 +337,25 @@ function UploadPost() {
                     </label>
                 </div>
 
-                <div className="mb-4">
+                {/* <div className="mb-4">
                     <label className="block mb-2">聯絡方式:</label>
                     <input
                         type="text"
                         name="contact_info"
-                        value={post.contact_info}
-                        onChange={handleChange}
+                        value={post.contact_info?.additionalProp1 || ""}
+                        onChange={(e) =>
+                            setPost((prev) => ({
+                                ...prev,
+                                contact_info: {
+                                    ...prev.contact_info,
+                                    additionalProp1: e.target.value,
+                                },
+                            }))
+                        }
                         className="w-full p-2 border rounded"
                         required
                     />
-                </div>
+                </div> */}
 
                 <div>
                     <button

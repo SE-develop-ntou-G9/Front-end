@@ -18,21 +18,21 @@
 // }
 
 export default class PostClass {
-  constructor({
-    driver_id,
-    vehicle_info,
-    status,
-    timestamp,
-    starting_point,
-    destination,
-    meet_point,
-    departure_time,
-    notes,
-    description,
-    helmet,
-    contact_info,
-    leave
-  }) {
+    constructor({
+        driver_id,
+        vehicle_info,
+        status,
+        timestamp,
+        starting_point,
+        destination,
+        meet_point,
+        departure_time,
+        notes,
+        description,
+        helmet,
+        contact_info,
+        leave
+    }) {
     this.driver_id = driver_id;
     this.vehicle_info = vehicle_info;
     this.status = status;
@@ -40,20 +40,19 @@ export default class PostClass {
 
     // 巢狀起點物件
     this.starting_point = {
-      Name: starting_point?.Name ?? "",
-      Address: starting_point?.Address ?? ""
+        Name: starting_point?.Name ?? "",
+        Address: starting_point?.Address ?? ""
     };
 
     // 巢狀目的地物件
     this.destination = {
-      Name: destination?.Name ?? "",
-      Address: destination?.Address ?? ""
+        Name: destination?.Name ?? "",
+        Address: destination?.Address ?? ""
     };
 
     // 可選的 meet_point（後端有可能只有 Name）
     this.meet_point = {
-      Name: meet_point?.Name ?? "",
-      Address: meet_point?.Address ?? ""
+        Name: meet_point?.Name ?? "",
     };
 
     this.departure_time = departure_time;
