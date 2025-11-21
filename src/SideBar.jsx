@@ -54,11 +54,8 @@ function SideBar({ isOpen, onClose, isLoggedIn, userRole, toggleRole }) {
                                     {userRole === "乘客" ? (
                                         <button
                                             className="hover:text-purple-600"
-                                            onClick={() => {
-                                                // App.jsx的升級
-                                                toggleRole();
-                                                alert("升級成功！您現在是車主");
-                                            }}
+                                            onClick={() => navigate("/Regist")}
+
                                         >
                                             升級成車主
                                         </button>
