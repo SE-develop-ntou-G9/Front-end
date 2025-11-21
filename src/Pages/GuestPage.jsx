@@ -78,7 +78,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
 
             {/* 灰灰白白的背板 */}
             <div className="min-h-screen bg-gray-50">
-                <div className="max-w-xl mx-auto px-4 pb-16">
+                <div className="max-w-md mx-auto px-4 pb-16">
 
                     {/* 搜尋欄 */}
                     <div className="mt-4">
