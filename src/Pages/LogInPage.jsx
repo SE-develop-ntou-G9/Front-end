@@ -12,59 +12,52 @@ function LoginPage({ setIsLoggedIn }) {
     const handleGoogleSuccess = async (response) => {
         try {
             const credential = response.credential;
-            console.log(response.credential)
+
             const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ credential })
             });
 
-            // console.log("Google OAuth raw response:", response);
-
-            if (!res.ok) {
-                throw new Error("驗證 Google 失敗");
-            }
+            if (!res.ok) throw new Error("驗證 Google 失敗");
 
             const data = await res.json();
-            console.log("後端資料：", data);
 
-
-            // 拿到使用者資料與 token
             const user = data.user;
             const token = data.token;
 
-            console.log(user);
-            console.log(token);
+            console.log(data);
+            // ⬇️ 把 token 存起來
+            localStorage.setItem("jwtToken", token);
 
-            localStorage.setItem("jwtToken", data.token);
-
-            localStorage.setItem("user", JSON.stringify(data.user));
+            // ⬇️ 把後端整包 user 存起來（ID / Provider / Email / Name / PhoneNumber 都有）
+            localStorage.setItem("user", JSON.stringify(user));
 
             localStorage.setItem("isLoggedIn", "true");
 
-            // 角色（你原本的設定）
+            // 預設角色
             if (!localStorage.getItem("userRole")) {
                 localStorage.setItem("userRole", "乘客");
             }
 
             setIsLoggedIn(true);
 
-            if (!user.phone || user.phone.trim() === "") {
-                alert(`歡迎${data.user.name}第一次登入！請先完成主人的聯絡方式，好讓小弟可以方便地找到您歐!`);
+            // 若 PhoneNumber 是空的 → 導向 Edit
+            if (!user.PhoneNumber || user.PhoneNumber.trim() === "") {
+                alert(`歡迎 ${user.name} 第一次登入！請先設定聯絡方式～`);
                 navigate("/EditProfile");
                 return;
             }
 
-            alert(`歡迎回來，${data.user.name}主人！小的很想您歐<3!!!`);
+            alert(`歡迎回來，${user.name}！`);
             navigate("/");
 
         } catch (error) {
             console.error("Google OAuth 發生錯誤：", error);
-            alert("Google 登入失敗，請稍後再試");
+            alert("登入失敗，請稍後再試");
         }
     };
+
 
     const handleGoogleError = () => {
         alert("Google 登入失敗，請重試。");
