@@ -2,17 +2,20 @@ import React, { useState } from "react";
 import PostClass from "../../models/PostClass";
 import cityDistrictMap from "../../models/Cities";
 
-function toApiJson(post, address) {
-    const fullAddress = [address.city, address.district, address.street]
+function toApiJson(post, startAddress, destAddress) {
+    const fullStartAddress = [startAddress.city, startAddress.district, startAddress.street]
+        .filter(Boolean)     // 移掉沒填的欄位
+        .join("");
+    const fullDestAddress = [destAddress.city, destAddress.district, destAddress.street]
         .filter(Boolean)     // 移掉沒填的欄位
         .join("");
     return {
         // driver_id: "Jackie",
         driver_id: post.driver_id || crypto.randomUUID(), //亂數名稱
         // starting_point: { Name: post.origin || "", Address: fullAddress || "" },
-        starting_point: { City: post.origin || "" },
+        starting_point: { Name: post.starting_point.Name || "" , Address: fullStartAddress || ""},
         // destination: { Name: post.destination || "", Address: fullAddress || "" },
-        destination: { City: post.destination || "" },
+        destination: { Name: post.destination.Name || "" , Address: fullDestAddress || ""},
         // meet_point: { Name: post.meetingPoint || "" },
         meet_point: { City: post.meet_point || "" },
         departure_time: post.departure_time ? new Date(post.departure_time).toISOString() : null,
@@ -21,24 +24,45 @@ function toApiJson(post, address) {
         helmet: !!post.helmet,
         // contact_info: { Contact: post.contact || "" },
         contact_info: {
-            additionalProp1: post.contact_info || "",
-            additionalProp2: "",
-            additionalProp3: ""
+            additionalProp1: post.contact_info || ""
         },
         leave: !!post.leave,
 
         vehicle_info: post.vehicle_info || "unknown",
         status: "open",                       // 他說不能是空的我也不知道怎麼辦
         timestamp: "2025-10-31T06:56:57.647Z" // 他說不能是空的我也不知道怎麼辦
-
     }
 }
 
 function UploadPost() {
     // 初始化 PostClass 實例
     const [post, setPost] = useState(
-        new PostClass("", "", "", "", "", "", "", "", "", false, false, "", "")
+        new PostClass({
+            driver_id: "",
+            vehicle_info: null,
+            status: "",
+            timestamp: "",
+            starting_point: {
+                Name: "",
+                Address: ""
+            },
+            destination: {
+                Name: "",
+                Address: ""
+            },
+            meet_point: {
+                Name: "",
+                Address: ""
+            },
+            departure_time: "",
+            notes: "",
+            description: "",
+            helmet: false,
+            contact_info: {},
+            leave: false
+        })
     );
+
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -48,7 +72,13 @@ function UploadPost() {
         });
     };
 
-    const [address, setAddress] = useState({
+    const [startAddress, setStartAddress] = useState({
+        city: "",
+        district: "",
+        street: ""
+    });
+
+    const [destAddress, setDestAddress] = useState({
         city: "",
         district: "",
         street: ""
@@ -60,7 +90,7 @@ function UploadPost() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const payload = toApiJson(post, address);
+        const payload = toApiJson(post, startAddress, destAddress);
         setSubmitting(true);
 
         // const fullAddress = [address.city, address.district, address.street]
@@ -101,8 +131,9 @@ function UploadPost() {
             // `);
 
             // 清空表單
-            setPost(new PostClass("", "", "", "", "", "", "", "", "", false, false, ""));
-            setAddress({ city: "", district: "", street: "" });
+            setPost(new PostClass({}));
+            setStartAddress({ city: "", district: "", street: "" });
+            setDestAddress({ city: "", district: "", street: "" });
 
         } catch (err) {
             console.error(err);
@@ -123,8 +154,8 @@ function UploadPost() {
                     <label className="block mb-2">出發地:</label>
                     <input
                         type="text"
-                        name="origin"
-                        value={post.origin}
+                        name="starting_point"
+                        value={post.starting_point.Name}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                         required
@@ -136,9 +167,9 @@ function UploadPost() {
                     <div className="flex gap-2">
                         <select
                             className="w-full p-2 border border-gray-300 rounded"
-                            value={address.city}
+                            value={startAddress.city}
                             onChange={(e) =>
-                                setAddress({ city: e.target.value, district: "", street: address.street })
+                                setStartAddress({ city: e.target.value, district: "", street: startAddress.street })
                             }>
                             <option value="">選擇縣市</option>
                             {Object.keys(cityDistrictMap).map((city) => (
@@ -148,13 +179,13 @@ function UploadPost() {
 
                         <select
                             className="w-full p-2 border border-gray-300 rounded"
-                            value={address.district}
+                            value={startAddress.district}
                             onChange={(e) =>
-                                setAddress({ ...address, district: e.target.value })
+                                setStartAddress({ ...startAddress, district: e.target.value })
                             }
-                            disabled={!address.city}>
+                            disabled={!startAddress.city}>
                             <option value="">選擇鄉鎮市區</option>
-                            {(cityDistrictMap[address.city] || []).map((district) => (
+                            {(cityDistrictMap[startAddress.city] || []).map((district) => (
                                 <option key={district} value={district}>{district}</option>
                             ))}
                         </select>
@@ -164,9 +195,9 @@ function UploadPost() {
                         <input
                             type="text"
                             placeholder="路名與門牌"
-                            value={address.street}
+                            value={startAddress.street}
                             onChange={(e) =>
-                                setAddress({ ...address, street: e.target.value })
+                                setStartAddress({ ...startAddress, street: e.target.value })
                             }
                             className="w-full p-2 border rounded"
                         />
@@ -178,7 +209,7 @@ function UploadPost() {
                     <input
                         type="text"
                         name="destination"
-                        value={post.destination}
+                        value={post.destination.Name}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                         required
@@ -186,11 +217,54 @@ function UploadPost() {
                 </div>
 
                 <div className="mb-4">
+                    <label className="block mb-2">目的地址:</label>
+                    <div className="flex gap-2">
+                        <select
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={destAddress.city}
+                            onChange={(e) =>
+                                setDestAddress({ city: e.target.value, district: "", street: destAddress.street })
+                            }>
+                            <option value="">選擇縣市</option>
+                            {Object.keys(cityDistrictMap).map((city) => (
+                                <option key={city} value={city}>{city}</option>
+                            ))}
+                        </select>
+
+                        <select
+                            className="w-full p-2 border border-gray-300 rounded"
+                            value={destAddress.district}
+                            onChange={(e) =>
+                                setDestAddress({ ...destAddress, district: e.target.value })
+                            }
+                            disabled={!destAddress.city}>
+                            <option value="">選擇鄉鎮市區</option>
+                            {(cityDistrictMap[destAddress.city] || []).map((district) => (
+                                <option key={district} value={district}>{district}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="mt-2">
+                        <input
+                            type="text"
+                            placeholder="路名與門牌"
+                            value={destAddress.street}
+                            onChange={(e) =>
+                                setDestAddress({ ...destAddress, street: e.target.value })
+                            }
+                            className="w-full p-2 border rounded"
+                        />
+                    </div>
+                </div>
+
+
+                <div className="mb-4">
                     <label className="block mb-2">出發時間:</label>
                     <input
                         type="datetime-local"
-                        name="time"
-                        value={post.time}
+                        name="departure_time"
+                        value={post.departure_time}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                         required
@@ -201,8 +275,8 @@ function UploadPost() {
                     <label className="block mb-2">集合地點:</label>
                     <input
                         type="text"
-                        name="meetingPoint"
-                        value={post.meetingPoint}
+                        name="meet_point"
+                        value={post.meet_point}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                         required
@@ -212,8 +286,8 @@ function UploadPost() {
                 <div className="mb-4">
                     <label className="block mb-2">備註:</label>
                     <textarea
-                        name="note"
-                        value={post.note}
+                        name="notes"
+                        value={post.notes}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                     ></textarea>
@@ -246,8 +320,8 @@ function UploadPost() {
                     <label className="block mb-2">聯絡方式:</label>
                     <input
                         type="text"
-                        name="contact"
-                        value={post.contact}
+                        name="contact_info"
+                        value={post.contact_info}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                         required
