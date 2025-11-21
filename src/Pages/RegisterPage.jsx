@@ -13,8 +13,8 @@ function RegisterPage() {
     const [backImage, setBackImage] = useState(null);   // 駕照反面
 
     // 預覽圖片
-    const [frontPreview, setFrontPreview] = useState(null);
-    const [backPreview, setBackPreview] = useState(null);
+    // const [frontPreview, setFrontPreview] = useState(null);
+    // const [backPreview, setBackPreview] = useState(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -35,44 +35,63 @@ function RegisterPage() {
         reader.readAsDataURL(file);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!user.carType.trim()) {
-            alert("請輸入車型！");
-            return;
-        }
-        if (!user.licenseNum.trim()) {
-            alert("請輸入車牌！");
-            return;
-        }
-        if (!frontImage || !backImage) {
-            alert("請上傳駕照正反面！");
+        const token = localStorage.getItem("jwtToken");
+        const loggedUser = JSON.parse(localStorage.getItem("user"));
+
+        if (!loggedUser || !loggedUser.id) {
+            alert("尚未登入");
             return;
         }
 
-        // 傳給後端
-        // const payload = {
-        //     userName: user.userName,
-        //     email: user.email,
-        //     phone: user.phone,
-        //     carType: user.carType,
-        //     licenseNum: user.licenseNum.toUpperCase(),
-        //     driverLicenseFront: frontImage,
-        //     driverLicenseBack: backImage
-        // };
+        if (!user.carType.trim() || !user.licenseNum.trim()) {
+            alert("請輸入車型與車牌！");
+            return;
+        }
 
-        console.log("要送到後端的 user 資料：", payload);
+        // if (!frontImage || !backImage) {
+        //     alert("請上傳駕照正反面！");
+        //     return;
+        // }
 
-        alert("已送出升級申請！");
+        const payload = {
+            user_id: loggedUser.id,
+            driver_name: loggedUser.name || loggedUser.Name,
+            contact_info: loggedUser.phoneNumber || loggedUser.PhoneNumber,
+            scooter_type: user.carType,
+            plate_num: user.licenseNum.toUpperCase()
+        };
 
-        // 清空
-        setUser(new UserClass("", "", "", "", "", "", ""));
-        setFrontImage(null);
-        setBackImage(null);
-        setFrontPreview(null);
-        setBackPreview(null);
+
+        console.log("要送到後端的車主資料：", payload);
+
+        try {
+            const res = await fetch("https://ntouber-user.zeabur.app/v1/users/driver", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const err = await res.text();
+                console.error("後端錯誤：", err);
+                alert("申請失敗：" + err);
+                return;
+            }
+
+            alert("成功升級成車主！");
+            navigate("/Profile");
+
+        } catch (err) {
+            console.error("fetch 錯誤：", err);
+            alert("發生錯誤，請稍後再試");
+        }
     };
+
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
@@ -106,7 +125,7 @@ function RegisterPage() {
                         />
                     </div>
 
-                    {/* 駕照正面 */}
+                    {/* 駕照正面
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">駕照正面</label>
                         <label className="cursor-pointer flex items-center gap-2 px-2.5 py-1.5 
@@ -138,10 +157,10 @@ function RegisterPage() {
                         {frontPreview && (
                             <img src={frontPreview} alt="Front Preview" className="mt-2 rounded-md shadow" />
                         )}
-                    </div>
+                    </div> */}
 
                     {/* 駕照反面 */}
-                    <div className="mb-4">
+                    {/* <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">駕照反面</label>
 
                         <label className="cursor-pointer flex items-center gap-2 px-2.5 py-1.5 
@@ -172,7 +191,7 @@ function RegisterPage() {
                         {backPreview && (
                             <img src={backPreview} alt="Back Preview" className="mt-2 rounded-md shadow" />
                         )}
-                    </div>
+                    </div> */}
 
 
                     <button

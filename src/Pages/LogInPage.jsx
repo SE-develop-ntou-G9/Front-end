@@ -41,13 +41,23 @@ function LoginPage({ setIsLoggedIn }) {
             }
 
             setIsLoggedIn(true);
+            const fullUser = await fetchFullUserInfo(user.id, token);
 
-            // 若 PhoneNumber 是空的 → 導向 Edit
-            if (!user.PhoneNumber || user.PhoneNumber.trim() === "") {
+            console.log(fullUser);
+            // 如果 fullUser 有 PhoneNumber → 替換 localStorage user
+            if (fullUser) {
+                localStorage.setItem("user", JSON.stringify(fullUser));
+            }
+
+            // 🛑 判斷 PhoneNumber 是否為空（真實資料）
+            if (!fullUser?.PhoneNumber || fullUser.PhoneNumber.trim() === "") {
                 alert(`歡迎 ${user.name} 第一次登入！請先設定聯絡方式～`);
                 navigate("/EditProfile");
                 return;
             }
+
+            // 🔍 檢查是否車主
+            await checkDriverStatus(user.id, token);
 
             alert(`歡迎回來，${user.name}！`);
             navigate("/");
@@ -59,9 +69,57 @@ function LoginPage({ setIsLoggedIn }) {
     };
 
 
+    // async function fetchFullUserInfo(userId, token) {
+    //     try {
+    //         const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/mod`, {
+    //         });
+
+    //         if (!res.ok) {
+    //             console.error("取得使用者資料失敗", await res.text());
+    //             return null;
+    //         }
+
+    //         const data = await res.json();
+    //         return data;
+
+    //     } catch (err) {
+    //         console.error("fetchFullUserInfo error:", err);
+    //         return null;
+    //     }
+    // }
+
+
     const handleGoogleError = () => {
         alert("Google 登入失敗，請重試。");
     };
+    //確認是否為車主
+    // async function checkDriverStatus(userId, token) {
+    //     try {
+    //         const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/driver/${userId}`, {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`
+    //             }
+    //         });
+
+    //         if (res.ok) {
+    //             // 找到了 driver → 是車主
+    //             const data = await res.json();
+
+    //             localStorage.setItem("userRole", "車主");
+    //             localStorage.setItem("driver", JSON.stringify(data));
+
+    //             return true;
+    //         } else {
+    //             // 後端回傳 404 / 空 → 非車主
+    //             localStorage.setItem("userRole", "乘客");
+    //             localStorage.removeItem("driver");
+    //             return false;
+    //         }
+    //     } catch (err) {
+    //         console.error("查詢車主狀態失敗：", err);
+    //         return false;
+    //     }
+    // }
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
