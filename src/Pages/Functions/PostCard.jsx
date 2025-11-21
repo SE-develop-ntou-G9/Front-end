@@ -21,7 +21,7 @@ function postCard({ postData }) {
 
             <div className="space-y-3 text-sm text-center font-bold">
                 {/* 文字或顯示區塊 */}
-                {postData.starting_point.Address} {"→"} {postData.destination.Address}
+                {postData.starting_point.Name} {"→"} {postData.destination.Name}
             </div>
 
             <div className="space-y-3 text-xs">

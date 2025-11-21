@@ -291,13 +291,7 @@ function UploadPost() {
                         name="meet_point"
                         value={post.meet_point.Name}
                         onChange={(e) =>
-                            setPost((prev) => ({
-                                ...prev,
-                                meet_point: {
-                                    ...prev.meet_point,
-                                    Name: e.target.value,
-                                },
-                            }))
+                            updateNestedField("meet_point", "Name", e.target.value)
                         }
                         className="w-full p-2 border rounded"
                         required
