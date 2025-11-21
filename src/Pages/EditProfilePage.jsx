@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 function EditProfilePage() {
     const navigate = useNavigate();
-    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {}; // 這哪來的?
 
     const [name, setName] = useState(storedUser.Name || "");
     const [phone, setPhone] = useState(storedUser.PhoneNumber || "");
