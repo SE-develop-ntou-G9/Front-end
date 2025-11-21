@@ -11,7 +11,7 @@ function postCard({ postData }) {
     const tags = ['自備安全帽', '中途下車'];
 
     return (
-        <article className='postCard m-4 w-1/2 ' onClick={() => navigate(`/detailPost`)}>
+        <article className='postCard m-4 w-1/2 '  onClick={() => navigate("/detailPost", { state: { post: postData } })}>
             <div className = "flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
                 <div className="flex">
                     <img src="https://placehold.co/100x50?text=Demo+Image&font=roboto" alt="demo" className="rounded-xl shadow" />
