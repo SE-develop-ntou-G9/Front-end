@@ -8,20 +8,20 @@ function toApiJson(post, address) {
         .join("");
     return {
         // driver_id: "Jackie",
-        driver_id: post.user || crypto.randomUUID(), //亂數名稱
+        driver_id: post.driver_id || crypto.randomUUID(), //亂數名稱
         // starting_point: { Name: post.origin || "", Address: fullAddress || "" },
         starting_point: { City: post.origin || "" },
         // destination: { Name: post.destination || "", Address: fullAddress || "" },
         destination: { City: post.destination || "" },
         // meet_point: { Name: post.meetingPoint || "" },
-        meet_point: { City: post.meetingPoint || "" },
-        departure_time: post.time ? new Date(post.time).toISOString() : null,
-        notes: post.note || "",
+        meet_point: { City: post.meet_point || "" },
+        departure_time: post.departure_time ? new Date(post.departure_time).toISOString() : null,
+        notes: post.notes || "",
         description: "",
         helmet: !!post.helmet,
         // contact_info: { Contact: post.contact || "" },
         contact_info: {
-            additionalProp1: post.contact || "",
+            additionalProp1: post.contact_info || "",
             additionalProp2: "",
             additionalProp3: ""
         },
