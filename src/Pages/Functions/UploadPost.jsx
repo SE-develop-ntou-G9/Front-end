@@ -9,9 +9,10 @@ function toApiJson(post, startAddress, destAddress) {
     const fullDestAddress = [destAddress.city, destAddress.district, destAddress.street]
         .filter(Boolean)     // 移掉沒填的欄位
         .join("");
+    const user = JSON.parse(localStorage.getItem("user"));
     return {
         // driver_id: "Jackie",
-        driver_id: post.driver_id || crypto.randomUUID(), //亂數名稱
+        driver_id: user.Name, //亂數名稱
         // starting_point: { Name: post.origin || "", Address: fullAddress || "" },
         starting_point: { Name: post.starting_point.Name || "" , Address: fullStartAddress || ""},
         // destination: { Name: post.destination || "", Address: fullAddress || "" },
