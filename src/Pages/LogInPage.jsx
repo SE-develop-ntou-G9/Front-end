@@ -12,7 +12,7 @@ function LoginPage({ setIsLoggedIn }) {
     const handleGoogleSuccess = async (response) => {
         try {
             const credential = response.credential;
-            // console.log(response.credential)
+            console.log(response.credential)
             const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
                 method: "POST",
                 headers: {
@@ -50,7 +50,14 @@ function LoginPage({ setIsLoggedIn }) {
             }
 
             setIsLoggedIn(true);
-            alert(`歡迎回來，${data.user.name}！`);
+
+            if (!user.phone || user.phone.trim() === "") {
+                alert(`歡迎${data.user.name}第一次登入！請先完成主人的聯絡方式，好讓小弟可以方便地找到您歐!`);
+                navigate("/EditProfile");
+                return;
+            }
+
+            alert(`歡迎回來，${data.user.name}主人！小的很想您歐<3!!!`);
             navigate("/");
 
         } catch (error) {
@@ -112,12 +119,7 @@ function LoginPage({ setIsLoggedIn }) {
 
                 {/* 註冊帳號 記密碼那個 */}
                 <div className="mt-3 text-sm flex justify-between text-gray-600">
-                    <button
-                        onClick={() => navigate("/Regist")}
-                        className="underline hover:text-gray-800"
-                    >
-                        建立帳號?
-                    </button>
+
 
                     <div className="flex gap-4">
                         <a href="#" className="underline hover:text-gray-800">

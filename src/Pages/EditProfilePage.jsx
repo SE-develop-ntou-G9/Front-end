@@ -11,18 +11,61 @@ function EditProfilePage() {
     const [carInfo, setCarInfo] = useState(storedUser.carInfo || "");
     const [carNumber, setCarNumber] = useState(storedUser.carNumber || "");
 
-    const handleSave = () => {
-        const updatedUser = {
-            ...storedUser,
-            name,
-            phone,
-            carInfo,
-            carNumber
+    const handleSave = async () => {
+        if (!phone.trim()) {
+            alert("請輸入電話號碼！");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            alert("未登入，請重新登入！");
+            return;
+        }
+
+        const body = {
+            userName: name,
+            phone: phone,
+            carType: carInfo,
+            licenseNum: carNumber,
+            email: storedUser.email//  保持原本 email
         };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        alert("資料已更新！");
-        navigate("/Profile");
+
+        try {
+            const res = await fetch("https://ntouber-user.zeabur.app/v1/users/update", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) {
+                throw new Error("後端更新失敗");
+            }
+
+            const data = await res.json();
+
+            // 更新 localStorage
+            const updatedUser = {
+                ...storedUser,
+                ...data.user  // 後端回傳最新 user
+            };
+
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+
+            alert("資料已成功更新！");
+            navigate("/Profile");
+
+        } catch (error) {
+            console.error(error);
+            alert("更新失敗，請稍後再試！");
+        }
     };
+
+
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
