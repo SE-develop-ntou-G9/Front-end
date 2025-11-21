@@ -84,7 +84,7 @@ function App() {
           <Routes>
 
             <Route path="/login" element={<LogInPage setIsLoggedIn={setIsLoggedIn} />} /> {/*導到LogInPage */}
-            <Route path="/Regist" element={<RegisterPage />} />
+            <Route path="/Regist" element={<RegisterPage toggleRole={toggleRole} />} />
             <Route path="/Profile" element={<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/uploadPost" element={<UploadPost />} />
             <Route path="/EditProfile" element={<EditProfilePage />} />
