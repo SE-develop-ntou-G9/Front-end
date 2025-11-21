@@ -6,20 +6,38 @@ import PostClass from "../../models/PostClass";
 
 function detailPost({isLoggedIn}) {
     const navigate = useNavigate();
-    const postData = new PostClass(
-        'user123',
-        '海大校門',
-        '基隆火車站',
-        '基隆市中正區北寧路2號',
-        '基隆市中正區中正路236號',
-        '2025-10-10 17:30',
-        '北門集合',
-        '尋找同路人！',
-        '路上可以一起聊聊天!',
-        false,
-        false,
-        'Line: user123'
-    );
+    const postData = new PostClass({
+        driver_id: 'user123',
+        vehicle_info: null,
+        status: "open",
+        timestamp: "2025-11-09T05:33:28.610Z",
+
+        starting_point: {
+            Name: "海大校門",
+            Address: "基隆市中正區"
+        },
+
+        destination: {
+            Name: "基隆火車站",
+            Address: "基隆市仁愛區"
+        },
+
+        meet_point: {
+            Name: "北門",
+            Address: "基隆市北門"
+        },
+
+        departure_time: "2025-11-09T05:34:00.000Z",
+
+        notes: "尋找同路人！",
+        description: "路上可以一起聊聊天!",
+        helmet: false,
+
+        contact_info: {},
+
+        leave: false
+    });
+
 
     return (
         <div className="flex justify-center">
@@ -32,7 +50,7 @@ function detailPost({isLoggedIn}) {
 
             <div className="space-y-3 text-sm text-center font-bold">
                 {/* 文字或顯示區塊 */}
-                {postData.origin} {"→"} {postData.destination}
+                {postData.starting_point.Name} {"→"} {postData.destination.Name}
             </div>
 
             <div className="space-y-3 text-xs">

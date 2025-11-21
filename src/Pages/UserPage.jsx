@@ -7,8 +7,10 @@ import PostCard from "./Functions/PostCard";
 import PostClass from "../models/PostClass";
 import { useNavigate } from "react-router-dom";
 
+const API = "https://ntouber-post.zeabur.app/api/posts/all";
+
 function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
-    const [posts, setPosts] = useState([]);
+    const [post, setPost] = useState([]);
     const navigate = useNavigate();
 
     // 測試資料集開始
@@ -49,27 +51,63 @@ function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
 
 
     useEffect(() => {
-        const storedPosts = JSON.parse(localStorage.getItem("posts")) || [];
-        setPosts(storedPosts);
+        async function fetchPosts() {
+            try {
+                const r = await fetch(API, { method: "GET" });
+                if (!r.ok) {
+                    throw new Error(`API 錯誤 (${r.status})`);
+                }
+
+                const data = await r.json();
+                // data 應該是一個貼文陣列（後端回傳的那種結構）
+                // 如果你希望每筆都變成 PostClass：
+                const mapped = data.map(post => new PostClass(post));
+                setPost(mapped);
+            } catch (err) {
+                console.error("抓取貼文失敗：", err);
+            }
+        }
+
+        fetchPosts();
     }, []);
 
-    const deletePost = () => {
-        setPosts([]);
-        localStorage.removeItem("posts");
-    }
+    // const deletePost = () => {
+    //     setPosts([]);
+    //     localStorage.removeItem("posts");
+    // }
 
     // 建立測試用的 post 物件
-    const post = new PostClass(
-        'user123',
-        '海大校門',
-        '基隆火車站',
-        '17:30',
-        '北門集合',
-        '尋找同路人！',
-        '路上可以一起聊聊天!',
-        '自備安全帽',
-        'Line: user123'
-    );
+    // const post = new PostClass({
+    //     driver_id: 'user123',
+    //     vehicle_info: null,
+    //     status: "open",
+    //     timestamp: "2025-11-09T05:33:28.610Z",
+
+    //     starting_point: {
+    //         Name: "海大校門",
+    //         Address: "基隆市中正區"
+    //     },
+
+    //     destination: {
+    //         Name: "基隆火車站",
+    //         Address: "基隆市仁愛區"
+    //     },
+
+    //     meet_point: {
+    //         Name: "北門",
+    //         Address: "基隆市北門"
+    //     },
+
+    //     departure_time: "2025-11-09T05:34:00.000Z",
+
+    //     notes: "尋找同路人！",
+    //     description: "路上可以一起聊聊天!",
+    //     helmet: false,
+
+    //     contact_info: {},
+
+    //     leave: false
+    // });
 
     return (
         <>
@@ -128,21 +166,30 @@ function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
 
                     {/* 把卡片塞進來這下面 */}
 
-                    <PostCard postData={post} />
+                    {post.length === 0 ? (
+                        <p className="text-sm text-gray-500">目前沒有共乘貼文</p>
+                    ) : (
+                        post.map((post) => (
+                        <PostCard
+                            key={post.driver_id} // 先用 id，沒有就用 driver_id 或 index
+                            postData={post}// 傳給 PostCard
+                        />
+                        ))
+                    )}
 
                     {/* 我的共乘紀錄 */}
                     <div className="mt-6">
                         <h2 className="text-base font-bold text-gray-900">我的共乘紀錄</h2>
                         <p className="text-xs text-gray-500 mt-0.5">查看你過去的共乘記錄</p>
 
-                        {posts.length === 0 ? (
+                        {post.length === 0 ? (
                             <div className="mt-3 p-4 bg-white rounded-lg border shadow-sm text-center text-gray-500">
                                 目前沒有共乘記錄
                             </div>
                         ) : (
                             <ul className="mt-3 space-y-3">
                                 {/* 迴圈 */}
-                                {posts.map((post, index) => (
+                                {post.map((post, index) => (
                                     <li
                                         key={index}
                                         className="flex items-center gap-3 p-3 bg-white rounded-lg border shadow-sm"
@@ -150,7 +197,7 @@ function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
                                         <span className="text-2xl">🚗</span> {/*天竺鼠車車 */}
                                         <div className="text-sm text-gray-800 text-left flex-1">
                                             <div className="font-medium">
-                                                {post.origin} → {post.destination} {/*哪裡到哪裡 */}
+                                                {post.starting_point.Name} → {post.destination.Name} {/*哪裡到哪裡 */}
                                             </div>
                                             <div className="text-gray-500 text-xs">
                                                 {new Date(post.time).toLocaleString('zh-TW')} {/*時間*/}

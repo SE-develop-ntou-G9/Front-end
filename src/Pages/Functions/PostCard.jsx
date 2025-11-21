@@ -21,7 +21,7 @@ function postCard({ postData }) {
 
             <div className="space-y-3 text-sm text-center font-bold">
                 {/* 文字或顯示區塊 */}
-                {postData.origin} {"→"} {postData.destination}
+                {postData.starting_point.Name} {"→"} {postData.destination.Name}
             </div>
 
             <div className="space-y-3 text-xs">
@@ -48,7 +48,7 @@ function postCard({ postData }) {
                         className="h-full w-full object-cover"
                         />
                 </div>
-                <p className="text-xs">{postData.user}</p>
+                <p className="text-xs">{postData.driver_id}</p>
             </div>
 
             <div className="flex items-center justify-between text-gray-500">
