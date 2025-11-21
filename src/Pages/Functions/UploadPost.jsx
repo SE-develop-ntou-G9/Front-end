@@ -17,7 +17,7 @@ function toApiJson(post, startAddress, destAddress) {
         // destination: { Name: post.destination || "", Address: fullAddress || "" },
         destination: { Name: post.destination.Name || "" , Address: fullDestAddress || ""},
         // meet_point: { Name: post.meetingPoint || "" },
-        meet_point: { Name: post.meet_point || "" },
+        meet_point: { Name: post.meet_point?.Name || "" },
         departure_time: post.departure_time ? new Date(post.departure_time).toISOString() : null,
         notes: post.notes || "",
         description: "",
@@ -291,6 +291,7 @@ function UploadPost() {
                         name="meet_point"
                         value={post.meet_point.Name}
                         onChange={(e) =>
+
                             updateNestedField("meet_point", "Name", e.target.value)
                         }
                         className="w-full p-2 border rounded"
