@@ -74,7 +74,7 @@ function RegisterPage() {
         try {
             // 使用正確的 API endpoint
             const res = await fetch("https://ntouber-user.zeabur.app/v1/users/driver", {
-                method: "PUT",
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
