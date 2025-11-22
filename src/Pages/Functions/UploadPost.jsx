@@ -1,22 +1,22 @@
 import React, { useState } from "react";
+import { useUser } from "../../contexts/UserContext.jsx";
 import PostClass from "../../models/PostClass";
 import cityDistrictMap from "../../models/Cities";
 
-function toApiJson(post, startAddress, destAddress) {
+function toApiJson(post, startAddress, destAddress, userName) {
     const fullStartAddress = [startAddress.city, startAddress.district, startAddress.street]
         .filter(Boolean)     // 移掉沒填的欄位
         .join("");
     const fullDestAddress = [destAddress.city, destAddress.district, destAddress.street]
         .filter(Boolean)     // 移掉沒填的欄位
         .join("");
-    const user = JSON.parse(localStorage.getItem("user"));
+
     return {
-        // driver_id: "Jackie",
-        driver_id: user.Name, //亂數名稱
+        driver_id: userName || "Unknown",  // 使用傳入的 userName
         // starting_point: { Name: post.origin || "", Address: fullAddress || "" },
-        starting_point: { Name: post.starting_point.Name || "" , Address: fullStartAddress || ""},
+        starting_point: { Name: post.starting_point.Name || "", Address: fullStartAddress || "" },
         // destination: { Name: post.destination || "", Address: fullAddress || "" },
-        destination: { Name: post.destination.Name || "" , Address: fullDestAddress || ""},
+        destination: { Name: post.destination.Name || "", Address: fullDestAddress || "" },
         // meet_point: { Name: post.meetingPoint || "" },
         meet_point: { Name: post.meet_point?.Name || "" },
         departure_time: post.departure_time ? new Date(post.departure_time).toISOString() : null,
@@ -34,6 +34,8 @@ function toApiJson(post, startAddress, destAddress) {
 }
 
 function UploadPost() {
+    const { user } = useUser();  // 從 UserContext 取得使用者資料
+
     // 初始化 PostClass 實例
     const [post, setPost] = useState(
         new PostClass({
@@ -99,7 +101,13 @@ function UploadPost() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const payload = toApiJson(post, startAddress, destAddress);
+        // 檢查是否已登入
+        if (!user || !user.Name) {
+            alert("請先登入才能上傳貼文！");
+            return;
+        }
+
+        const payload = toApiJson(post, startAddress, destAddress, user.Name);
         setSubmitting(true);
 
         // const fullAddress = [address.city, address.district, address.street]
