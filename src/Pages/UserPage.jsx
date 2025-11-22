@@ -172,7 +172,7 @@ function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
                         ) : (
                             post.map((post) => (
                             <PostCard
-                                key={post.driver_id} // 先用 id，沒有就用 driver_id 或 index
+                                key={post.id} // 先用 id，沒有就用 driver_id 或 index
                                 postData={post}// 傳給 PostCard
                             />
                             ))
