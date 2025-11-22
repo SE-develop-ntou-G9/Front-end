@@ -65,7 +65,7 @@ function RegisterPage() {
         };
 
 
-        console.log("要送到後端的車主資料：", payload);
+        console.log("送到後端的車主資料：", payload);
 
         try {
             const res = await fetch("https://ntouber-user.zeabur.app/v1/users/driver", {
