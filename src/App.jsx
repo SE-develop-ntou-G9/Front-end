@@ -83,7 +83,7 @@ function App() {
         <div className="pt-12">
           <Routes>
 
-            <Route path="/login" element={<LogInPage setIsLoggedIn={setIsLoggedIn} />} /> {/*導到LogInPage */}
+            <Route path="/login" element={<LogInPage setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />} /> {/*導到LogInPage */}
             <Route path="/Regist" element={<RegisterPage toggleRole={toggleRole} />} />
             <Route path="/Profile" element={<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/uploadPost" element={<UploadPost />} />
