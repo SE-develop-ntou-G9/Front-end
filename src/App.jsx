@@ -21,19 +21,27 @@ function App() {
   const [userRole, setUserRole] = useState(null); //身分的Steate
 
   useEffect(() => {
-    const storedPosts = JSON.parse(localStorage.getItem("posts")) || [];
-    setPosts(storedPosts);
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) return;
 
-    const storedLogin = localStorage.getItem("isLoggedIn") === "true";
-    setIsLoggedIn(storedLogin);
-
-    if (storedLogin) {
-      const storedRole = localStorage.getItem("userRole") || "乘客";
-      setUserRole(storedRole);
-    } else {
-      setUserRole(null);
+    async function checkRole() {
+      try {
+        const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${user.ID}`);
+        if (res.ok) {
+          localStorage.setItem("userRole", "車主");
+          setUserRole("車主");
+        } else {
+          localStorage.setItem("userRole", "乘客");
+          setUserRole("乘客");
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }, []);
+
+    checkRole();
+  }, [isLoggedIn]); // 🔥 只要登入成功就會跑一次
+
 
   //我獨自升級 
   const toggleRole = () => {
@@ -85,7 +93,16 @@ function App() {
 
             <Route path="/login" element={<LogInPage setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />} /> {/*導到LogInPage */}
             <Route path="/Regist" element={<RegisterPage toggleRole={toggleRole} />} />
-            <Route path="/Profile" element={<ProfilePage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/Profile"
+              element={
+                <ProfilePage
+                  isLoggedIn={isLoggedIn}
+                  setIsLoggedIn={setIsLoggedIn}
+                  userRole={userRole}
+                  setUserRole={setUserRole}
+                />
+              }
+            />
             <Route path="/uploadPost" element={<UploadPost />} />
             <Route path="/EditProfile" element={<EditProfilePage />} />
             <Route path="/detailPost" element={<DetailPost isLoggedIn={isLoggedIn} />} />

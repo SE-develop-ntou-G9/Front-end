@@ -94,29 +94,46 @@ function LoginPage({ setIsLoggedIn, setUserRole }) {
     //確認是否為車主
     async function checkDriverStatus(userId) {
         try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`, {
-                headers: {
-                    // Authorization: `Bearer ${token}`
-                }
-            });
+            const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`);
 
-            if (res.ok) {
-                localStorage.setItem("userRole", "車主");
-                setUserRole("車主");      // 新增
-                localStorage.setItem("driver", JSON.stringify(data));
-                return true;
-            } else {
+            if (!res.ok) {
+                // 後端直接回 404 → 就是沒資料 → 設乘客
                 localStorage.setItem("userRole", "乘客");
-                setUserRole("乘客");      // 新增
+                setUserRole("乘客");
                 localStorage.removeItem("driver");
                 return false;
             }
 
+            const data = await res.json();
+            console.log("driver data =", data);
+
+            // 假設後端回 {}
+            if (!data || Object.keys(data).length === 0) {
+                localStorage.setItem("userRole", "乘客");
+                setUserRole("乘客");
+                localStorage.removeItem("driver");
+                return false;
+            }
+
+            // 找到 driver → 設為車主
+            localStorage.setItem("userRole", "車主");
+            setUserRole("車主");
+            localStorage.setItem("driver", JSON.stringify(data));
+            return true;
+
         } catch (err) {
             console.error("查詢車主狀態失敗：", err);
+
+            // 任何錯誤都當成 找不到 driver → 設乘客
+            localStorage.setItem("userRole", "乘客");
+            setUserRole("乘客");
+            localStorage.removeItem("driver");
+
             return false;
         }
     }
+
+
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">

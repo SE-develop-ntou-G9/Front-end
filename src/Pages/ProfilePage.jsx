@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
+function ProfilePage({ isLoggedIn, setIsLoggedIn, userRole, setUserRole }) {
     const navigate = useNavigate();
 
     const [userData, setUserData] = useState(null);
     const [driverData, setDriverData] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const userID = localStorage.getItem("userID");
 
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?.id;
@@ -42,11 +44,16 @@ function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
             if (res.ok) {
                 const driver = await res.json();
                 setDriverData(driver);
+
                 localStorage.setItem("userRole", "車主");
+                if (setUserRole) setUserRole("車主");
             } else {
                 setDriverData(null);
+
                 localStorage.setItem("userRole", "乘客");
+                if (setUserRole) setUserRole("乘客");
             }
+
         } catch (err) {
             console.error("driver error:", err);
         }
