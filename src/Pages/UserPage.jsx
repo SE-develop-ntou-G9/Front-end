@@ -6,48 +6,13 @@ import { HiSearch } from "react-icons/hi";
 import PostCard from "./Functions/PostCard";
 import PostClass from "../models/PostClass";
 import { useNavigate } from "react-router-dom";
+import CardPresent from "./Functions/cardPresent";
 
 const API = "https://ntouber-post.zeabur.app/api/posts/all";
 
 function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
     const [post, setPost] = useState([]);
     const navigate = useNavigate();
-
-    // 測試資料集開始
-    // const mockPosts = [
-    //     {
-    //         origin: "海大校門口",
-    //         destination: "基隆火車站",
-    //         time: "2025-10-20T09:00",
-    //         meetingPoint: "圖書館前",
-    //         contact: "0912-345-678",
-    //         helmet: true,
-    //         note: "順路上班,有安全帽可借",
-    //     },
-    //     {
-    //         origin: "基隆夜市",
-    //         destination: "海大宿舍",
-    //         time: "2025-10-21T18:00",
-    //         meetingPoint: "仁愛市場口",
-    //         contact: "0987-654-321",
-    //         helmet: false,
-    //         note: "夜市逛完順路回宿舍",
-    //     },
-    //     {
-    //         origin: "海大操場",
-    //         destination: "八斗子",
-    //         time: "2025-10-22T14:30",
-    //         meetingPoint: "體育館門口",
-    //         contact: "0900-112-233",
-    //         helmet: true,
-    //         note: "想去海邊看海!",
-    //     },
-    // ];
-    // useEffect(() => {
-    //     localStorage.setItem("posts", JSON.stringify(mockPosts));
-    //     setPosts(mockPosts);
-    // }, []);
-    //測試資料集終點
 
 
     useEffect(() => {
@@ -71,43 +36,7 @@ function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
         fetchPosts();
     }, []);
 
-    // const deletePost = () => {
-    //     setPosts([]);
-    //     localStorage.removeItem("posts");
-    // }
 
-    // 建立測試用的 post 物件
-    // const post = new PostClass({
-    //     driver_id: 'user123',
-    //     vehicle_info: null,
-    //     status: "open",
-    //     timestamp: "2025-11-09T05:33:28.610Z",
-
-    //     starting_point: {
-    //         Name: "海大校門",
-    //         Address: "基隆市中正區"
-    //     },
-
-    //     destination: {
-    //         Name: "基隆火車站",
-    //         Address: "基隆市仁愛區"
-    //     },
-
-    //     meet_point: {
-    //         Name: "北門",
-    //         Address: "基隆市北門"
-    //     },
-
-    //     departure_time: "2025-11-09T05:34:00.000Z",
-
-    //     notes: "尋找同路人！",
-    //     description: "路上可以一起聊聊天!",
-    //     helmet: false,
-
-    //     contact_info: {},
-
-    //     leave: false
-    // });
 
     return (
         <>
@@ -165,8 +94,9 @@ function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
                     </div>
 
                     {/* 把卡片塞進來這下面 */}
+                    <CardPresent />
 
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* <div className="grid grid-cols-2 gap-4">
                         {post.length === 0 ? (
                             <p className="text-sm text-gray-500">目前沒有共乘貼文</p>
                         ) : (
@@ -177,7 +107,7 @@ function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
                             />
                             ))
                         )}
-                        </div>
+                        </div> */}
                     {/* 我的共乘紀錄 */}
                     <div className="mt-6">
                         <h2 className="text-base font-bold text-gray-900">我的共乘紀錄</h2>

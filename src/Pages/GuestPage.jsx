@@ -5,31 +5,32 @@ import UploadPost from "./Functions/UploadPost";
 import { HiSearch } from "react-icons/hi";
 import PostCard from "./Functions/PostCard";
 import PostClass from "../models/PostClass";
+import CardPresent from "./Functions/cardPresent";
 
 const API = "https://ntouber-post.zeabur.app/api/posts/all";
 function GuestPage({ setIsLoggedIn, isLoggedIn }) {
-    const [post, setPost] = useState([]);
+    // const [post, setPost] = useState([]);
 
-    useEffect(() => {
-        async function fetchPosts() {
-            try {
-                const r = await fetch(API, { method: "GET" });
-                if (!r.ok) {
-                    throw new Error(`API 錯誤 (${r.status})`);
-                }
+    // useEffect(() => {
+    //     async function fetchPosts() {
+    //         try {
+    //             const r = await fetch(API, { method: "GET" });
+    //             if (!r.ok) {
+    //                 throw new Error(`API 錯誤 (${r.status})`);
+    //             }
 
-                const data = await r.json();
-                // data 應該是一個貼文陣列（後端回傳的那種結構）
-                // 如果你希望每筆都變成 PostClass：
-                const mapped = data.map(post => new PostClass(post));
-                setPost(mapped);
-            } catch (err) {
-                console.error("抓取貼文失敗：", err);
-            }
-        }
+    //             const data = await r.json();
+    //             // data 應該是一個貼文陣列（後端回傳的那種結構）
+    //             // 如果你希望每筆都變成 PostClass：
+    //             const mapped = data.map(post => new PostClass(post));
+    //             setPost(mapped);
+    //         } catch (err) {
+    //             console.error("抓取貼文失敗：", err);
+    //         }
+    //     }
 
-        fetchPosts();
-    }, []);
+    //     fetchPosts();
+    // }, []);
 
 // const post = new PostClass({
 //         driver_id: 'user123',
@@ -99,7 +100,9 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
                     </div>
 
                     {/* 把卡片塞進來這下面 */}
-                    {post.length === 0 ? (
+
+                    <CardPresent />
+                    {/* {post.length === 0 ? (
                         <p className="text-sm text-gray-500">目前沒有共乘貼文</p>
                     ) : (
                         post.map((post) => (
@@ -108,7 +111,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
                             postData={post}// 傳給 PostCard
                         />
                         ))
-                    )}
+                    )} */}
 
 
 
