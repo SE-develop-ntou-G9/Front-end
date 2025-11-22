@@ -4,7 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 
 
-function LoginPage({ setIsLoggedIn }) {
+function LoginPage({ setIsLoggedIn, setUserRole }) {
 
     const navigate = useNavigate();
 
@@ -35,23 +35,25 @@ function LoginPage({ setIsLoggedIn }) {
 
             localStorage.setItem("isLoggedIn", "true");
 
-            // 預設角色
-            if (!localStorage.getItem("userRole")) {
-                localStorage.setItem("userRole", "乘客");
-            }
 
             setIsLoggedIn(true);
 
+            const fullUser = await fetchFullUserInfo(user.id);
+
             // 若 PhoneNumber 是空的 → 導向 Edit
-            if (!user.PhoneNumber || user.PhoneNumber.trim() === "") {
+            if (!fullUser.PhoneNumber || fullUser.PhoneNumber.trim() === "") {
                 alert(`歡迎 ${user.name} 第一次登入！請先設定聯絡方式～`);
                 navigate("/EditProfile");
                 return;
             }
 
-            alert(`歡迎回來，${user.name}！`);
-            // 呼叫檢查 driver 狀態
-            await checkDriverStatus(user.id, token);
+            console.log(user)
+            alert(`歡迎回來，${fullUser.Name}！`);
+
+            console.log("user = ", user);
+            console.log("user.id = ", user.id);
+
+            await checkDriverStatus(user.id);
 
             navigate("/");
 
@@ -62,11 +64,11 @@ function LoginPage({ setIsLoggedIn }) {
     };
 
 
-    async function fetchFullUserInfo(userId, token) {
+    async function fetchFullUserInfo(userId) {
         try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/mod/${userId}`, {
+            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    // Authorization: `Bearer ${token}`
                 }
             });
 
@@ -76,6 +78,7 @@ function LoginPage({ setIsLoggedIn }) {
             }
 
             const data = await res.json();
+            console.log("data", data)
             return data;
 
         } catch (err) {
@@ -89,28 +92,26 @@ function LoginPage({ setIsLoggedIn }) {
         alert("Google 登入失敗，請重試。");
     };
     //確認是否為車主
-    async function checkDriverStatus(userId, token) {
+    async function checkDriverStatus(userId) {
         try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/driver/${userId}`, {
+            const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    // Authorization: `Bearer ${token}`
                 }
             });
 
             if (res.ok) {
-                // 找到了 driver → 是車主
-                const data = await res.json();
-
                 localStorage.setItem("userRole", "車主");
+                setUserRole("車主");      // 新增
                 localStorage.setItem("driver", JSON.stringify(data));
-
                 return true;
             } else {
-                // 後端回傳 404 / 空 → 非車主
                 localStorage.setItem("userRole", "乘客");
+                setUserRole("乘客");      // 新增
                 localStorage.removeItem("driver");
                 return false;
             }
+
         } catch (err) {
             console.error("查詢車主狀態失敗：", err);
             return false;
