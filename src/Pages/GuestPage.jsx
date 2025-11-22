@@ -9,60 +9,28 @@ import CardPresent from "./Functions/cardPresent";
 
 const API = "https://ntouber-post.zeabur.app/api/posts/all";
 function GuestPage({ setIsLoggedIn, isLoggedIn }) {
-    // const [post, setPost] = useState([]);
+    const [post, setPost] = useState([]);
 
-    // useEffect(() => {
-    //     async function fetchPosts() {
-    //         try {
-    //             const r = await fetch(API, { method: "GET" });
-    //             if (!r.ok) {
-    //                 throw new Error(`API 錯誤 (${r.status})`);
-    //             }
+    useEffect(() => {
+        async function fetchPosts() {
+            try {
+                const r = await fetch(API, { method: "GET" });
+                if (!r.ok) {
+                    throw new Error(`API 錯誤 (${r.status})`);
+                }
 
-    //             const data = await r.json();
-    //             // data 應該是一個貼文陣列（後端回傳的那種結構）
-    //             // 如果你希望每筆都變成 PostClass：
-    //             const mapped = data.map(post => new PostClass(post));
-    //             setPost(mapped);
-    //         } catch (err) {
-    //             console.error("抓取貼文失敗：", err);
-    //         }
-    //     }
+                const data = await r.json();
+                // data 應該是一個貼文陣列（後端回傳的那種結構）
+                // 如果你希望每筆都變成 PostClass：
+                const mapped = data.map(post => new PostClass(post));
+                setPost(mapped);
+            } catch (err) {
+                console.error("抓取貼文失敗：", err);
+            }
+        }
 
-    //     fetchPosts();
-    // }, []);
-
-// const post = new PostClass({
-//         driver_id: 'user123',
-//         vehicle_info: null,
-//         status: "open",
-//         timestamp: "2025-11-09T05:33:28.610Z",
-
-//         starting_point: {
-//             Name: "海大校門",
-//             Address: "基隆市中正區"
-//         },
-
-//         destination: {
-//             Name: "基隆火車站",
-//             Address: "基隆市仁愛區"
-//         },
-
-//         meet_point: {
-//             Name: "北門",
-//             Address: "基隆市北門"
-//         },
-
-//         departure_time: "2025-11-09T05:34:00.000Z",
-
-//         notes: "尋找同路人！",
-//         description: "路上可以一起聊聊天!",
-//         helmet: false,
-
-//         contact_info: {},
-
-//         leave: false
-//     });
+        fetchPosts();
+    }, []);
 
 
     return (     
@@ -101,19 +69,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
 
                     {/* 把卡片塞進來這下面 */}
 
-                    <CardPresent />
-                    {/* {post.length === 0 ? (
-                        <p className="text-sm text-gray-500">目前沒有共乘貼文</p>
-                    ) : (
-                        post.map((post) => (
-                        <PostCard
-                            key={post.id} // 先用 id，沒有就用 driver_id 或 index
-                            postData={post}// 傳給 PostCard
-                        />
-                        ))
-                    )} */}
-
-
+                    <CardPresent post={post}/>
 
                 </div>
             </div>
