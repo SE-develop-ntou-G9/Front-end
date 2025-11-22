@@ -94,20 +94,8 @@ function UserPage({ setIsLoggedIn, isLoggedIn, userRole }) {
                     </div>
 
                     {/* 把卡片塞進來這下面 */}
-                    <CardPresent />
-
-                        {/* <div className="grid grid-cols-2 gap-4">
-                        {post.length === 0 ? (
-                            <p className="text-sm text-gray-500">目前沒有共乘貼文</p>
-                        ) : (
-                            post.map((post) => (
-                            <PostCard
-                                key={post.id} // 先用 id，沒有就用 driver_id 或 index
-                                postData={post}// 傳給 PostCard
-                            />
-                            ))
-                        )}
-                        </div> */}
+                    <CardPresent post={post}/>
+                    
                     {/* 我的共乘紀錄 */}
                     <div className="mt-6">
                         <h2 className="text-base font-bold text-gray-900">我的共乘紀錄</h2>
