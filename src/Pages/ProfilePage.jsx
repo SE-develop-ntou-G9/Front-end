@@ -1,84 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext.jsx";
 
-function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
+function ProfilePage() {
     const navigate = useNavigate();
-
-    const [userData, setUserData] = useState(null);
-    const [driverData, setDriverData] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    const userId = storedUser?.id;
+    const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();
 
     useEffect(() => {
-        if (!isLoggedIn || !userId) {
-            setLoading(false);
-            return;
-        }
-        fetchUserData();
-    }, []);
-
-    async function fetchUserData() {
-        try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`);
-            if (!res.ok) throw new Error("使用者資料取得失敗");
-
-            const data = await res.json();
-            setUserData(data);
-
-            fetchDriverData();
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    async function fetchDriverData() {
-        try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`);
-
-            if (res.ok) {
-                const driver = await res.json();
-                setDriverData(driver);
-                localStorage.setItem("userRole", "車主");
-            } else {
-                setDriverData(null);
-                localStorage.setItem("userRole", "乘客");
-            }
-        } catch (err) {
-            console.error("driver error:", err);
-        }
-    }
+        // 只在組件 mount 時執行一次，用於 debug
+        console.group("ProfilePage 載入");
+        console.log("isLoggedIn:", isLoggedIn);
+        console.log("user:", user);
+        console.log("driver:", driver);
+        console.log("userRole:", userRole);
+        console.groupEnd();
+    }, []);  // 空依賴陣列，只執行一次
 
     const handleLogout = () => {
-        localStorage.removeItem("user");
-        localStorage.removeItem("driver");
-        localStorage.removeItem("isLoggedIn");
-        localStorage.removeItem("userRole");
-
-        setIsLoggedIn(false);
+        logout();
         navigate("/login");
     };
 
-    const storedRole = localStorage.getItem("userRole") || "乘客";
-
     if (loading) {
         return (
-            <div className="text-center py-20 text-gray-500 text-lg">
-                讀取資料中...
+            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">載入資料中...</p>
+                </div>
             </div>
         );
     }
 
+    // Debug: 顯示完整狀態
+    // const showDebugInfo = () => {
+    //     return (
+    //         <div className="max-w-md mx-auto mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded text-xs">
+    //             <h3 className="font-bold mb-2">Debug 資訊</h3>
+    //             <pre className="whitespace-pre-wrap overflow-auto">
+    //                 {JSON.stringify({ isLoggedIn, loading, user, driver, userRole }, null, 2)}
+    //             </pre>
+    //         </div>
+    //     );
+    // };
+
     return (
         <div className="min-h-screen bg-gray-50">
+            {/* Debug 資訊 */}
+            {/* {showDebugInfo()} */}
 
             {/* ======== 未登入（訪客）畫面 ======== */}
             {!isLoggedIn && (
                 <div className="animate-fadeIn">
-                    {/* 上方黑色 Header */}
                     <div className="bg-black text-white py-10 px-6 flex flex-col items-center shadow-md">
                         <div className="w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center text-3xl font-bold">
                             ?
@@ -87,19 +60,13 @@ function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
                         <p className="text-gray-300 text-sm">尚未登入帳號</p>
                     </div>
 
-                    {/* 白色浮動卡片 */}
-                    <div className="
-            max-w-md mx-auto mt-8 bg-white rounded-2xl shadow-xl 
-            p-6 border border-gray-100
-            transform transition-all duration-300 hover:scale-[1.01]
-        ">
+                    <div className="max-w-md mx-auto mt-8 bg-white rounded-2xl shadow-xl p-6 border border-gray-100 transform transition-all duration-300 hover:scale-[1.01]">
                         <div className="text-center mb-6">
                             <p className="text-gray-600 text-lg font-medium">
                                 登入以查看更多個人資料
                             </p>
                         </div>
 
-                        {/* Skeleton 灰色三條 */}
                         <div className="space-y-4 mt-4">
                             <div className="h-4 bg-gray-200/70 rounded-lg shimmer"></div>
                             <div className="h-4 bg-gray-200/70 rounded-lg shimmer"></div>
@@ -108,14 +75,12 @@ function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
 
                         <button
                             onClick={() => navigate("/login")}
-                            className="mt-8 w-full py-3 bg-black text-white rounded-lg text-base 
-                hover:bg-gray-800 transition shadow-sm"
+                            className="mt-8 w-full py-3 bg-black text-white rounded-lg text-base hover:bg-gray-800 transition shadow-sm"
                         >
                             前往登入
                         </button>
                     </div>
 
-                    {/* 返回首頁 */}
                     <div className="text-center mt-6">
                         <button
                             onClick={() => navigate("/")}
@@ -127,64 +92,67 @@ function ProfilePage({ isLoggedIn, setIsLoggedIn }) {
                 </div>
             )}
 
-
             {/* ======== 已登入畫面 ======== */}
-            {isLoggedIn && userData && (
+            {isLoggedIn && user && (
                 <>
-                    {/* 上方黑色卡片 */}
                     <div className="bg-black text-white py-10 px-6 flex flex-col items-center shadow-md">
                         <div className="w-20 h-20 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center">
-                            {userData?.picture ? (
+                            {user?.Picture ? (
                                 <img
-                                    src={userData.picture}
+                                    src={user.Picture}
+                                    alt="Profile"
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
                                 <span className="text-3xl font-bold">
-                                    {userData?.Name?.charAt(0) || "?"}
+                                    {user?.Name?.charAt(0) || "?"}
                                 </span>
                             )}
                         </div>
 
-                        <h1 className="mt-4 text-2xl font-semibold">{userData?.Name}</h1>
-
-                        <p className="text-gray-300 text-sm">{userData?.Email}</p>
+                        <h1 className="mt-4 text-2xl font-semibold">{user?.Name || "使用者"}</h1>
+                        <p className="text-gray-300 text-sm">{user?.Email || "無Email"}</p>
                         <p className="text-gray-400 text-xs mt-1">
-                            登入方式：{userData?.Provider || "未知"}
+                            登入方式：{user?.Provider || "未知"}
                         </p>
                     </div>
 
-                    {/* 白色卡片 */}
                     <div className="max-w-md mx-auto bg-white rounded-2xl shadow-md mt-6 p-6 space-y-5 border border-gray-200">
+                        <div>
+                            <label className="block text-sm text-gray-500">使用者 ID</label>
+                            <p className="text-base font-semibold text-xs text-gray-400">
+                                {user?.ID || "無ID"}
+                            </p>
+                        </div>
 
                         <div>
                             <label className="block text-sm text-gray-500">電話號碼</label>
                             <p className="text-base font-semibold">
-                                {userData?.PhoneNumber || "尚未新增電話號碼"}
+                                {user?.PhoneNumber || "尚未新增電話號碼"}
                             </p>
                         </div>
 
                         <div>
                             <label className="block text-sm text-gray-500">車子型號</label>
                             <p className="text-base font-semibold">
-                                {driverData?.scooter_type || "尚未新增車子型號"}
+                                {driver?.scooter_type || "尚未新增車子型號"}
                             </p>
                         </div>
 
                         <div>
                             <label className="block text-sm text-gray-500">車牌</label>
                             <p className="text-base font-semibold">
-                                {driverData?.plate_num || "尚未新增車牌"}
+                                {driver?.plate_num || "尚未新增車牌"}
                             </p>
                         </div>
 
                         <div>
                             <label className="block text-sm text-gray-500">使用者角色</label>
-                            <span className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-medium ${storedRole === "車主"
+                            <span className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-medium ${userRole === "車主"
                                 ? "bg-purple-100 text-purple-700"
                                 : "bg-blue-100 text-blue-700"
                                 }`}>
-                                {storedRole}
+                                {userRole || "乘客"}
                             </span>
                         </div>
 

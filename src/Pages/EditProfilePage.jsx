@@ -1,62 +1,35 @@
-// ./Pages/EditProfilePage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext.jsx";
 
 function EditProfilePage() {
     const navigate = useNavigate();
-    const storedUser = JSON.parse(localStorage.getItem("user")) || {}; // 這哪來的?
+    const { user, updateUser } = useUser();
 
-    const [name, setName] = useState(storedUser.Name || "");
-    const [phone, setPhone] = useState(storedUser.PhoneNumber || "");
-
+    const [name, setName] = useState(user?.Name || "");
+    const [phone, setPhone] = useState(user?.PhoneNumber || "");
 
     const handleSave = async () => {
         try {
-            const user = JSON.parse(localStorage.getItem("user"));
-            console.log(JSON.parse(localStorage.getItem("user")));
-
-
-            if (!user || !user.id) {
+            if (!user || !user.ID) {
                 alert("尚未登入");
                 return;
             }
 
-            // 只傳送要修改的欄位
             const updateData = {
-                ID: user.id,
+                ID: user.ID,
                 Name: name,
                 PhoneNumber: phone,
             };
 
-            console.log(updateData);
-            const res = await fetch("https://ntouber-user.zeabur.app/v1/users/mod", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(updateData),
-            });
+            const success = await updateUser(updateData);
 
-            if (!res.ok) {
-                const errorData = await res.text();
-                console.error("更新失敗:", errorData);
+            if (success) {
+                alert("資料已更新！");
+                navigate("/profile");
+            } else {
                 alert("更新失敗");
-                return;
             }
-
-            // 更新 localStorage 中的使用者資料
-            const updatedUser = {
-                ...user,
-                Name: name,
-                PhoneNumber: phone
-            };
-
-            console.log(updatedUser);
-            console.log("更新後的使用者資料:", updatedUser);
-            localStorage.setItem("user", JSON.stringify(updatedUser));
-
-            alert("資料已更新！");
-            navigate("/profile");
 
         } catch (err) {
             console.error("更新錯誤：", err);
@@ -92,12 +65,11 @@ function EditProfilePage() {
                         />
                     </div>
 
-                    {/* 顯示不可編輯的資訊 */}
                     <div>
                         <label className="block text-sm text-gray-500 mb-1">電子郵件 (不可修改)</label>
                         <input
                             type="text"
-                            value={storedUser.Email || ""}
+                            value={user?.Email || ""}
                             disabled
                             className="w-full border rounded-md px-3 py-2 bg-gray-100 text-gray-500"
                         />
@@ -107,7 +79,7 @@ function EditProfilePage() {
                         <label className="block text-sm text-gray-500 mb-1">登入方式 (不可修改)</label>
                         <input
                             type="text"
-                            value={storedUser.Provider || ""}
+                            value={user?.Provider || ""}
                             disabled
                             className="w-full border rounded-md px-3 py-2 bg-gray-100 text-gray-500"
                         />

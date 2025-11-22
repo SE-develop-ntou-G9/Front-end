@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext.jsx";
 import UserClass from "../models/UserClass";
 
 function RegisterPage() {
     const navigate = useNavigate();
+    const { user: loggedUser, refreshUserData } = useUser();  // 改用 refreshUserData
 
     const [user, setUser] = useState(
         new UserClass("", "", "", "", "", "", false)
@@ -38,11 +40,10 @@ function RegisterPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const token = localStorage.getItem("jwtToken");
-        const loggedUser = JSON.parse(localStorage.getItem("user"));
-
-        if (!loggedUser || !loggedUser.id) {
+        // 從 UserContext 中取得使用者資料
+        if (!loggedUser || !loggedUser.ID) {
             alert("尚未登入");
+            navigate("/login");
             return;
         }
 
@@ -51,25 +52,29 @@ function RegisterPage() {
             return;
         }
 
-        // if (!frontImage || !backImage) {
-        //     alert("請上傳駕照正反面！");
-        //     return;
-        // }
+        // 檢查電話號碼
+        const phone = loggedUser.PhoneNumber || "";
+
+        if (!phone.trim()) {
+            alert("您的使用者資料尚未填寫電話，請先至會員編輯頁面補上聯絡方式！");
+            navigate("/EditProfile");
+            return;
+        }
 
         const payload = {
-            user_id: loggedUser.id,
-            driver_name: loggedUser.name || loggedUser.Name,
-            contact_info: loggedUser.phoneNumber || loggedUser.PhoneNumber,
+            user_id: loggedUser.ID,
+            driver_name: loggedUser.Name,
+            contact_info: phone,
             scooter_type: user.carType,
-            plate_num: user.licenseNum.toUpperCase()
+            plate_num: user.licenseNum.toUpperCase(),
         };
-
 
         console.log("送到後端的車主資料：", payload);
 
         try {
+            // 使用正確的 API endpoint
             const res = await fetch("https://ntouber-user.zeabur.app/v1/users/driver", {
-                method: "POST",
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -84,6 +89,10 @@ function RegisterPage() {
             }
 
             alert("成功升級成車主！");
+
+            // 重新整理使用者資料，會自動檢查車主狀態
+            await refreshUserData();
+
             navigate("/Profile");
 
         } catch (err) {

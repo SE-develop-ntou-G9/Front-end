@@ -1,13 +1,11 @@
 import React from "react";
-import { useNavigate, BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
+import { useUser } from "../contexts/UserContext.jsx";
 
-
-function LoginPage({ setIsLoggedIn, setUserRole }) {
-
+function LoginPage() {
     const navigate = useNavigate();
-
+    const { login } = useUser();
 
     const handleGoogleSuccess = async (response) => {
         try {
@@ -22,39 +20,31 @@ function LoginPage({ setIsLoggedIn, setUserRole }) {
             if (!res.ok) throw new Error("驗證 Google 失敗");
 
             const data = await res.json();
-
             const user = data.user;
             const token = data.token;
 
-            console.log(data);
-            // ⬇️ 把 token 存起來
-            localStorage.setItem("jwtToken", token);
+            console.log("登入成功:", data);
 
-            // ⬇️ 把後端整包 user 存起來（ID / Provider / Email / Name / PhoneNumber 都有）
-            localStorage.setItem("user", JSON.stringify(user));
+            // 使用 Context 的 login 方法（這會自動 fetchUserData）
+            await login(user, token);
 
-            localStorage.setItem("isLoggedIn", "true");
-
-
-            setIsLoggedIn(true);
-
+            // login 完成後，Context 中的 user 已經更新
+            // 但我們需要再次查詢以確保有最新資料
             const fullUser = await fetchFullUserInfo(user.id);
 
-            // 若 PhoneNumber 是空的 → 導向 Edit
+            if (!fullUser) {
+                alert("無法取得使用者資料");
+                return;
+            }
+
+            // 檢查是否需要補充資料
             if (!fullUser.PhoneNumber || fullUser.PhoneNumber.trim() === "") {
-                alert(`歡迎 ${user.name} 第一次登入！請先設定聯絡方式～`);
+                alert(`歡迎 ${fullUser.Name || user.name} 第一次登入！請先設定聯絡方式～`);
                 navigate("/EditProfile");
                 return;
             }
 
-            console.log(user)
             alert(`歡迎回來，${fullUser.Name}！`);
-
-            console.log("user = ", user);
-            console.log("user.id = ", user.id);
-
-            await checkDriverStatus(user.id);
-
             navigate("/");
 
         } catch (error) {
@@ -63,14 +53,10 @@ function LoginPage({ setIsLoggedIn, setUserRole }) {
         }
     };
 
-
     async function fetchFullUserInfo(userId) {
         try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`, {
-                headers: {
-                    // Authorization: `Bearer ${token}`
-                }
-            });
+            // 不帶 Authorization header
+            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`);
 
             if (!res.ok) {
                 console.error("取得使用者資料失敗", await res.text());
@@ -78,7 +64,6 @@ function LoginPage({ setIsLoggedIn, setUserRole }) {
             }
 
             const data = await res.json();
-            console.log("data", data)
             return data;
 
         } catch (err) {
@@ -87,41 +72,12 @@ function LoginPage({ setIsLoggedIn, setUserRole }) {
         }
     }
 
-
     const handleGoogleError = () => {
         alert("Google 登入失敗，請重試。");
     };
-    //確認是否為車主
-    async function checkDriverStatus(userId) {
-        try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`, {
-                headers: {
-                    // Authorization: `Bearer ${token}`
-                }
-            });
-
-            if (res.ok) {
-                localStorage.setItem("userRole", "車主");
-                setUserRole("車主");      // 新增
-                localStorage.setItem("driver", JSON.stringify(data));
-                return true;
-            } else {
-                localStorage.setItem("userRole", "乘客");
-                setUserRole("乘客");      // 新增
-                localStorage.removeItem("driver");
-                return false;
-            }
-
-        } catch (err) {
-            console.error("查詢車主狀態失敗：", err);
-            return false;
-        }
-    }
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-
-            {/* 登入的那個框框 */}
             <div className="bg-white shadow-md rounded-lg p-6 w-80 border border-gray-200">
                 <h2 className="text-center text-xl font-bold text-gray-800 mb-4">
                     登入畫面
@@ -145,7 +101,6 @@ function LoginPage({ setIsLoggedIn, setUserRole }) {
                     />
                 </div>
 
-                {/* 登入按鈕 */}
                 <button
                     className="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
                 >
@@ -165,10 +120,7 @@ function LoginPage({ setIsLoggedIn, setUserRole }) {
                     />
                 </div>
 
-                {/* 註冊帳號 記密碼那個 */}
                 <div className="mt-3 text-sm flex justify-between text-gray-600">
-
-
                     <div className="flex gap-4">
                         <a href="#" className="underline hover:text-gray-800">
                             忘記密碼？

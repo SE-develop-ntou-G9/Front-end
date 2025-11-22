@@ -1,15 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate, BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import SideBar from "./SideBar"
-import { HiMenu } from "react-icons/hi"; // Side Bar的import
-import { HiUser } from "react-icons/hi"; //人頭import
+import { useNavigate } from "react-router-dom";
+import SideBar from "./SideBar";
+import { HiMenu } from "react-icons/hi";
+import { useUser } from "./contexts/UserContext.jsx";
 
-function Header({ isLoggedIn, setIsLoggedIn, userRole, toggleRole }) {
-
+function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
-
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user, isLoggedIn, userRole } = useUser();
 
   return (
     <>
@@ -32,8 +30,7 @@ function Header({ isLoggedIn, setIsLoggedIn, userRole, toggleRole }) {
 
         {/* 右邊的登入登出 */}
         <div>
-          {isLoggedIn ? (
-            // 這個是那個人頭的功能 要加
+          {isLoggedIn && user ? (
             <button
               className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition"
               onClick={() => navigate("/Profile")}
@@ -47,7 +44,7 @@ function Header({ isLoggedIn, setIsLoggedIn, userRole, toggleRole }) {
                   />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">
-                    {user.name ? user.name.charAt(0) : "?"}
+                    {user.Name ? user.Name.charAt(0) : "?"}
                   </div>
                 )}
               </div>
@@ -56,15 +53,14 @@ function Header({ isLoggedIn, setIsLoggedIn, userRole, toggleRole }) {
           ) : (
             <>
               <button
-                className="px-3 py-1 bg-black text-white border border-gray-400 rounded-full text-sm hover:bg-gray-100 "
-                onClick={() => navigate("/login")} //按下去到login
+                className="px-3 py-1 bg-black text-white border border-gray-400 rounded-full text-sm hover:bg-gray-100"
+                onClick={() => navigate("/login")}
               >
                 Login / SignOn
               </button>
             </>
           )}
         </div>
-
       </header>
 
       <SideBar
@@ -72,9 +68,9 @@ function Header({ isLoggedIn, setIsLoggedIn, userRole, toggleRole }) {
         onClose={() => setIsSidebarOpen(false)}
         isLoggedIn={isLoggedIn}
         userRole={userRole}
-        toggleRole={toggleRole}
       />
     </>
   );
 }
+
 export default Header;
