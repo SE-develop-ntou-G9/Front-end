@@ -6,20 +6,46 @@ import PostClass from "../../models/PostClass";
 
 function detailPost({isLoggedIn}) {
     const navigate = useNavigate();
-    const postData = new PostClass(
-        'user123',
-        '海大校門',
-        '基隆火車站',
-        '基隆市中正區北寧路2號',
-        '基隆市中正區中正路236號',
-        '2025-10-10 17:30',
-        '北門集合',
-        '尋找同路人！',
-        '路上可以一起聊聊天!',
-        false,
-        false,
-        'Line: user123'
-    );
+    const { state } = useLocation(); 
+    const postData = state?.post;
+    if (!postData) return <p>沒有收到貼文資料</p>;
+    // const postData = new PostClass({
+    //     driver_id: 'user123',
+    //     vehicle_info: null,
+    //     status: "open",
+    //     timestamp: "2025-11-09T05:33:28.610Z",
+
+    //     starting_point: {
+    //         Name: "海大校門",
+    //         Address: "基隆市中正區"
+    //     },
+
+    //     destination: {
+    //         Name: "基隆火車站",
+    //         Address: "基隆市仁愛區"
+    //     },
+
+    //     meet_point: {
+    //         Name: "北門",
+    //         Address: "基隆市北門"
+    //     },
+
+    //     departure_time: "2025-11-09T05:34:00.000Z",
+
+    //     notes: "尋找同路人！",
+    //     description: "路上可以一起聊聊天!",
+    //     helmet: false,
+
+    //     contact_info: {},
+
+    //     leave: false
+    // });
+
+    const tags = [];
+    if (postData.helmet) tags.push("自備安全帽");
+    if (postData.leave) tags.push("中途下車");
+
+
 
     return (
         <div className="flex justify-center">
@@ -32,51 +58,50 @@ function detailPost({isLoggedIn}) {
 
             <div className="space-y-3 text-sm text-center font-bold">
                 {/* 文字或顯示區塊 */}
-                {postData.origin} {"→"} {postData.destination}
+                {postData.starting_point.Name} {"→"} {postData.destination.Name}
             </div>
 
             <div className="space-y-3 text-xs">
                 {/* 文字或顯示區塊 */}
-                起點: {postData.originAddress}
+                起點: {postData.starting_point.Address}
             </div>
 
             <div className="space-y-3 text-xs">
                 {/* 文字或顯示區塊 */}
-                終點: {postData.desAddress}
+                終點: {postData.destination.Address}
             </div>
 
             <div className="space-y-3 text-xs">
                 {/* 文字或顯示區塊 */}
-                集合時間: {postData.time}
+                集合時間: {postData.departure_time}
             </div>
 
             <div className="space-y-3 text-xs">
                 {/* 文字或顯示區塊 */}
-                集合地點: {postData.meetingPoint}
+                集合地點: {postData.meet_point.Name}
             </div>
 
-            <div className="space-y-3 text-xs">
-                {/* 文字或顯示區塊 */}
+            {/* <div className="space-y-3 text-xs">
                 聯絡方式: 
                 <p>{postData.contact}</p>
-            </div>
+            </div> */}
             <div className="space-y-3 text-xs">
                 備註:
                 <div className="border border-gray-400 rounded-md p-4">
                     {/* 文字或顯示區塊 */}
-                    {postData.note}
+                    {postData.description}
                 </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
-                {/* {tags.map((tag) => (
+                {tags.map((tag) => (
                     <span
                     key={tag}
                     className="rounded-lg bg-gray-100 px-1.5 py-0.5 text-[8px] font-medium text-gray-700"
                     >
                     {tag}
                     </span>
-                ))} */}
+                ))}
             </div>
 
             <div className="flex items-center h-5">
@@ -87,7 +112,7 @@ function detailPost({isLoggedIn}) {
                         className="h-full w-full object-cover"
                         />
                 </div>
-                <p className="text-xs">{postData.user}</p>
+                <p className="text-xs">{postData.driver_id}</p>
             </div>
 
             <div className="flex items-center justify-end text-gray-500">
