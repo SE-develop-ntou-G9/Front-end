@@ -4,6 +4,8 @@ import { HiSearch } from "react-icons/hi";
 import PostCard from "./Functions/PostCard";
 import PostClass from "../models/PostClass";
 import { useUser } from "../contexts/UserContext.jsx";
+import { useNavigate } from "react-router-dom";
+import CardPresent from "./Functions/cardPresent";
 
 const API = "https://ntouber-post.zeabur.app/api/posts/all";
 
@@ -11,6 +13,7 @@ function UserPage() {
     const [post, setPost] = useState([]);
     const navigate = useNavigate();
     const { userRole, logout } = useUser();
+
 
     useEffect(() => {
         async function fetchPosts() {
@@ -30,6 +33,8 @@ function UserPage() {
 
         fetchPosts();
     }, []);
+
+
 
     return (
         <>
@@ -84,20 +89,9 @@ function UserPage() {
                         </div>
                     </div>
 
-                    {/* 卡片區 */}
-                    <div className="grid grid-cols-2 gap-4">
-                        {post.length === 0 ? (
-                            <p className="text-sm text-gray-500">目前沒有共乘貼文</p>
-                        ) : (
-                            post.map((postItem, index) => (
-                                <PostCard
-                                    key={postItem.id || index}
-                                    postData={postItem}
-                                />
-                            ))
-                        )}
-                    </div>
-
+                    {/* 把卡片塞進來這下面 */}
+                    <CardPresent post={post}/>
+                    
                     {/* 我的共乘紀錄 */}
                     <div className="mt-6">
                         <h2 className="text-base font-bold text-gray-900">我的共乘紀錄</h2>
