@@ -38,8 +38,8 @@ function RegisterPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const token = localStorage.getItem("jwtToken");
         const loggedUser = JSON.parse(localStorage.getItem("user"));
+
 
         if (!loggedUser || !loggedUser.id) {
             alert("尚未登入");
@@ -55,14 +55,25 @@ function RegisterPage() {
         //     alert("請上傳駕照正反面！");
         //     return;
         // }
+        const phone =
+            loggedUser.phoneNumber ||
+            loggedUser.PhoneNumber ||
+            "";
+
+        if (!phone.trim()) {
+            alert("您的使用者資料尚未填寫電話，請先至會員編輯頁面補上聯絡方式！");
+            navigate("/EditProfile");
+            return;
+        }
 
         const payload = {
             user_id: loggedUser.id,
             driver_name: loggedUser.name || loggedUser.Name,
-            contact_info: loggedUser.phoneNumber || loggedUser.PhoneNumber,
+            contact_info: phone,
             scooter_type: user.carType,
-            plate_num: user.licenseNum.toUpperCase()
+            plate_num: user.licenseNum.toUpperCase(),
         };
+
 
 
         console.log("送到後端的車主資料：", payload);
