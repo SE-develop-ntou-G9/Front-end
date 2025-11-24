@@ -4,10 +4,13 @@ import { useUser } from "../contexts/UserContext.jsx";
 
 function EditProfilePage() {
     const navigate = useNavigate();
-    const { user, updateUser } = useUser();
+    const { user, updateUser, userRole } = useUser();
+    const { user: loggedUser, refreshUserData } = useUser();  // 改用 refreshUserData
 
     const [name, setName] = useState(user?.Name || "");
     const [phone, setPhone] = useState(user?.PhoneNumber || "");
+
+    const isDriver = userRole === "車主";
 
     const handleSave = async () => {
         try {
@@ -64,6 +67,22 @@ function EditProfilePage() {
                             placeholder="輸入電話"
                         />
                     </div>
+
+                    {/* <label>機車類型</label>
+                    <input
+                        type="text"
+                        value={carInfo}
+                        onChange={(e) => setCarInfo(e.target.value)}
+                        className="border p-2 w-full"
+                    />
+
+                    <label>車牌號碼</label>
+                    <input
+                        type="text"
+                        value={carNumber}
+                        onChange={(e) => setCarNumber(e.target.value)}
+                        className="border p-2 w-full"
+                    /> */}
 
                     <div>
                         <label className="block text-sm text-gray-500 mb-1">電子郵件 (不可修改)</label>

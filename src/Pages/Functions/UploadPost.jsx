@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { useUser } from "../../contexts/UserContext.jsx";
 import PostClass from "../../models/PostClass";
 import cityDistrictMap from "../../models/Cities";
+import { useNavigate } from "react-router-dom";
 
 function toApiJson(post, startAddress, destAddress, userName) {
+
+
     const fullStartAddress = [startAddress.city, startAddress.district, startAddress.street]
         .filter(Boolean)     // 移掉沒填的欄位
         .join("");
@@ -34,6 +37,7 @@ function toApiJson(post, startAddress, destAddress, userName) {
 }
 
 function UploadPost() {
+    const navigate = useNavigate();
     const { user } = useUser();  // 從 UserContext 取得使用者資料
 
     // 初始化 PostClass 實例
@@ -128,7 +132,6 @@ function UploadPost() {
                 console.log("後端回傳內容：", data);
                 throw new Error(data.message || `API 錯誤（${r.status})`);
             }
-
             // // 從 localStorage 取得現有的資料陣列
             // const existingPosts = JSON.parse(localStorage.getItem("posts")) || [];
 
@@ -152,6 +155,9 @@ function UploadPost() {
             setPost(new PostClass({}));
             setStartAddress({ city: "", district: "", street: "" });
             setDestAddress({ city: "", district: "", street: "" });
+            alert("送出成功！");
+
+            navigate("/");
 
         } catch (err) {
             console.error(err);
