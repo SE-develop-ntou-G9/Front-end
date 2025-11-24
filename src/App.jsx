@@ -1,25 +1,52 @@
-import Post from "./post";
-import PrePost from "./prepost";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import UploadPost from "./Pages/Functions/UploadPost";
+import Header from "./header.jsx";
+import UserPage from "./Pages/UserPage";
+import GuestPage from "./Pages/GuestPage";
+import LogInPage from "./Pages/LogInPage";
+import RegisterPage from "./Pages/RegisterPage";
+import ProfilePage from "./Pages/ProfilePage.jsx";
+import DetailPost from "./Pages/Functions/DetailPost.jsx";
+import EditProfilePage from "./Pages/EditProfilePage.jsx";
+import { useUser } from "./contexts/UserContext.jsx";
+
 function App() {
+  const { isLoggedIn, userRole, loading } = useUser();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">載入中...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="grid grid-cols-5 h-screen">
-        <div className="col-span-1 bg-blue-100 ">
-          <h1>Tool</h1>
-          <button className="hover:bg-blue-200">發送貼文</button>
-        </div>
-        <div className="col-span-3 bg-green-100 text-center">
-          <h1>Post</h1>
-          {/* <Post /> */}
-          <a href=""><PrePost /></a>
-        </div>
-        <div className="col-span-1 bg-yellow-100 ">
-          <h1>don't know</h1>
-        </div>
-    </div>
+      <Header />
+
+      <div className="pt-12">
+        <Routes>
+          <Route path="/login" element={<LogInPage />} />
+          <Route path="/Regist" element={<RegisterPage />} />
+          <Route path="/Profile" element={<ProfilePage />} />
+          <Route path="/uploadPost" element={<UploadPost />} />
+          <Route path="/EditProfile" element={<EditProfilePage />} />
+          <Route path="/detailPost" element={<DetailPost />} />
+
+          {isLoggedIn ? (
+            <Route path="/*" element={<UserPage />} />
+          ) : (
+            <Route path="/*" element={<GuestPage />} />
+          )}
+        </Routes>
+      </div>
     </>
   );
 }
 
 export default App;
-
