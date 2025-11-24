@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate, BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import SideBar from "./SideBar"
-import { HiMenu } from "react-icons/hi"; // Side Bar的import
-import { HiUser } from "react-icons/hi"; //人頭import
+import { useNavigate } from "react-router-dom";
+import SideBar from "./SideBar";
+import { HiMenu } from "react-icons/hi";
+import { useUser } from "./contexts/UserContext.jsx";
 
-function Header({ isLoggedIn, setIsLoggedIn }) {
-
+function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
-
+  const { user, isLoggedIn, userRole } = useUser();
 
   return (
     <>
@@ -31,36 +30,47 @@ function Header({ isLoggedIn, setIsLoggedIn }) {
 
         {/* 右邊的登入登出 */}
         <div>
-          {isLoggedIn ? (
-            // 這個是那個人頭的功能 要加
+          {isLoggedIn && user ? (
             <button
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-              title="個人頁面"
+              className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition"
               onClick={() => navigate("/Profile")}
             >
-              <HiUser className="text-2xl text-gray-700" />
+              <div className="w-10 h-10 bg-white-700 rounded-full flex items-center justify-center text-xl font-bold">
+                {user.picture ? (
+                  <img
+                    src={user.picture}
+                    alt="User Avatar"
+                    className="w-8 h-8 rounded-full border"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">
+                    {user.Name ? user.Name.charAt(0) : "?"}
+                  </div>
+                )}
+              </div>
+              <span className="hidden md:block text-sm"></span>
             </button>
           ) : (
             <>
               <button
-                className="px-3 py-1 bg-black text-white border border-gray-400 rounded-full text-sm hover:bg-gray-100 "
-                onClick={() => navigate("/login")} //按下去到login
+                className="px-3 py-1 bg-black text-white border border-gray-400 rounded-full text-sm hover:bg-gray-100"
+                onClick={() => navigate("/login")}
               >
                 Login / SignOn
               </button>
             </>
           )}
         </div>
-
       </header>
 
       <SideBar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        onToggleLogin={() => setIsLoggedIn(!isLoggedIn)}
         isLoggedIn={isLoggedIn}
+        userRole={userRole}
       />
     </>
   );
 }
+
 export default Header;

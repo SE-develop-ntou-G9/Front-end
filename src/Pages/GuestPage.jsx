@@ -5,34 +5,32 @@ import UploadPost from "./Functions/UploadPost";
 import { HiSearch } from "react-icons/hi";
 import PostCard from "./Functions/PostCard";
 import PostClass from "../models/PostClass";
+import CardPresent from "./Functions/cardPresent";
 
+const API = "https://ntouber-post.zeabur.app/api/posts/all";
 function GuestPage({ setIsLoggedIn, isLoggedIn }) {
-    const [posts, setPosts] = useState([]);
+    const [post, setPost] = useState([]);
 
     useEffect(() => {
-        const storedPosts = JSON.parse(localStorage.getItem("posts")) || [];
-        setPosts(storedPosts);
+        async function fetchPosts() {
+            try {
+                const r = await fetch(API, { method: "GET" });
+                if (!r.ok) {
+                    throw new Error(`API 錯誤 (${r.status})`);
+                }
+
+                const data = await r.json();
+                // data 應該是一個貼文陣列（後端回傳的那種結構）
+                // 如果你希望每筆都變成 PostClass：
+                const mapped = data.map(post => new PostClass(post));
+                setPost(mapped);
+            } catch (err) {
+                console.error("抓取貼文失敗：", err);
+            }
+        }
+
+        fetchPosts();
     }, []);
-
-    const deletePost = () => {
-        setPosts([]);
-        localStorage.removeItem("posts");
-    }
-
-    const post = new PostClass(
-        'user123',
-        '海大校門',
-        '基隆火車站',
-        '基隆市中正區北寧路2號',
-        '基隆市中正區中正路236號',
-        '2025-10-10 17:30',
-        '北門集合',
-        '尋找同路人！',
-        '路上可以一起聊聊天!',
-        false,
-        false,
-        'Line: user123'
-    );
 
 
     return (     
@@ -49,7 +47,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
 
             {/* 灰灰白白的背板 */}
             <div className="min-h-screen bg-gray-50">
-                <div className="max-w-md mx-auto px-4 pb-16">
+                <div className="max-w-xl mx-auto px-4 pb-16">
 
                     {/* 搜尋欄 */}
                     <div className="mt-4">
@@ -70,9 +68,8 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
                     </div>
 
                     {/* 把卡片塞進來這下面 */}
-                    <PostCard postData={post} />
 
-
+                    <CardPresent post={post}/>
 
                 </div>
             </div>

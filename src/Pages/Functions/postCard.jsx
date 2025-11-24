@@ -1,13 +1,19 @@
 import React from 'react';
 import PostClass from '../../models/PostClass';
 import { HiArrowRight } from "react-icons/hi";
+import DetailPost from './DetailPost';
+import { Routes, Route, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function postCard({ postData }) {
+    const navigate = useNavigate();
     if (!postData) return null;
-    const tags = ['自備安全帽', '中途下車'];
+    const tags = [];
+    if (postData.helmet) tags.push("自備安全帽");
+    if (postData.leave) tags.push("中途下車");
 
     return (
-        <article className='postCard m-4 w-1/2'>
+        <article className='postCard m-4'  onClick={() => navigate("/detailPost", { state: { post: postData } })}>
             <div className = "flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
                 <div className="flex">
                     <img src="https://placehold.co/100x50?text=Demo+Image&font=roboto" alt="demo" className="rounded-xl shadow" />
@@ -17,7 +23,7 @@ function postCard({ postData }) {
 
             <div className="space-y-3 text-sm text-center font-bold">
                 {/* 文字或顯示區塊 */}
-                {postData.origin} {"→"} {postData.destination}
+                {postData.starting_point.Name} {"→"} {postData.destination.Name}
             </div>
 
             <div className="space-y-3 text-xs">
@@ -44,7 +50,7 @@ function postCard({ postData }) {
                         className="h-full w-full object-cover"
                         />
                 </div>
-                <p className="text-xs">{postData.user}</p>
+                <p className="text-xs">{postData.driver_id}</p>
             </div>
 
             <div className="flex items-center justify-between text-gray-500">
