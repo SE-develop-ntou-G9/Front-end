@@ -42,7 +42,7 @@ function detailPost({isLoggedIn}) {
     // });
 
     const tags = [];
-    if (postData.helmet) tags.push("自備安全帽");
+    if (postData.helmet) tags.push("提供安全帽");
     if (postData.leave) tags.push("中途下車");
 
 
