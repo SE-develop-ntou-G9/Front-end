@@ -3,43 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { HiArrowRight } from "react-icons/hi";
 import { useLocation } from "react-router-dom";
 import PostClass from "../../models/PostClass";
+import dayjs from "dayjs";
 
 function detailPost({isLoggedIn}) {
     const navigate = useNavigate();
     const { state } = useLocation(); 
     const postData = state?.post;
     if (!postData) return <p>沒有收到貼文資料</p>;
-    // const postData = new PostClass({
-    //     driver_id: 'user123',
-    //     vehicle_info: null,
-    //     status: "open",
-    //     timestamp: "2025-11-09T05:33:28.610Z",
-
-    //     starting_point: {
-    //         Name: "海大校門",
-    //         Address: "基隆市中正區"
-    //     },
-
-    //     destination: {
-    //         Name: "基隆火車站",
-    //         Address: "基隆市仁愛區"
-    //     },
-
-    //     meet_point: {
-    //         Name: "北門",
-    //         Address: "基隆市北門"
-    //     },
-
-    //     departure_time: "2025-11-09T05:34:00.000Z",
-
-    //     notes: "尋找同路人！",
-    //     description: "路上可以一起聊聊天!",
-    //     helmet: false,
-
-    //     contact_info: {},
-
-    //     leave: false
-    // });
 
     const tags = [];
     if (postData.helmet) tags.push("提供安全帽");
@@ -73,7 +43,7 @@ function detailPost({isLoggedIn}) {
 
             <div className="space-y-3 text-xs">
                 {/* 文字或顯示區塊 */}
-                集合時間: {postData.departure_time}
+                集合時間: {dayjs(postData.departure_time).format("YYYY-MM-DD HH:mm")}
             </div>
 
             <div className="space-y-3 text-xs">
