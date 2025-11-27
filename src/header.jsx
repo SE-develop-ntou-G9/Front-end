@@ -36,9 +36,9 @@ function Header() {
               onClick={() => navigate("/Profile")}
             >
               <div className="w-10 h-10 bg-white-700 rounded-full flex items-center justify-center text-xl font-bold">
-                {user.picture ? (
+                {user.Picture ? (
                   <img
-                    src={user.picture}
+                    src={user.Picture}
                     alt="User Avatar"
                     className="w-8 h-8 rounded-full border"
                   />

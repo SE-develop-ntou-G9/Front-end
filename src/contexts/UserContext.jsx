@@ -110,6 +110,11 @@ export const UserProvider = ({ children }) => {
 
             // 從後端獲取完整資料
             await fetchUserData(userData.id);
+
+            setUser(prev => ({
+                ...prev,
+                Picture: prev?.Picture || userData.picture    // ← 新增
+            }));
         } catch (err) {
             console.error("login error:", err);
             throw err;
