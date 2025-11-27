@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { useUser } from "../contexts/UserContext.jsx";
+import { jwtDecode } from "jwt-decode";
+
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -9,7 +11,14 @@ function LoginPage() {
 
     const handleGoogleSuccess = async (response) => {
         try {
+
             const credential = response.credential;
+
+            const googleUser = jwtDecode(credential);
+
+            console.log("Google User Info:", googleUser);
+
+            const googlePicture = googleUser.picture;
 
             const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
                 method: "POST",
@@ -26,7 +35,7 @@ function LoginPage() {
             console.log("登入成功:", data);
 
             // 使用 Context 的 login 方法（這會自動 fetchUserData）
-            await login(user, token);
+            await login({ ...user, picture: googlePicture }, token);
 
             // login 完成後，Context 中的 user 已經更新
             // 但我們需要再次查詢以確保有最新資料
