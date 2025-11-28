@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react"; // 🌟 引入 useRef 和 useEffect
 import { useNavigate, useLocation } from "react-router-dom";
 import SideBar from "./SideBar";
 import { HiMenu } from "react-icons/hi";
@@ -10,6 +10,29 @@ function Header() {
   const navigate = useNavigate();
   const { user, isLoggedIn, userRole } = useUser();
   const isAdminPage = location.pathname.startsWith("/admin");
+  
+  // 🌟 1. 創建一個 Ref 來指向 SideBar 內部實際的 DOM 元素
+  const sidebarRef = useRef(null);
+
+  // 🌟 2. 使用 useEffect 來監聽所有點擊事件
+  useEffect(() => {
+    
+    function handleClickOutside(event) {
+      // 如果側邊欄是開啟的 且
+      // 點擊的目標不在側邊欄 DOM 元素內
+      if (isSidebarOpen && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setIsSidebarOpen(false); // 關閉側邊欄
+      }
+    }
+
+    // 將事件監聽器添加到整個 document
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    // 清除函式：組件卸載時移除事件監聽器
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSidebarOpen]); // 僅在 isSidebarOpen 改變時重新執行
 
   return (
     <>
@@ -25,7 +48,7 @@ function Header() {
         {/* 中間的標題 */}
         <button
           onClick={() => {
-            if (!isAdminPage) navigate("/");  // 管理員頁面按了不要跳回去 看你們要不要 不要就註解 用下面的
+            if (!isAdminPage) navigate("/");
             // navigate("/");
           }}
           className="absolute left-1/2 -translate-x-1/2 text-xl font-bold text-gray-80"
@@ -67,8 +90,10 @@ function Header() {
           )}
         </div>
       </header>
-
+      
+      {/* 🌟 3. 將 Ref 傳入 SideBar */}
       <SideBar
+        sidebarRef={sidebarRef} // 傳入 Ref
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         isLoggedIn={isLoggedIn}
