@@ -3,7 +3,7 @@ import { HiMenu } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "./contexts/UserContext.jsx";
 
-function SideBar({ isOpen, onClose }) {
+function SideBar({ isOpen, onClose, sidebarRef }) {
     const navigate = useNavigate();
     const { isLoggedIn, userRole, refreshUserData } = useUser();
 
@@ -18,6 +18,8 @@ function SideBar({ isOpen, onClose }) {
     return (
         <>
             <aside
+                // 🌟 將 Ref 綁定到 <aside> 元素上
+                ref={sidebarRef} 
                 className={`
                     fixed top-0 left-0 h-full bg-white shadow-lg z-20 p-4
                     transform transition-transform duration-300 ease-in-out
