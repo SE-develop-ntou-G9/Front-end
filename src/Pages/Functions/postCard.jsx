@@ -28,7 +28,7 @@ function postCard({ postData }) {
 
             <div className="space-y-3 text-xs">
                 {/* 文字或顯示區塊 */}
-                {postData.description}
+                {postData.notes}
             </div>
 
             <div className="flex flex-wrap gap-2">

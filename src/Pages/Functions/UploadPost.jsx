@@ -24,7 +24,7 @@ function toApiJson(post, startAddress, destAddress, userName) {
         meet_point: { Name: post.meet_point?.Name || "" },
         departure_time: post.departure_time ? new Date(post.departure_time).toISOString() : null,
         notes: post.notes || "",
-        description: "",
+        description: post.description,
         helmet: !!post.helmet,
         // contact_info: { Contact: post.contact || "" },
         contact_info: {},
@@ -132,24 +132,7 @@ function UploadPost() {
                 console.log("後端回傳內容：", data);
                 throw new Error(data.message || `API 錯誤（${r.status})`);
             }
-            // // 從 localStorage 取得現有的資料陣列
-            // const existingPosts = JSON.parse(localStorage.getItem("posts")) || [];
-
-            // // 將新的 post 加入陣列，並串聯address
-            // const updatedPosts = [...existingPosts,  { ...post, desAddress: fullAddress }];
-
-            // // 將更新後的陣列存回 localStorage
-            // localStorage.setItem("posts", JSON.stringify(updatedPosts));
-
-            // alert(`資料已儲存到 localStorage：
-            //     出發地: ${post.origin}
-            //     目的地: ${post.destination}
-            //     出發時間: ${post.time}
-            //     集合地點: ${post.meetingPoint}
-            //     備註: ${post.note}
-            //     是否有安全帽: ${post.helmet ? "是" : "否"}
-            //     聯絡方式: ${post.contact}
-            // `);
+            
 
             // 清空表單
             setPost(new PostClass({}));
@@ -161,9 +144,6 @@ function UploadPost() {
 
         } catch (err) {
             console.error(err);
-            // 失敗時，你可以選擇同時備份到 localStorage，避免表單遺失
-            // const fallback = JSON.parse(localStorage.getItem("posts") || "[]");
-            // localStorage.setItem("posts", JSON.stringify([...fallback, payload]));
             alert(`送出失敗：${err.message}`);
         } finally {
             setSubmitting(false);
@@ -315,10 +295,20 @@ function UploadPost() {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block mb-2">備註:</label>
+                    <label className="block mb-2">貼文簡述:</label>
                     <textarea
                         name="notes"
                         value={post.notes}
+                        onChange={handleChange}
+                        className="w-full p-2 border rounded"
+                    ></textarea>
+                </div>
+
+                <div className="mb-4">
+                    <label className="block mb-2">備註:</label>
+                    <textarea
+                        name="description"
+                        value={post.description}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                     ></textarea>
