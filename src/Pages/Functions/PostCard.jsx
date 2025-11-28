@@ -3,7 +3,7 @@ import PostClass from '../../models/PostClass';
 import { HiArrowRight } from "react-icons/hi";
 import DetailPost from './DetailPost';
 import { Routes, Route, Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function postCard({ postData }) {
     const navigate = useNavigate();
@@ -13,8 +13,8 @@ function postCard({ postData }) {
     if (postData.leave) tags.push("中途下車");
 
     return (
-        <article className='postCard m-4'  onClick={() => navigate("/detailPost", { state: { post: postData } })}>
-            <div className = "flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
+        <article className='postCard m-4' onClick={() => navigate("/detailPost", { state: { post: postData } })}>
+            <div className="flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
                 <div className="flex">
                     <img src="https://placehold.co/100x50?text=Demo+Image&font=roboto" alt="demo" className="rounded-xl shadow" />
                 </div>
@@ -52,7 +52,6 @@ function postCard({ postData }) {
                 </div>
                 <p className="text-xs">{postData.driver_id}</p>
             </div>
-
             <div className="flex items-center justify-between text-gray-500">
                 {/* 底部資訊或按鈕 */}
             </div>

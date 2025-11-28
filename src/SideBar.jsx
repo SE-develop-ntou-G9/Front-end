@@ -7,6 +7,9 @@ function SideBar({ isOpen, onClose }) {
     const navigate = useNavigate();
     const { isLoggedIn, userRole, refreshUserData } = useUser();
 
+    //先用來測試管理員
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+
     const handleToggleRole = async () => {
         alert("降級功能需要後端 API 支援");
         await refreshUserData();
@@ -108,8 +111,33 @@ function SideBar({ isOpen, onClose }) {
                             (測試) 切換回乘客
                         </button>
                     )}
+
+                    <button
+                        className="hover:text-purple-600 text-sm text-gray-500"
+                        onClick={() => {
+                            navigate("/admin");
+                            onClose();
+                        }}
+                    >
+                        (測試)管理者後台
+                    </button>
+
+                    <button
+                        className="hover:text-purple-600 text-sm text-gray-500"
+                        onClick={() => {
+                            if (isAdmin) {
+                                localStorage.removeItem("isAdmin");
+                            } else {
+                                localStorage.setItem("isAdmin", "true");
+                            }
+                            window.location.reload();  // 立即更新 UI
+                        }}
+                    >
+                        {isAdmin ? "切換回一般用戶" : "切換為管理員"}
+                    </button>
+
                 </nav>
-            </aside>
+            </aside >
         </>
     );
 }
