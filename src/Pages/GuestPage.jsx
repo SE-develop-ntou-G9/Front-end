@@ -33,9 +33,9 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
     }, []);
 
 
-    return (     
+    return (
         <>
-            {/* 測試用切換按鈕 */}
+            {/* 測試用切換按鈕
             <div className="fixed bottom-4 right-4">
                 <button
                     onClick={() => setIsLoggedIn(true)}
@@ -43,7 +43,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
                 >
                     {isLoggedIn ? "登出" : "登入"}
                 </button>
-            </div>
+            </div> */}
 
             {/* 灰灰白白的背板 */}
             <div className="min-h-screen bg-gray-50">
@@ -69,7 +69,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
 
                     {/* 把卡片塞進來這下面 */}
 
-                    <CardPresent post={post}/>
+                    <CardPresent post={post} />
 
                 </div>
             </div>

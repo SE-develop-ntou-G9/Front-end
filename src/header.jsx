@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import SideBar from "./SideBar";
 import { HiMenu } from "react-icons/hi";
 import { useUser } from "./contexts/UserContext.jsx";
 
 function Header() {
+  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { user, isLoggedIn, userRole } = useUser();
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
     <>
@@ -22,10 +24,13 @@ function Header() {
 
         {/* 中間的標題 */}
         <button
-          onClick={() => navigate("/")}
+          onClick={() => {
+            if (!isAdminPage) navigate("/");  // 管理員頁面按了不要跳回去 看你們要不要 不要就註解 用下面的
+            // navigate("/");
+          }}
           className="absolute left-1/2 -translate-x-1/2 text-xl font-bold text-gray-80"
         >
-          NTOUber
+          {isAdminPage ? "管理員" : "NTOUber"}
         </button>
 
         {/* 右邊的登入登出 */}

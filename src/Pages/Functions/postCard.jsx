@@ -3,7 +3,7 @@ import PostClass from '../../models/PostClass';
 import { HiArrowRight } from "react-icons/hi";
 import DetailPost from './DetailPost';
 import { Routes, Route, Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function postCard({ postData }) {
     const navigate = useNavigate();
@@ -13,12 +13,12 @@ function postCard({ postData }) {
     if (postData.leave) tags.push("中途下車");
 
     return (
-        <article className='postCard m-4'  onClick={() => navigate("/detailPost", { state: { post: postData } })}>
-            <div className = "flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
+        <article className='postCard m-4' onClick={() => navigate("/detailPost", { state: { post: postData } })}>
+            <div className="flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
                 <div className="flex">
                     <img src="https://placehold.co/100x50?text=Demo+Image&font=roboto" alt="demo" className="rounded-xl shadow" />
                 </div>
-                
+
             </div>
 
             <div className="space-y-3 text-sm text-center font-bold">
@@ -34,10 +34,10 @@ function postCard({ postData }) {
             <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => (
                     <span
-                    key={tag}
-                    className="rounded-lg bg-gray-100 px-1.5 py-0.5 text-[8px] font-medium text-gray-700"
+                        key={tag}
+                        className="rounded-lg bg-gray-100 px-1.5 py-0.5 text-[8px] font-medium text-gray-700"
                     >
-                    {tag}
+                        {tag}
                     </span>
                 ))}
             </div>
@@ -48,11 +48,10 @@ function postCard({ postData }) {
                         src="https://placehold.co/80x80"
                         alt="driver"
                         className="h-full w-full object-cover"
-                        />
+                    />
                 </div>
                 <p className="text-xs">{postData.driver_id}</p>
             </div>
-
             <div className="flex items-center justify-between text-gray-500">
                 {/* 底部資訊或按鈕 */}
             </div>
