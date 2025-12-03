@@ -10,13 +10,13 @@ function Header() {
   const navigate = useNavigate();
   const { user, isLoggedIn, userRole } = useUser();
   const isAdminPage = location.pathname.startsWith("/admin");
-  
+
   // 🌟 1. 創建一個 Ref 來指向 SideBar 內部實際的 DOM 元素
   const sidebarRef = useRef(null);
 
   // 🌟 2. 使用 useEffect 來監聽所有點擊事件
   useEffect(() => {
-    
+
     function handleClickOutside(event) {
       // 如果側邊欄是開啟的 且
       // 點擊的目標不在側邊欄 DOM 元素內
@@ -27,7 +27,7 @@ function Header() {
 
     // 將事件監聽器添加到整個 document
     document.addEventListener("mousedown", handleClickOutside);
-    
+
     // 清除函式：組件卸載時移除事件監聽器
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -64,9 +64,9 @@ function Header() {
               onClick={() => navigate("/Profile")}
             >
               <div className="w-10 h-10 bg-white-700 rounded-full flex items-center justify-center text-xl font-bold">
-                {user.Picture ? (
+                {user.AvatarURL ? (
                   <img
-                    src={user.Picture}
+                    src={user.AvatarURL}
                     alt="User Avatar"
                     className="w-8 h-8 rounded-full border"
                   />
@@ -90,7 +90,7 @@ function Header() {
           )}
         </div>
       </header>
-      
+
       {/* 🌟 3. 將 Ref 傳入 SideBar */}
       <SideBar
         sidebarRef={sidebarRef} // 傳入 Ref

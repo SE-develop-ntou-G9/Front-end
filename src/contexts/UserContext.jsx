@@ -54,7 +54,13 @@ export const UserProvider = ({ children }) => {
 
             const userData = await res.json();
             console.log("✅ fetchUserData 成功:", userData);
-            setUser(userData);
+
+            const picture = localStorage.getItem("userPicture");
+
+            setUser({
+                ...userData,
+                AvatarURL: userData.avatarURL || userData.avatar_url || userData.AvatarURL || null
+            });
             setIsLoggedIn(true);
 
             // 檢查是否為車主
@@ -112,8 +118,7 @@ export const UserProvider = ({ children }) => {
             await fetchUserData(userData.id);
 
             setUser(prev => ({
-                ...prev,
-                Picture: prev?.Picture || userData.picture    // ← 新增
+                ...prev
             }));
         } catch (err) {
             console.error("login error:", err);
@@ -142,6 +147,8 @@ export const UserProvider = ({ children }) => {
                 body: JSON.stringify(updateData),
             });
 
+            const text = await res.text();
+            console.log("後端回傳原始內容：", text);
             if (!res.ok) {
                 throw new Error("更新失敗");
             }
@@ -198,6 +205,7 @@ export const UserProvider = ({ children }) => {
         upgradeToDriver,
         refreshUserData,
         fetchUserData,
+        setUser,
     };
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

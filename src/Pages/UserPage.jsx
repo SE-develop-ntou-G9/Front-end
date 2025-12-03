@@ -59,8 +59,13 @@ function UserPage() {
                         <div className="relative">
                             <input
                                 type="text"
-                                placeholder="Search for a ride"
-                                className="w-full pl-4 pr-10 py-3 rounded-2xl bg-purple-100/60 placeholder-gray-500 outline-none"
+                                placeholder="搜尋共乘、路線、地點…"
+                                className="w-full pl-4 pr-11 py-3 
+                                       rounded-2xl 
+                                       bg-white/60 backdrop-blur-sm 
+                                       shadow-sm border border-gray-200
+                                       placeholder-gray-500 focus:ring-2 focus:ring-purple-300 
+                                       transition"
                             />
                             <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 text-xl" />
                         </div>

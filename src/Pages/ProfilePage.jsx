@@ -97,9 +97,9 @@ function ProfilePage() {
                 <>
                     <div className="bg-black text-white py-10 px-6 flex flex-col items-center shadow-md">
                         <div className="w-20 h-20 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center">
-                            {user?.Picture ? (
+                            {user?.AvatarURL ? (
                                 <img
-                                    src={user.Picture}
+                                    src={user.AvatarURL}
                                     alt="Profile"
                                     className="w-full h-full object-cover"
                                 />
