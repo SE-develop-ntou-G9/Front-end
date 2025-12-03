@@ -14,11 +14,10 @@ function LoginPage() {
 
             const credential = response.credential;
 
-            const googleUser = jwtDecode(credential);
-
-            console.log("Google User Info:", googleUser);
-
-            const googlePicture = googleUser.picture;
+            // const googleUser = jwtDecode(credential);
+            // console.log("Google User Info:", googleUser);
+            // const googlePicture = googleUser.picture;
+            // localStorage.setItem("userPicture", googlePicture);
 
             const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
                 method: "POST",
@@ -30,12 +29,15 @@ function LoginPage() {
 
             const data = await res.json();
             const user = data.user;
-            const token = data.token;
 
             console.log("登入成功:", data);
 
-            // 使用 Context 的 login 方法（這會自動 fetchUserData）
-            await login({ ...user, picture: googlePicture }, token);
+
+            await login({
+                ...user,
+                AvatarURL: user.avatarURL || user.avatar_url || null
+            });
+
 
             // login 完成後，Context 中的 user 已經更新
             // 但我們需要再次查詢以確保有最新資料
