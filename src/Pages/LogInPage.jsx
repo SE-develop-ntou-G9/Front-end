@@ -14,10 +14,8 @@ function LoginPage() {
 
             const credential = response.credential;
 
-            // const googleUser = jwtDecode(credential);
-            // console.log("Google User Info:", googleUser);
-            // const googlePicture = googleUser.picture;
-            // localStorage.setItem("userPicture", googlePicture);
+            const googleUser = jwtDecode(credential);
+            const googlePicture = googleUser.picture;
 
             const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
                 method: "POST",
@@ -39,8 +37,6 @@ function LoginPage() {
             });
 
 
-            // login 完成後，Context 中的 user 已經更新
-            // 但我們需要再次查詢以確保有最新資料
             const fullUser = await fetchFullUserInfo(user.id);
 
             if (!fullUser) {
@@ -48,7 +44,6 @@ function LoginPage() {
                 return;
             }
 
-            // 檢查是否需要補充資料
             if (!fullUser.PhoneNumber || fullUser.PhoneNumber.trim() === "") {
                 alert(`歡迎 ${fullUser.Name || user.name} 第一次登入！請先設定聯絡方式～`);
                 navigate("/EditProfile");

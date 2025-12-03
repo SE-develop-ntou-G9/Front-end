@@ -186,6 +186,27 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    const updateDriver = async (driverData) => {
+        try {
+            const res = await fetch("https://ntouber-user.zeabur.app/v1/drivers/mod", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(driverData),
+            });
+
+            if (!res.ok) throw new Error("更新車主資料失敗");
+
+            await checkDriverStatus(driverData.user_id);
+            return true;
+
+        } catch (err) {
+            console.error("updateDriver error:", err);
+            return false;
+        }
+    };
+
     // 重新整理使用者資料
     const refreshUserData = async () => {
         if (user?.ID) {
@@ -206,6 +227,7 @@ export const UserProvider = ({ children }) => {
         refreshUserData,
         fetchUserData,
         setUser,
+        updateDriver,
     };
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
