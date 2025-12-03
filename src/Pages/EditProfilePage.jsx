@@ -4,13 +4,50 @@ import { useUser } from "../contexts/UserContext.jsx";
 
 function EditProfilePage() {
     const navigate = useNavigate();
-    const { user, updateUser, userRole } = useUser();
-    const { user: loggedUser, refreshUserData } = useUser();  // 改用 refreshUserData
+    const { user, updateUser, userRole, setUser } = useUser();
 
     const [name, setName] = useState(user?.Name || "");
     const [phone, setPhone] = useState(user?.PhoneNumber || "");
 
+
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState(user?.AvatarURL || null);
+
     const isDriver = userRole === "車主";
+
+    const handleAvatarChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setAvatarFile(file);
+        setAvatarPreview(URL.createObjectURL(file));
+    };
+
+    const uploadAvatar = async () => {
+        const formData = new FormData();
+        formData.append("image", avatarFile);
+
+        const res = await fetch("https://ntouber-user.zeabur.app/v1/images/avatar", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!res.ok) throw new Error("頭像上傳失敗");
+
+        const data = await res.json();
+        const url = data.url;
+
+        setUser(prev => ({
+            ...prev,
+            AvatarURL: url,
+        }));
+
+        return url;
+    };
+
+
+
+
 
     const handleSave = async () => {
         try {
@@ -19,11 +56,19 @@ function EditProfilePage() {
                 return;
             }
 
+            let avatarUrl = user.AvatarURL;
+
+            if (avatarFile) {
+                avatarUrl = await uploadAvatar();
+            }
+
             const updateData = {
                 ID: user.ID,
                 Name: name,
                 PhoneNumber: phone,
+                AvatarURL: avatarUrl,
             };
+            console.log("送給後端的資料 : ", updateData);
 
             const success = await updateUser(updateData);
 
@@ -46,6 +91,25 @@ function EditProfilePage() {
                 <h1 className="text-xl font-bold mb-6 text-center">編輯個人資料</h1>
 
                 <div className="space-y-4">
+                    <div className="relative flex flex-col items-center">
+                        <label htmlFor="avatarInput" className="cursor-pointer">
+                            <img
+                                src={avatarPreview || "/default-avatar.png"}
+                                alt="avatar"
+                                className="w-28 h-28 rounded-full object-cover border hover:opacity-80 transition"
+                            />
+                        </label>
+
+                        <input
+                            id="avatarInput"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarChange}
+                            className="hidden"
+                        />
+                    </div>
+
+
                     <div>
                         <label className="block text-sm text-gray-500 mb-1">姓名</label>
                         <input
