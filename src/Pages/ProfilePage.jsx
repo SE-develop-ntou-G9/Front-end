@@ -32,18 +32,6 @@ function ProfilePage() {
         );
     }
 
-    // Debug: 顯示完整狀態
-    // const showDebugInfo = () => {
-    //     return (
-    //         <div className="max-w-md mx-auto mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded text-xs">
-    //             <h3 className="font-bold mb-2">Debug 資訊</h3>
-    //             <pre className="whitespace-pre-wrap overflow-auto">
-    //                 {JSON.stringify({ isLoggedIn, loading, user, driver, userRole }, null, 2)}
-    //             </pre>
-    //         </div>
-    //     );
-    // };
-
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Debug 資訊 */}
