@@ -6,6 +6,7 @@ import PostClass from "../models/PostClass";
 import { useUser } from "../contexts/UserContext.jsx";
 // import { useNavigate } from "react-router-dom";
 import CardPresent from "./Functions/cardPresent";
+import PostSearch from "./Functions/PostSearch.jsx";
 
 const API = "https://ntouber-post.zeabur.app/api/posts/all";
 
@@ -55,7 +56,7 @@ function UserPage() {
                 <div className="max-w-2xl mx-auto px-4 pb-16">
 
                     {/* 搜尋欄 */}
-                    <div className="mt-4">
+                    {/* <div className="mt-4">
                         <div className="relative">
                             <input
                                 type="text"
@@ -69,7 +70,9 @@ function UserPage() {
                             />
                             <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 text-xl" />
                         </div>
-                    </div>
+                    </div> */}
+
+                    <PostSearch />
 
                     {/* 標題區 */}
                     <div className="mt-5">
