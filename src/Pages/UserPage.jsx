@@ -35,6 +35,11 @@ function UserPage() {
         fetchPosts();
     }, []);
 
+    const handleSearchResult = (resultArray) => {
+        const mapped = resultArray.map(p => new PostClass(p));
+        setPost(mapped);
+    };
+
 
 
     return (
@@ -72,7 +77,7 @@ function UserPage() {
                         </div>
                     </div> */}
 
-                    <PostSearch />
+                    <PostSearch onResult={handleSearchResult} />
 
                     {/* 標題區 */}
                     <div className="mt-5">
