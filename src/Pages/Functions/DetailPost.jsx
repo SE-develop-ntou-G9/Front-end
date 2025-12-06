@@ -74,7 +74,7 @@ function detailPost({ isLoggedIn }) {
 
                 <div className="space-y-3 text-xs">
                     {/* 文字或顯示區塊 */}
-                    集合時間: {postData.departure_time}
+                    集合時間: {dayjs(postData.departure_time).format("YYYY-MM-DD HH:mm")}
                 </div>
 
                 <div className="space-y-3 text-xs">
