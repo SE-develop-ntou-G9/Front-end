@@ -32,7 +32,7 @@ function toApiJson(post, startAddress, destAddress, userName) {
 
         vehicle_info: post.vehicle_info || "unknown",
         status: "open",  // 他說不能是空的我也不知道怎麼辦
-        timestamp: "0" // 他說不能是空的我也不知道怎麼辦
+        // timestamp: "0" // 他說不能是空的我也不知道怎麼辦
     }
 }
 
@@ -161,27 +161,6 @@ function UploadPost() {
                 }
 
                 console.log("圖片上傳成功，回傳資料：", imgData);
-
-                // if (imgData.image_url) {
-                //     const updateUrl = `https://ntouber-post.zeabur.app/api/posts/${postId}`;
-
-                //     const updateRes = await fetch(updateUrl, {
-                //         method: "PATCH",
-                //         headers: {
-                //             "Content-Type": "application/json",
-                //         },
-                //         body: JSON.stringify({
-                //             image_url: imgData.image_url
-                //         })
-                //     });
-
-                //     const updateData = await updateRes.json();
-                //     if (!updateRes.ok) {
-                //         throw new Error(updateData.message || "更新 post 圖片失敗");
-                //     }
-
-                //     console.log("圖片 URL 已成功寫入貼文：", updateData);
-                // }
 
 
 
