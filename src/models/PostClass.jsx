@@ -19,6 +19,7 @@
 
 export default class PostClass {
     constructor({
+        id,
         driver_id,
         vehicle_info,
         status,
@@ -34,6 +35,7 @@ export default class PostClass {
         leave,
         image_url
     }) {
+    this.id = id;
     this.driver_id = driver_id;
     this.vehicle_info = vehicle_info;
     this.status = status;

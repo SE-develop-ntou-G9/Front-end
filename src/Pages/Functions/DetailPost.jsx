@@ -59,16 +59,9 @@ function detailPost() {
             alert("請先登入再發送請求");
             return;
         }
-
-        
-
-        // 後端需要的三個參數
-        const time = postData.timestamp;      // 或 postData.departure_time 亦可
-
+        console.log(postData);
         const params = new URLSearchParams({
-            driver_id: postData.driver_id,
-            client_id: user.ID,
-            time: time,
+            post_id: postData.id,
         });
 
         const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
@@ -89,10 +82,12 @@ function detailPost() {
 
             console.log("發送請求成功：", data);
             alert("已發送請求給車主！");
+            navigate("/");
         } catch (err) {
             console.error("發送請求發生錯誤：", err);
             alert(`發送請求失敗：${err.message}`);
         }
+
     };
 
 
