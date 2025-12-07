@@ -37,6 +37,35 @@ export default function AdminUsers() {
         }
     };
 
+        const handleBlacklist = async (userId) => {
+
+        if (!window.confirm(`確定要把用戶 ${userId} 加入黑名單嗎？`)) return;
+
+        try {
+            const r = await fetch("https://ntouber-admin.zeabur.app/admin/blacklist", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: userId,
+                    reason: "violation",
+                }),
+            });
+
+            if (!r.ok) {
+                // 嘗試讀取錯誤訊息（如果後端有提供）
+                const errorData = await r.json();
+                throw new Error(`加入黑名單失敗 (${r.status}): ${errorData.error || '未知錯誤'}`);
+            }
+
+            const data = await r.json().catch(() => null);
+            console.log(`用戶 ${userId} 加入黑名單成功:`, data);
+
+        } catch (err) {
+            console.error("加入黑名單失敗：", err);
+            alert(`加入黑名單失敗：${err.message}`);
+        }
+    };
+
     useEffect(() => {
         async function fetchUsers() {
             try {
