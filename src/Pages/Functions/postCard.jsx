@@ -11,7 +11,7 @@ function postCard({ postData }) {
     const tags = [];
     if (postData.helmet) tags.push("提供安全帽");
     if (postData.leave) tags.push("中途下車");
-    
+
     const [driver, setDriver] = useState(null);
 
     const User_id = postData.driver_id;
@@ -24,6 +24,7 @@ function postCard({ postData }) {
                 if (!res.ok) throw new Error("取得使用者資料失敗");
 
                 const data = await res.json();
+
 
                 setDriver(data);
 

@@ -48,7 +48,8 @@ function Header() {
         {/* 中間的標題 */}
         <button
           onClick={() => {
-            {isAdminPage ? navigate("/admin") : navigate("/")}
+            if (!isAdminPage) navigate("/");
+            // navigate("/");
           }}
           className="absolute left-1/2 -translate-x-1/2 text-xl font-bold text-gray-80"
         >
@@ -90,6 +91,7 @@ function Header() {
         </div>
       </header>
 
+      {/* 🌟 3. 將 Ref 傳入 SideBar */}
       <SideBar
         sidebarRef={sidebarRef} // 傳入 Ref
         isOpen={isSidebarOpen}
