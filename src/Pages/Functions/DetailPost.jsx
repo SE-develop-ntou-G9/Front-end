@@ -62,6 +62,7 @@ function detailPost() {
         console.log(postData);
         const params = new URLSearchParams({
             post_id: postData.id,
+            client_id: user.ID,
         });
 
         const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
@@ -77,7 +78,7 @@ function detailPost() {
             if (!res.ok) {
                 console.error("發送請求失敗：", data);
                 throw new Error(data.message || `API 錯誤 (${res.status})`);
-                
+
             }
 
             console.log("發送請求成功：", data);
@@ -96,36 +97,36 @@ function detailPost() {
         <div className="flex justify-center">
             <article className='postCard m-4 w-3/4'>
                 {/* <div className="flex h-50 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400"> */}
-                    <div className="w-full bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden h-64 mb-4">
-                        <img
+                <div className="w-full bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden h-64 mb-4">
+                    <img
                         src={postData?.image_url || "https://placehold.co/200x150?text=Demo+Image&font=roboto"}
                         alt="demo"
                         className="max-w-full max-h-full object-contain rounded-xl"
-                        />
-                    </div>
+                    />
+                </div>
                 {/* </div> */}
                 <div className="space-y-3 text-sm text-center font-bold">
-                    
+
                     {postData.starting_point.Name} {"→"} {postData.destination.Name}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    
+
                     起點: {postData.starting_point.Address}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    
+
                     終點: {postData.destination.Address}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    
+
                     集合時間: {dayjs(postData.departure_time).format("YYYY-MM-DD HH:mm")}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    
+
                     集合地點: {postData.meet_point.Name}
                 </div>
 
@@ -136,7 +137,7 @@ function detailPost() {
                 <div className="space-y-3 text-xs">
                     備註:
                     <div className="border border-gray-400 rounded-md p-4">
-                        
+
                         {postData.description}
                     </div>
                 </div>
@@ -166,7 +167,7 @@ function detailPost() {
                 <div className="flex items-center justify-end text-gray-500">
                     {isLoggedIn ? (
                         <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
-                        onClick={handleRequest} >
+                            onClick={handleRequest} >
                             發送請求
                         </button>
                     ) : null}
