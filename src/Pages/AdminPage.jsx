@@ -14,7 +14,7 @@ function AdminPage() {
     const [post, setPost] = useState([]);
     const navigate = useNavigate();
     const { userRole, isAdmin } = useUser();
-    console.log("Admin:", isAdmin);
+    // console.log("Admin:", isAdmin);
 
     useEffect(() => {
         async function fetchPosts() {

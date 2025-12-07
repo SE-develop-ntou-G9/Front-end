@@ -11,8 +11,8 @@ export default class UserClass {
     this.Provider = data.Provider;           // 認證提供者
     this.ProviderUserID = data.ProviderUserID; // 認證提供者 ID
     
-    this.userName = data.Name;               // 名字 (Go: Name -> JS: userName)
-    this.ProviderUserID = data.Email;                 // 電子郵件 (Go: Email -> JS: email)
+    this.Email = data.Email;               // 名字 (Go: Name -> JS: userName)
+    this.userName = data.Name;                 // 電子郵件 (Go: Email -> JS: email)
     this.phone = data.PhoneNumber;           // 電話 (Go: PhoneNumber -> JS: phone)
     this.avatarUrl = data.AvatarURL;         // 頭像 URL
     this.role = null; 

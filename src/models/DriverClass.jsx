@@ -14,6 +14,7 @@ export default class DriverClass {
     this.scooterType = data.scooter_type; // 車型 (Go: ScooterType -> JS: scooterType)
     this.plateNum = data.plate_num;      // 車牌號碼 (Go: PlateNum -> JS: plateNum)
     this.driverLicense = data.driver_license; // 駕照號碼 (Go: DriverLicense -> JS: driverLicense)
+    this.status = data.status
     
     this.role = 'Driver'; 
   }

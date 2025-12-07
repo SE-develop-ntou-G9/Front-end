@@ -2,70 +2,19 @@ import React, { useEffect, useState } from "react";
 import UserClass from "../models/UserClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
+import useAdminUserActions from "../Pages/hooks/useAdminUserActions";
 
 const uAPI = "https://ntouber-user.zeabur.app/v1/users";
-const dAPI = "https://ntouber-user.zeabur.app/v1/drivers";
-const pAPI = "https://ntouber-post.zeabur.app/api/posts/delete/";
+
 // del user post 待實作
 
 export default function AdminUsers() {
     const navigate = useNavigate();
     const [users, setUser] = useState([]);
 
-    const handleDelete = async (userId) => {
-        if (!window.confirm(`確定要刪除用戶 ID: ${userId} 嗎？此操作不可逆！`)) {
-            return;
-        }
-        
-        try {
-            const r = await fetch(`${uAPI}/delete/${userId}`, { method: "DELETE" });
-            const a = await fetch(`${dAPI}/delete/${userId}`, { method: "DELETE" })
-
-            if (!r.ok) {
-                // 嘗試讀取錯誤訊息（如果後端有提供）
-                const errorData = await r.json();
-                throw new Error(`刪除失敗 (${r.status}): ${errorData.error || '未知錯誤'}`);
-            }
-
-            // 成功刪除後，更新前端 UI 狀態，移除該用戶
-            setUser(prevUsers => prevUsers.filter(u => u.ID !== userId));
-            console.log(`用戶 ${userId} 刪除成功`);
-
-        } catch (err) {
-            console.error("刪除用戶失敗：", err);
-            alert(`刪除失敗：${err.message}`);
-        }
-    };
-
-        const handleBlacklist = async (userId) => {
-
-        if (!window.confirm(`確定要把用戶 ${userId} 加入黑名單嗎？`)) return;
-
-        try {
-            const r = await fetch("https://ntouber-admin.zeabur.app/admin/blacklist", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    userId: userId,
-                    reason: "violation",
-                }),
-            });
-
-            if (!r.ok) {
-                // 嘗試讀取錯誤訊息（如果後端有提供）
-                const errorData = await r.json();
-                throw new Error(`加入黑名單失敗 (${r.status}): ${errorData.error || '未知錯誤'}`);
-            }
-
-            const data = await r.json().catch(() => null);
-            console.log(`用戶 ${userId} 加入黑名單成功:`, data);
-
-        } catch (err) {
-            console.error("加入黑名單失敗：", err);
-            alert(`加入黑名單失敗：${err.message}`);
-        }
-    };
-
+    // 引入並使用 Hook，傳入 setUser 函式
+    const { handleDelete, handleBlacklist } = useAdminUserActions(setUser);
+    
     useEffect(() => {
         async function fetchUsers() {
             try {
@@ -125,6 +74,7 @@ export default function AdminUsers() {
 
                 {/* 用戶列表 */}
                 <div className="mt-4 space-y-4">
+
                     {users.map((u) => (
                         <div
                             key={u.ID} 
@@ -143,14 +93,17 @@ export default function AdminUsers() {
                                 items-center    // 使內容垂直居中
                             "
                         >
-                            <div className="flex items-center space-x-3">
+                            <div 
+                                className="flex items-center space-x-3 cursor-pointer" 
+                                onClick={() => navigate("/admin/DetailUser", { state: { user: u } })}
+                            >
                                 
                                 <img 
                                     src={u.avatarUrl || '預設圖片路徑'} 
                                     alt={u.userName}
                                     className="h-10 w-10 rounded-full object-cover"
                                 />
-
+                                
                                 <p className="font-medium">{u.userName}</p>
                             </div>
                             

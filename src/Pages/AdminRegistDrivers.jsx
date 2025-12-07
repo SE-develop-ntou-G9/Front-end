@@ -1,31 +1,40 @@
-import React, { useState } from "react";
+// fileName: AdminRegistDrivers.jsx (重構)
+
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
+import DriverClass from "../models/DriverClass";
+import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions"; // <--- 導入 Hook
+
+const API = "https://ntouber-user.zeabur.app/v1/drivers";
 
 export default function AdminRegistDrivers() {
     const navigate = useNavigate();
+    const [drivers, setDrivers] = useState([]); // <--- 修正狀態初始化
+    const { handleVerify } = useAdminDriverActions(setDrivers); // <--- 只需要審核功能
 
-    // 假裝一下
-    const [drivers] = useState([
-        {
-            id: 1,
-            name: "淤蛇萬",
-            scooter: "Yamaha BWS",
-            plate: "ABC-1234"
-        },
-        {
-            id: 2,
-            name: "瓜騎兔",
-            scooter: "Kymco GP",
-            plate: "XYZ-5678"
-        },
-        {
-            id: 3,
-            name: "Tony9737",
-            scooter: "Gogoro S2",
-            plate: "EEE-9527"
-        },
-    ]);
+    useEffect(() => {
+        async function fetchDrivers() {
+            try {
+                const r = await fetch(`${API}/getAll`, { method: "GET" });
+                if (!r.ok) {
+                    throw new Error(`API 錯誤 (${r.status})`);
+                }
+
+                const data = await r.json();
+                const mapped = data.map(driver => new DriverClass(driver));
+                
+                // 篩選出待審核 (checking) 的車主
+                const checkingDrivers = mapped.filter(d => d.status == "checking");
+                // console.log("drivers", checkingDrivers)
+                setDrivers(checkingDrivers);
+            } catch (err) {
+                console.error("抓取driver失敗：", err);
+            }
+        }
+
+        fetchDrivers();
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -57,14 +66,14 @@ export default function AdminRegistDrivers() {
                 </div>
 
                 <div className="mt-6">
-                    <h2 className="text-base font-bold text-gray-900">審核車主</h2>
+                    <h2 className="text-base font-bold text-gray-900">審核車主 ({drivers.length})</h2>
                     <p className="text-xs text-gray-500 mt-0.5">查看申請車主資格的使用者</p>
                 </div>
 
                 <div className="mt-4 space-y-4">
                     {drivers.map((d) => (
                         <div
-                            key={d.id}
+                            key={d.userID} // <--- 修正 key
                             className="
                                 bg-white 
                                 rounded-lg 
@@ -73,39 +82,50 @@ export default function AdminRegistDrivers() {
                                 border 
                                 text-sm 
                                 text-gray-800
+                                flex 
+                                justify-between 
+                                items-center
                             "
                         >
-                            <p className="font-medium">用戶名：{d.name}</p>
-                            <p className="mt-1 text-gray-600">車型：{d.scooter}</p>
-                            <p className="text-gray-600">車牌：{d.plate}</p>
+                            {/* 🚀 點擊導航到詳細審核頁面 */}
+                            <div 
+                                className="flex-1 cursor-pointer"
+                                onClick={() => navigate("/admin/DetailRegistDriver", { state: { driver: d } })}
+                            >
+                                <p className="font-medium">用戶名：{d.name}</p>
+                                <p className="mt-1 text-gray-600 text-xs">車型：{d.scooterType} / 車牌：{d.plateNum}</p>
+                            </div>
 
-                            <div className="flex gap-3 mt-4">
-
+                            {/*
+                            { <div className="flex gap-3">
+                                
                                 <button
+                                    onClick={() => handleVerify(d, 'verified')}
                                     className="
-                                        flex-1 py-2 
+                                        py-2 px-3
                                         bg-green-600 text-white 
                                         rounded-full shadow-sm 
                                         hover:bg-green-700 
-                                        transition text-sm
+                                        transition text-xs
                                     "
                                 >
-                                    通過審核
+                                    通過
                                 </button>
 
                                 <button
+                                    onClick={() => handleVerify(d, 'rejected')}
                                     className="
-                                        flex-1 py-2 
+                                        py-2 px-3 
                                         bg-red-600 text-white 
                                         rounded-full shadow-sm 
                                         hover:bg-red-700 
-                                        transition text-sm
+                                        transition text-xs
                                     "
                                 >
                                     拒絕
                                 </button>
-
-                            </div>
+                            </div> }
+                            */}
                         </div>
                     ))}
                 </div>

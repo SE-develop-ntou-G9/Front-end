@@ -70,7 +70,8 @@ function RegisterPage() {
             contact_info: loggedUser.PhoneNumber,
             scooter_type: user.carType,
             plate_num: user.licenseNum.toUpperCase(),
-            driver_license: frontUrl
+            driver_license: frontUrl,
+            Status:"checking"
         };
 
         console.log("送到後端的資料：", payload);

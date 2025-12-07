@@ -26,7 +26,7 @@ function AdminDetailPost() {
     const tags = [];
     if (postData.helmet) tags.push("自備安全帽");
     if (postData.leave) tags.push("中途下車");
-    console.log("postData.id", postData.id);
+    // console.log("postData.id", postData.id);
     
     const handleDelete = async () => {
 
@@ -46,7 +46,7 @@ function AdminDetailPost() {
         
         // 假設 postData 中包含貼文 ID，例如 postData.ID
         const post_id = postData.id; 
-        const url = `https://ntouber-post.zeabur.app/api/posts/delete/${post_id}`;
+        const url = `https://ntouber-post.zeabur.app/api/posts/delete/post/${post_id}`;
         console.log("發送刪除請求 URL:", url);
 
         try {
