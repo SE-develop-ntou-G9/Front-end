@@ -1,36 +1,65 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import DriverClass from "../models/DriverClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 
+const API = "https://ntouber-user.zeabur.app/v1/drivers";
+
 export default function AdminDrivers() {
     const navigate = useNavigate();
+    const [drivers, setdriver] = useState([]);
 
-    // 假裝一下
-    const [drivers] = useState([
-        {
-            id: 1,
-            name: "淤蛇萬",
-            scooter: "Yamaha BWS",
-            plate: "ABC-1234"
-        },
-        {
-            id: 2,
-            name: "瓜騎兔",
-            scooter: "Kymco GP",
-            plate: "XYZ-5678"
-        },
-        {
-            id: 3,
-            name: "Tony9737",
-            scooter: "Gogoro S2",
-            plate: "EEE-9527"
-        },
-    ]);
+    const handleDelete = async (userId) => {
+        // 刪除request貼文
+        // 刪除車主
+        if (!window.confirm(`確定要刪除用戶 ID: ${userId} 嗎？此操作不可逆！`)) {
+            return;
+        }
+        
+        try {
+            const r = await fetch(`${API}/delete/${userId}`, { method: "DELETE" });
+
+            if (!r.ok) {
+                // 嘗試讀取錯誤訊息（如果後端有提供）
+                const errorData = await r.json();
+                throw new Error(`刪除失敗 (${r.status}): ${errorData.error || '未知錯誤'}`);
+            }
+
+            // 成功刪除後，更新前端 UI 狀態，移除該用戶
+            setUser(prevUsers => prevUsers.filter(u => u.ID !== userId));
+            console.log(`用戶 ${userId} 刪除成功`);
+
+        } catch (err) {
+            console.error("刪除用戶失敗：", err);
+            alert(`刪除失敗：${err.message}`);
+        }
+    };
+
+    useEffect(() => {
+        async function fetchDrivers() {
+            try {
+                const r = await fetch(`${API}/getAll`, { method: "GET" });
+                if (!r.ok) {
+                    throw new Error(`API 錯誤 (${r.status})`);
+                }
+
+                const data = await r.json();
+                const mapped = data.map(driver => new DriverClass(driver));
+                setdriver(mapped);
+            } catch (err) {
+                console.error("抓取driver失敗：", err);
+            }
+        }
+
+        fetchDrivers();
+    }, []);
+    
 
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-2xl mx-auto px-4 pb-16">
 
+                {/* 返回貼文 */}
                 <button
                     className="text-sm text-gray-600 mt-3"
                     onClick={() => navigate(-1)}
@@ -38,11 +67,12 @@ export default function AdminDrivers() {
                     ← 返回貼文
                 </button>
 
+                {/* 搜尋欄 */}
                 <div className="mt-4">
                     <div className="relative">
                         <input
                             type="text"
-                            placeholder="Search for driver"
+                            placeholder="Search for user"
                             className="
                                 w-full 
                                 pl-4 pr-10 py-3 
@@ -56,15 +86,17 @@ export default function AdminDrivers() {
                     </div>
                 </div>
 
+                {/* 標題 */}
                 <div className="mt-6">
-                    <h2 className="text-base font-bold text-gray-900">審核車主</h2>
-                    <p className="text-xs text-gray-500 mt-0.5">查看申請車主資格的使用者</p>
+                    <h2 className="text-base font-bold text-gray-900">所有用戶</h2>
+                    <p className="text-xs text-gray-500 mt-0.5">查看系統中的所有使用者</p>
                 </div>
 
+                {/* 用戶列表 */}
                 <div className="mt-4 space-y-4">
                     {drivers.map((d) => (
                         <div
-                            key={d.id}
+                            key={d.userID} 
                             className="
                                 bg-white 
                                 rounded-lg 
@@ -73,38 +105,52 @@ export default function AdminDrivers() {
                                 border 
                                 text-sm 
                                 text-gray-800
+                                
+                                // ✨ 新增 Flex 佈局類別
+                                flex 
+                                justify-between // 使左右內容分散對齊
+                                items-center    // 使內容垂直居中
                             "
                         >
-                            <p className="font-medium">用戶名：{d.name}</p>
-                            <p className="mt-1 text-gray-600">車型：{d.scooter}</p>
-                            <p className="text-gray-600">車牌：{d.plate}</p>
+                            <div className="flex items-center space-x-3">
+                                
+                                {/* <img 
+                                    src={u.avatarUrl || '預設圖片路徑'} 
+                                    alt={u.name}
+                                    className="h-10 w-10 rounded-full object-cover"
+                                /> */}
 
-                            <div className="flex gap-3 mt-4">
-
+                                <p className="font-medium">{d.name}</p>
+                            </div>
+                            
+                            <div className="flex space-x-2">
+                                
                                 <button
+                                    onClick={() => handleBlacklist(d.userID)} //尚未實作
                                     className="
-                                        flex-1 py-2 
-                                        bg-green-600 text-white 
-                                        rounded-full shadow-sm 
-                                        hover:bg-green-700 
-                                        transition text-sm
+                                        px-3 py-1 
+                                        bg-yellow-500 hover:bg-yellow-600 
+                                        text-white text-xs 
+                                        rounded-full 
+                                        transition-colors
                                     "
                                 >
-                                    通過審核
+                                    黑名單
                                 </button>
-
+                                
+                                {/* 2.2 刪除按鈕 */}
                                 <button
+                                    onClick={() => handleDelete(d.userID)}
                                     className="
-                                        flex-1 py-2 
-                                        bg-red-600 text-white 
-                                        rounded-full shadow-sm 
-                                        hover:bg-red-700 
-                                        transition text-sm
+                                        px-3 py-1 
+                                        bg-red-500 hover:bg-red-600 
+                                        text-white text-xs 
+                                        rounded-full 
+                                        transition-colors
                                     "
                                 >
-                                    拒絕
+                                    刪除
                                 </button>
-
                             </div>
                         </div>
                     ))}

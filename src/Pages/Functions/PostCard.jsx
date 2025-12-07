@@ -39,31 +39,12 @@ function postCard({ postData }) {
 
     return (
         <article className='postCard m-4' onClick={() => navigate("/detailPost", { state: { post: postData } })}>
-            {/* <div className="flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400"> */}
-                <div
-                className="
-                    w-full 
-                    h-40              /* 調高外框高度，可依需求改成 h-44 h-48 */
-                    rounded-xl 
-                    bg-gray-100 
-                    flex items-center justify-center
-                    overflow-hidden   /* 超出就裁掉，不會蓋到下面文字 */
-                    mb-3
-                "
-            >
-                <img
-                    src={postData?.image_url || "https://placehold.co/400x250?text=Demo+Image&font=roboto"}
-                    alt="demo"
-                    className="
-                        w-full 
-                        h-full 
-                        object-contain  /* 等比例縮放，塞在框內，多餘留灰底 */
-                        rounded-xl
-                    "
-                />
-            </div>
+            <div className="flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
+                <div className="flex">
+                    <img src="https://placehold.co/100x50?text=Demo+Image&font=roboto" alt="demo" className="rounded-xl shadow" />
+                </div>
 
-            {/* </div> */}
+            </div>
 
             <div className="space-y-3 text-sm text-center font-bold">
                 {/* 文字或顯示區塊 */}

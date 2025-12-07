@@ -78,7 +78,7 @@ function AdminPage() {
                             )}
                         </div>
                     </div> */}
-                    <div className="flex gap-3 mt-6 mb-4">
+                    <div className="flex gap-4 mt-6 mb-4">
                         <button
                             className="
                                 px-5 py-2 
@@ -107,6 +107,23 @@ function AdminPage() {
                                 transition-all
                             "
                             onClick={() => navigate("/admin/drivers")}
+                        >
+                            車主列表
+                        </button>
+
+
+                        <button
+                            className="
+                                px-5 py-2 
+                                rounded-full
+                                bg-gradient-to-r from-purple-50 to-purple-100
+                                text-gray-700 font-medium shadow-sm
+                                border border-purple-200
+                                hover:from-purple-100 hover:to-purple-200
+                                hover:shadow 
+                                transition-all
+                            "
+                            onClick={() => navigate("/admin/RegistDrivers")}
                         >
                             審核車主
                         </button>
