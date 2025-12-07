@@ -39,8 +39,10 @@ function toApiJson(post, startAddress, destAddress, userName) {
 function UploadPost() {
     const navigate = useNavigate();
     const { user } = useUser();  // 從 UserContext 取得使用者資料
-
+    const [imageFile, setImageFile] = useState("");
+    
     // 初始化 PostClass 實例
+    
     const [post, setPost] = useState(
         new PostClass({
             driver_id: "",
@@ -132,6 +134,35 @@ function UploadPost() {
                 console.log("後端回傳內容：", data);
                 throw new Error(data.message || `API 錯誤（${r.status})`);
             }
+            console.log(data);
+            // 假設後端回傳的物件裡有 id 當 post_id
+            const postId = data;
+
+            // 2. 如果有選圖片 → 呼叫 upload_image
+            if (imageFile && postId) {
+                console.log("HI");
+                const formData = new FormData();
+                formData.append("file", imageFile); // 這個 key 名稱要跟後端約好
+
+                const uploadUrl = `https://ntouber-post.zeabur.app/api/posts/upload_image?post_id=${postId}`;
+                
+                console.log("imageFile = ", imageFile);
+                console.log("formData = ", formData);
+
+                const imgRes = await fetch(uploadUrl, {
+                    method: "PATCH",
+                    body: formData, // 不要自己加 Content-Type，瀏覽器會幫你加 boundary
+                });
+
+                const imgData = await imgRes.json().catch(() => ({}));
+                if (!imgRes.ok) {
+                    console.log("圖片上傳失敗：", imgData);
+                    throw new Error(imgData.message || `圖片上傳錯誤（${imgRes.status})`);
+                }
+
+                console.log("圖片上傳成功，回傳資料：", imgData);
+                
+            }
             
 
             // 清空表單
@@ -140,7 +171,7 @@ function UploadPost() {
             setDestAddress({ city: "", district: "", street: "" });
             alert("送出成功！");
 
-            navigate("/");
+            // navigate("/");
 
         } catch (err) {
             console.error(err);
@@ -293,6 +324,20 @@ function UploadPost() {
                         required
                     />
                 </div>
+
+                <div className="mb-4">
+                    <label className="block mb-2">上傳照片：</label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                        const file = e.target.files && e.target.files[0];
+                        setImageFile(file || null);
+                        }}
+                        className="w-full"
+                    />
+                </div>
+
 
                 <div className="mb-4">
                     <label className="block mb-2">貼文簡述:</label>

@@ -1,45 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiArrowRight } from "react-icons/hi";
 import { useLocation } from "react-router-dom";
 import PostClass from "../../models/PostClass";
+import dayjs from "dayjs";
+import { useUser } from "../../contexts/UserContext.jsx";
 
-function detailPost({ isLoggedIn }) {
+function detailPost() {
+    const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();
+    useEffect(() => {
+        // 只在組件 mount 時執行一次，用於 debug
+        console.group("ProfilePage 載入");
+        console.log("isLoggedIn:", isLoggedIn);
+        console.log("user:", user);
+        console.log("driver:", driver);
+        console.log("userRole:", userRole);
+        console.groupEnd();
+    }, []);
+
     const navigate = useNavigate();
     const { state } = useLocation();
     const postData = state?.post;
     if (!postData) return <p>沒有收到貼文資料</p>;
-    // const postData = new PostClass({
-    //     driver_id: 'user123',
-    //     vehicle_info: null,
-    //     status: "open",
-    //     timestamp: "2025-11-09T05:33:28.610Z",
-
-    //     starting_point: {
-    //         Name: "海大校門",
-    //         Address: "基隆市中正區"
-    //     },
-
-    //     destination: {
-    //         Name: "基隆火車站",
-    //         Address: "基隆市仁愛區"
-    //     },
-
-    //     meet_point: {
-    //         Name: "北門",
-    //         Address: "基隆市北門"
-    //     },
-
-    //     departure_time: "2025-11-09T05:34:00.000Z",
-
-    //     notes: "尋找同路人！",
-    //     description: "路上可以一起聊聊天!",
-    //     helmet: false,
-
-    //     contact_info: {},
-
-    //     leave: false
-    // });
 
     const tags = [];
     if (postData.helmet) tags.push("自備安全帽");
