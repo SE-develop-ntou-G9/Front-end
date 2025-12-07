@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from "react";
 import PostClass from '../../models/PostClass';
 import { HiArrowRight } from "react-icons/hi";
 import DetailPost from './DetailPost';
@@ -11,6 +11,30 @@ function postCard({ postData }) {
     const tags = [];
     if (postData.helmet) tags.push("提供安全帽");
     if (postData.leave) tags.push("中途下車");
+
+    const [driver, setDriver] = useState(null);
+
+    const User_id = postData.driver_id;
+
+    useEffect(() => {
+        async function fetchDriver() {
+            try {
+                const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${User_id}`);
+
+                if (!res.ok) throw new Error("取得使用者資料失敗");
+
+                const data = await res.json();
+
+                setDriver(data);
+
+            } catch (err) {
+                console.error("❌ 載入車主資料失敗:", err);
+            }
+        }
+
+
+        fetchDriver();
+    }, [User_id]);
 
     return (
         <article className='postCard m-4' onClick={() => navigate("/detailPost", { state: { post: postData } })}>
@@ -45,12 +69,12 @@ function postCard({ postData }) {
             <div className="flex items-center h-5">
                 <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
                     <img
-                        src="https://placehold.co/80x80"
+                        src={driver?.AvatarURL || "https://placehold.co/80x80"}
                         alt="driver"
                         className="h-full w-full object-cover"
                     />
                 </div>
-                <p className="text-xs">{postData.driver_id}</p>
+                <p className="text-xs">{driver?.Name || "載入中…"}</p>
             </div>
             <div className="flex items-center justify-between text-gray-500">
                 {/* 底部資訊或按鈕 */}
