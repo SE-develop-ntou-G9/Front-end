@@ -1,45 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiArrowRight } from "react-icons/hi";
 import { useLocation } from "react-router-dom";
 import PostClass from "../../models/PostClass";
+import dayjs from "dayjs";
+import { useUser } from "../../contexts/UserContext.jsx";
 
-function detailPost({ isLoggedIn }) {
+function detailPost() {
+    const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();
+    useEffect(() => {
+        // 只在組件 mount 時執行一次，用於 debug
+        console.group("ProfilePage 載入");
+        console.log("isLoggedIn:", isLoggedIn);
+        console.log("user:", user);
+        console.log("driver:", driver);
+        console.log("userRole:", userRole);
+        console.groupEnd();
+    }, []);
+
     const navigate = useNavigate();
     const { state } = useLocation();
     const postData = state?.post;
     if (!postData) return <p>沒有收到貼文資料</p>;
-    // const postData = new PostClass({
-    //     driver_id: 'user123',
-    //     vehicle_info: null,
-    //     status: "open",
-    //     timestamp: "2025-11-09T05:33:28.610Z",
-
-    //     starting_point: {
-    //         Name: "海大校門",
-    //         Address: "基隆市中正區"
-    //     },
-
-    //     destination: {
-    //         Name: "基隆火車站",
-    //         Address: "基隆市仁愛區"
-    //     },
-
-    //     meet_point: {
-    //         Name: "北門",
-    //         Address: "基隆市北門"
-    //     },
-
-    //     departure_time: "2025-11-09T05:34:00.000Z",
-
-    //     notes: "尋找同路人！",
-    //     description: "路上可以一起聊聊天!",
-    //     helmet: false,
-
-    //     contact_info: {},
-
-    //     leave: false
-    // });
 
     const tags = [];
     if (postData.helmet) tags.push("自備安全帽");
@@ -47,6 +29,45 @@ function detailPost({ isLoggedIn }) {
 
     //這是假裝有Admin
     const isAdmin = localStorage.getItem("isAdmin") === "true";
+
+    const handleRequest = async () => {
+        if (!isLoggedIn || !user) {
+            alert("請先登入再發送請求");
+            return;
+        }
+
+        // 後端需要的三個參數
+        const time = new Date().toISOString();      // 或 postData.departure_time 亦可
+
+        const params = new URLSearchParams({
+            driver_id: postData.driver_id,
+            client_id: user.ID,
+            time: time,
+        });
+
+        const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
+        console.log("發送請求 URL:", url);
+
+        try {
+            const res = await fetch(url, {
+                method: "PATCH",
+                // 這個 API 參數都在 query string，通常不需要 body
+                // 如果後端要 JSON body 再另外加 body + headers
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                console.error("發送請求失敗：", data);
+                throw new Error(data.message || `API 錯誤 (${res.status})`);
+            }
+
+            console.log("發送請求成功：", data);
+            alert("已發送請求給車主！");
+        } catch (err) {
+            console.error("發送請求發生錯誤：", err);
+            alert(`發送請求失敗：${err.message}`);
+        }
+    };
 
     return (
         <div className="flex justify-center">
@@ -74,7 +95,7 @@ function detailPost({ isLoggedIn }) {
 
                 <div className="space-y-3 text-xs">
                     {/* 文字或顯示區塊 */}
-                    集合時間: {postData.departure_time}
+                    集合時間: {dayjs(postData.departure_time).format("YYYY-MM-DD HH:mm")}
                 </div>
 
                 <div className="space-y-3 text-xs">
@@ -118,7 +139,8 @@ function detailPost({ isLoggedIn }) {
 
                 <div className="flex items-center justify-end text-gray-500">
                     {isLoggedIn ? (
-                        <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm">
+                        <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
+                        onClick={handleRequest} >
                             發送請求
                         </button>
                     ) : null}

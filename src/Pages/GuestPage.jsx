@@ -6,6 +6,7 @@ import { HiSearch } from "react-icons/hi";
 import PostCard from "./Functions/PostCard";
 import PostClass from "../models/PostClass";
 import CardPresent from "./Functions/cardPresent";
+import PostSearch from "./Functions/PostSearch";
 
 const API = "https://ntouber-post.zeabur.app/api/posts/all";
 function GuestPage({ setIsLoggedIn, isLoggedIn }) {
@@ -32,6 +33,11 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
         fetchPosts();
     }, []);
 
+    const handleSearchResult = (resultArray) => {
+        const mapped = resultArray.map(p => new PostClass(p));
+        setPost(mapped);
+    };
+
 
     return (
         <>
@@ -50,16 +56,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
                 <div className="max-w-xl mx-auto px-4 pb-16">
 
                     {/* 搜尋欄 */}
-                    <div className="mt-4">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Search for a ride"
-                                className="w-full pl-4 pr-10 py-3 rounded-2xl bg-purple-100/60 placeholder-gray-500 outline-none"
-                            />
-                            <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 text-xl" />
-                        </div>
-                    </div>
+                    <PostSearch onResult={handleSearchResult} />
 
                     {/* 標題區 */}
                     <div className="mt-5">
