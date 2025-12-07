@@ -4,7 +4,7 @@ import PostClass from "../../models/PostClass";
 
 const API = "https://ntouber-post.zeabur.app/api/posts/all";
 
-export default function CardPresent({post}) {
+export default function CardPresent({post,isAdmin}) {
 
     return (
         <div className="grid grid-cols-2 gap-4">
@@ -15,6 +15,7 @@ export default function CardPresent({post}) {
                     <PostCard
                         key={p.driver_id}
                         postData={p}
+                        isAdmin= {isAdmin}
                     />
                 ))
             )}

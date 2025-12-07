@@ -8,6 +8,7 @@ import LogInPage from "./Pages/LogInPage";
 import RegisterPage from "./Pages/RegisterPage";
 import ProfilePage from "./Pages/ProfilePage.jsx";
 import DetailPost from "./Pages/Functions/DetailPost.jsx";
+import AdminDetailPost from "./Pages/Functions/AdminDetailPost.jsx"
 import EditProfilePage from "./Pages/EditProfilePage.jsx";
 import AdminPage from "./Pages/AdminPage";
 import AdminUsers from "./Pages/AdminUsers";
@@ -42,6 +43,7 @@ function App() {
           <Route path="/uploadPost" element={<UploadPost />} />
           <Route path="/EditProfile" element={<EditProfilePage />} />
           <Route path="/detailPost" element={<DetailPost />} />
+          <Route path="/AdminDetailPost" element={<AdminDetailPost />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/drivers" element={<AdminDrivers />} />

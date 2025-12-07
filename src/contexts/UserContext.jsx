@@ -15,6 +15,7 @@ export const UserProvider = ({ children }) => {
     const [driver, setDriver] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userRole, setUserRole] = useState(null);
+    const [isAdmin, setAdmin] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isFetching, setIsFetching] = useState(false);  // 防止重複請求
 
@@ -64,7 +65,7 @@ export const UserProvider = ({ children }) => {
             setIsLoggedIn(true);
 
             // 檢查是否為車主
-            await checkDriverStatus(userId);
+            await checkStatus(userId);
         } catch (err) {
             console.error("fetchUserData error:", err);
             logout();
@@ -74,7 +75,12 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    // 檢查車主狀態（不帶 Authorization header）
+    const checkStatus = async (userId) => {
+        await checkDriverStatus(userId);
+        await checkAdminStatus(userId);
+    }
+
+    // 檢查車主&admin狀態（不帶 Authorization header）
     const checkDriverStatus = async (userId) => {
         try {
             const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`);
@@ -104,6 +110,40 @@ export const UserProvider = ({ children }) => {
             console.log("ℹ️ checkDriverStatus 異常，設為乘客:", err.message);
             setDriver(null);
             setUserRole("乘客");
+        }
+    };
+
+    const checkAdminStatus = async (userId) => {
+        try {
+            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`);
+
+            if (res.ok) {
+                const Data = await res.json();
+                if (Data && Object.keys(Data).length > 0) {
+                    console.log("✅ 檢測到user資料:");
+                    console.log("name:", Data.Name)
+                    console.log("id:", Data.ID)
+                    console.log("Admin:", Data.Admin)
+                     if (Data.Admin) {
+                        setAdmin("1");
+                    } else {
+                    setAdmin("0");
+                    }
+                } else {
+                    console.log("ℹ️ 無user資料，設為乘客");
+                    setAdmin("0");
+                }
+               
+            } else if (res.status === 404 || res.status === 500) {
+                console.log("ℹ️ 怪怪的（狀態碼: " + res.status + "）");
+                setAdmin("0");
+            } else {
+                console.log("⚠️ 無法檢查狀態");
+                setAdmin("0");
+            }
+        } catch (err) {
+            console.log("ℹ️ checkAdminStatus 異常，設為乘客:", err.message);
+            setAdmin("0");
         }
     };
 
@@ -178,7 +218,7 @@ export const UserProvider = ({ children }) => {
             }
 
             // 重新檢查車主狀態
-            await checkDriverStatus(user.ID);
+            await checkStatus(user.ID);
             return true;
         } catch (err) {
             console.error("upgradeToDriver error:", err);
@@ -198,7 +238,7 @@ export const UserProvider = ({ children }) => {
 
             if (!res.ok) throw new Error("更新車主資料失敗");
 
-            await checkDriverStatus(driverData.user_id);
+            await checkStatus(driverData.user_id);
             return true;
 
         } catch (err) {
@@ -219,6 +259,7 @@ export const UserProvider = ({ children }) => {
         driver,
         isLoggedIn,
         userRole,
+        isAdmin,
         loading,
         login,
         logout,

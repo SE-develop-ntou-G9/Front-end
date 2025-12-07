@@ -9,7 +9,7 @@ function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { user, isLoggedIn, userRole } = useUser();
-  const isAdminPage = location.pathname.startsWith("/admin");
+  const isAdminPage = (location.pathname.startsWith("/admin") || location.pathname.startsWith("/AdminDetailPost"));
 
   // 🌟 1. 創建一個 Ref 來指向 SideBar 內部實際的 DOM 元素
   const sidebarRef = useRef(null);

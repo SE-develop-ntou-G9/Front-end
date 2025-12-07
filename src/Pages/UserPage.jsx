@@ -13,7 +13,7 @@ const API = "https://ntouber-post.zeabur.app/api/posts/all";
 function UserPage() {
     const [post, setPost] = useState([]);
     const navigate = useNavigate();
-    const { userRole, logout } = useUser();
+    const { userRole, isAdmin } = useUser();
 
 
     useEffect(() => {
@@ -40,7 +40,7 @@ function UserPage() {
         setPost(mapped);
     };
 
-
+    
 
     return (
         <>
@@ -103,7 +103,7 @@ function UserPage() {
                     </div>
 
                     {/* 把卡片塞進來這下面 */}
-                    <CardPresent post={post} />
+                    <CardPresent post={post} isAdmin={isAdmin} />
 
                     {/* 我的共乘紀錄 */}
                     <div className="mt-6">

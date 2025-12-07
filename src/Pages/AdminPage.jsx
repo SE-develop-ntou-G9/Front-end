@@ -13,8 +13,8 @@ const API = "https://ntouber-post.zeabur.app/api/posts/allpost";
 function AdminPage() {
     const [post, setPost] = useState([]);
     const navigate = useNavigate();
-    const { userRole, logout } = useUser();
-
+    const { userRole, isAdmin } = useUser();
+    console.log("Admin:", isAdmin);
 
     useEffect(() => {
         async function fetchPosts() {
@@ -129,7 +129,7 @@ function AdminPage() {
                         </button>
                     </div>
                     {/* 把卡片塞進來這下面 */}
-                    <CardPresent post={post} />
+                    <CardPresent post={post} isAdmin={isAdmin} />
 
 
                 </div>

@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiArrowRight } from "react-icons/hi";
 import { useLocation } from "react-router-dom";
-import PostClass from "../../models/PostClass";
+import PostClass from "../../models/PostClass.jsx";
 import dayjs from "dayjs";
 import { useUser } from "../../contexts/UserContext.jsx";
 
-function detailPost() {
+function AdminDetailPost() {
     const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();
     // useEffect(() => {
     //     // 只在組件 mount 時執行一次，用於 debug
@@ -26,49 +26,53 @@ function detailPost() {
     const tags = [];
     if (postData.helmet) tags.push("自備安全帽");
     if (postData.leave) tags.push("中途下車");
-    // console.log("postData.id", postData.id);
+    console.log("postData.id", postData.id);
     
+    const handleDelete = async () => {
 
-    const handleRequest = async () => {
-        if (!isLoggedIn || !user) {
-            alert("請先登入再發送請求");
-            return;
-        }
+        // 2. 確認貼文資料是否存在
+        if (!postData || !postData.id) {
+            console.error("無法取得貼文 ID 進行刪除。");
+            console.log("postData.id:", postData.id);
+            alert("無法取得貼文 ID 進行刪除。");
+            return;
+        }
 
-        // 後端需要的三個參數
-        const time = postData.timestamp;      // 或 postData.departure_time 亦可
+        // 3. 執行確認刪除提示
+        const isConfirmed = window.confirm(`確定要刪除這篇貼文嗎？\n貼文 ID: ${postData.id}`);
+        if (!isConfirmed) {
+            return;
+        }
+        
+        // 假設 postData 中包含貼文 ID，例如 postData.ID
+        const post_id = postData.id; 
+        const url = `https://ntouber-post.zeabur.app/api/posts/delete/${post_id}`;
+        console.log("發送刪除請求 URL:", url);
 
-        const params = new URLSearchParams({
-            driver_id: postData.driver_id,
-            client_id: user.ID,
-            time: time,
-        });
+        try {
+            const res = await fetch(url, {
+                method: "DELETE", // 使用 DELETE 方法
+            });
 
-        const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
-        console.log("發送請求 URL:", url);
+            // 嘗試解析 JSON 響應，如果沒有內容，則返回空對象
+            const data = await res.json().catch(() => ({}));
+            
+            if (!res.ok) {
+                console.error("刪除貼文失敗：", data);
+                throw new Error(data.message || `API 錯誤 (${res.status})`);
+            }
 
-        try {
-            console.log(postData.timestamp);
-            const res = await fetch(url, {
-                method: "PATCH",
-            });
-
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-                console.error("發送請求失敗：", data);
-                throw new Error(data.message || `API 錯誤 (${res.status})`);
-                
-            }
-
-            console.log("發送請求成功：", data);
-            alert("已發送請求給車主！");
-        } catch (err) {
-            console.error("發送請求發生錯誤：", err);
-            alert(`發送請求失敗：${err.message}`);
-        }
-    };
-
-   
+            console.log("刪除貼文成功：", data);
+            alert("貼文已成功刪除！");
+            
+            // 刪除成功後，導航回上一頁或貼文列表頁面
+            navigate(-1); 
+            
+        } catch (err) {
+            console.error("刪除貼文發生錯誤：", err);
+            alert(`刪除貼文失敗：${err.message}`);
+        }
+    };
 
 
     return (
@@ -139,21 +143,53 @@ function detailPost() {
                     <p className="text-xs">{postData.driver_id}</p>
                 </div>
                 
-              
-                <div className="flex items-center justify-end text-gray-500">
-                    {isLoggedIn ? (
-                        <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
-                        onClick={handleRequest} >
-                            發送請求
-                        </button>
-                    ) : null}
+                <div className="mt-6 flex justify-between gap-4">
+
+                    {/* 封鎖駕駛 */}
+                    <button
+                        className="
+                            flex-1 
+                            bg-black 
+                            text-white 
+                            py-3 
+                            rounded-full 
+                            shadow-md 
+                            hover:bg-gray-900 
+                            active:bg-gray-800
+                            transition-all 
+                            text-sm 
+                            font-semibold
+                        "
+                    >
+                        封鎖駕駛
+                    </button>
+
+                    {/* 刪除貼文 */}
+                    <button
+                        onClick={handleDelete}
+                        className="
+                            flex-1 
+                            bg-black 
+                            text-white 
+                            py-3 
+                            rounded-full 
+                            shadow-md 
+                            hover:bg-gray-900 
+                            active:bg-gray-800
+                            transition-all 
+                            text-sm 
+                            font-semibold
+                        "
+                    >
+                        刪除貼文
+                    </button>
+
                 </div>
-           
-               
+            
             </article>
         </div>
 
     );
 }
 
-export default detailPost;
+export default AdminDetailPost;
