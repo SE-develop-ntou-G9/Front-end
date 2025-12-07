@@ -113,7 +113,7 @@ function UploadPost() {
             return;
         }
 
-        const payload = toApiJson(post, startAddress, destAddress, user.Name);
+        const payload = toApiJson(post, startAddress, destAddress, user.ID);
         setSubmitting(true);
 
         // const fullAddress = [address.city, address.district, address.street]
@@ -171,7 +171,7 @@ function UploadPost() {
             setDestAddress({ city: "", district: "", street: "" });
             alert("送出成功！");
 
-            // navigate("/");
+            navigate("/");
 
         } catch (err) {
             console.error(err);

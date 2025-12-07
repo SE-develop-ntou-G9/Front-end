@@ -30,6 +30,45 @@ function detailPost() {
     //這是假裝有Admin
     const isAdmin = localStorage.getItem("isAdmin") === "true";
 
+    const handleRequest = async () => {
+        if (!isLoggedIn || !user) {
+            alert("請先登入再發送請求");
+            return;
+        }
+
+        // 後端需要的三個參數
+        const time = new Date().toISOString();      // 或 postData.departure_time 亦可
+
+        const params = new URLSearchParams({
+            driver_id: postData.driver_id,
+            client_id: user.ID,
+            time: time,
+        });
+
+        const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
+        console.log("發送請求 URL:", url);
+
+        try {
+            const res = await fetch(url, {
+                method: "PATCH",
+                // 這個 API 參數都在 query string，通常不需要 body
+                // 如果後端要 JSON body 再另外加 body + headers
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                console.error("發送請求失敗：", data);
+                throw new Error(data.message || `API 錯誤 (${res.status})`);
+            }
+
+            console.log("發送請求成功：", data);
+            alert("已發送請求給車主！");
+        } catch (err) {
+            console.error("發送請求發生錯誤：", err);
+            alert(`發送請求失敗：${err.message}`);
+        }
+    };
+
     return (
         <div className="flex justify-center">
             <article className='postCard m-4 w-3/4'>
@@ -100,7 +139,8 @@ function detailPost() {
 
                 <div className="flex items-center justify-end text-gray-500">
                     {isLoggedIn ? (
-                        <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm">
+                        <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
+                        onClick={handleRequest} >
                             發送請求
                         </button>
                     ) : null}
