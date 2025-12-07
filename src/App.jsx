@@ -13,6 +13,8 @@ import AdminPage from "./Pages/AdminPage";
 import AdminUsers from "./Pages/AdminUsers";
 import AdminDrivers from "./Pages/AdminDrivers";
 
+import CurrentPost from "./Pages/CurrentPost";
+
 import { useUser } from "./contexts/UserContext.jsx";
 
 function App() {
@@ -44,6 +46,7 @@ function App() {
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/drivers" element={<AdminDrivers />} />
+          <Route path="/Current" element={<CurrentPost />} />
 
 
 
