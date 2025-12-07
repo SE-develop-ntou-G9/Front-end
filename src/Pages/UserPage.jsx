@@ -25,7 +25,7 @@ function UserPage() {
                 }
                 const data = await r.json();
                 const mapped = data.map(post => new PostClass(post));
-                // console.log(mapped.driver_id);
+                console.log(mapped.driver_id);
                 setPost(mapped);
             } catch (err) {
                 console.error("抓取貼文失敗：", err);
