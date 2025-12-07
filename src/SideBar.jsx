@@ -80,7 +80,7 @@ function SideBar({ isOpen, onClose, sidebarRef }) {
                     {/* 車主功能 */}
                     {isLoggedIn && (
                         <>
-                            <MenuItem label="目前貼文" icon={<HiClipboardList />} onClose={onClose} />
+                            <MenuItem label="目前貼文" icon={<HiClipboardList />} onClick={() => navigate("/Current")} onClose={onClose} />
                             {userRole === "乘客" ? (
                                 <MenuItem
                                     label="升級成車主"
