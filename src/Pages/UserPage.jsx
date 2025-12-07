@@ -23,9 +23,9 @@ function UserPage() {
                 if (!r.ok) {
                     throw new Error(`API 錯誤 (${r.status})`);
                 }
-
                 const data = await r.json();
                 const mapped = data.map(post => new PostClass(post));
+                console.log(mapped.driver_id);
                 setPost(mapped);
             } catch (err) {
                 console.error("抓取貼文失敗：", err);
