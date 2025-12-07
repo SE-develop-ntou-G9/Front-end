@@ -78,7 +78,7 @@ function AdminPage() {
                             )}
                         </div>
                     </div> */}
-                    <div className="flex gap-3 mt-6 mb-4">
+                    <div className="flex gap-4 mt-6 mb-4">
                         <button
                             className="
                                 px-5 py-2 

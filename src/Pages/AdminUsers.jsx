@@ -1,16 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import UserClass from "../models/UserClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 
+const API = "https://ntouber-post.zeabur.app/api/users/all";
+
 export default function AdminUsers() {
     const navigate = useNavigate();
-
+    const [users, setUser] = useState([]);
     // 先假裝一下
-    const [users] = useState([
-        { id: 1, name: "淤蛇萬" },
-        { id: 2, name: "瓜騎兔" },
-        { id: 3, name: "Tony9737" }
-    ]);
+    // const [users] = useState([
+    //     { id: 1, name: "淤蛇萬" },
+    //     { id: 2, name: "瓜騎兔" },
+    //     { id: 3, name: "Tony9737" }
+    // ]);
+
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const r = await fetch(API, { method: "GET" });
+                if (!r.ok) {
+                    throw new Error(`API 錯誤 (${r.status})`);
+                }
+
+                const data = await r.json();
+                const mapped = data.map(post => new UserClass(post));
+                setUser(mapped);
+            } catch (err) {
+                console.error("抓取user失敗：", err);
+            }
+        }
+
+        fetchUsers();
+    }, []);
+    
 
     return (
         <div className="min-h-screen bg-gray-50">
