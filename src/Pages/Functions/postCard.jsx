@@ -25,6 +25,7 @@ function postCard({ postData }) {
 
                 const data = await res.json();
 
+
                 setDriver(data);
 
             } catch (err) {
