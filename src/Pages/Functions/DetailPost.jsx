@@ -37,7 +37,7 @@ function detailPost() {
         }
 
         // 後端需要的三個參數
-        const time = new Date().toISOString();      // 或 postData.departure_time 亦可
+        const time = postData.timestamp;      // 或 postData.departure_time 亦可
 
         const params = new URLSearchParams({
             driver_id: postData.driver_id,
@@ -49,16 +49,16 @@ function detailPost() {
         console.log("發送請求 URL:", url);
 
         try {
+            console.log(postData.timestamp);
             const res = await fetch(url, {
                 method: "PATCH",
-                // 這個 API 參數都在 query string，通常不需要 body
-                // 如果後端要 JSON body 再另外加 body + headers
             });
 
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
                 console.error("發送請求失敗：", data);
                 throw new Error(data.message || `API 錯誤 (${res.status})`);
+                
             }
 
             console.log("發送請求成功：", data);

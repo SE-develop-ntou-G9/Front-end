@@ -31,8 +31,8 @@ function toApiJson(post, startAddress, destAddress, userName) {
         leave: !!post.leave,
 
         vehicle_info: post.vehicle_info || "unknown",
-        status: "open",                       // 他說不能是空的我也不知道怎麼辦
-        timestamp: "2025-10-31T06:56:57.647Z" // 他說不能是空的我也不知道怎麼辦
+        status: "open",  // 他說不能是空的我也不知道怎麼辦
+        timestamp: "0" // 他說不能是空的我也不知道怎麼辦
     }
 }
 
@@ -48,7 +48,7 @@ function UploadPost() {
             driver_id: "",
             vehicle_info: null,
             status: "",
-            timestamp: "",
+            // timestamp: "",
             starting_point: {
                 Name: "",
                 Address: ""
@@ -161,8 +161,34 @@ function UploadPost() {
                 }
 
                 console.log("圖片上傳成功，回傳資料：", imgData);
+
+                // if (imgData.image_url) {
+                //     const updateUrl = `https://ntouber-post.zeabur.app/api/posts/${postId}`;
+
+                //     const updateRes = await fetch(updateUrl, {
+                //         method: "PATCH",
+                //         headers: {
+                //             "Content-Type": "application/json",
+                //         },
+                //         body: JSON.stringify({
+                //             image_url: imgData.image_url
+                //         })
+                //     });
+
+                //     const updateData = await updateRes.json();
+                //     if (!updateRes.ok) {
+                //         throw new Error(updateData.message || "更新 post 圖片失敗");
+                //     }
+
+                //     console.log("圖片 URL 已成功寫入貼文：", updateData);
+                // }
+
+
+
                 
             }
+
+
             
 
             // 清空表單
