@@ -8,7 +8,7 @@ import { useUser } from "../contexts/UserContext.jsx";
 import CardPresent from "./Functions/cardPresent";
 
 
-const API = "https://ntouber-post.zeabur.app/api/posts/all";
+const API = "https://ntouber-post.zeabur.app/api/posts/allpost";
 
 function AdminPage() {
     const [post, setPost] = useState([]);

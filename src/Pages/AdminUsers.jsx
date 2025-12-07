@@ -3,7 +3,10 @@ import UserClass from "../models/UserClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 
-const API = "https://ntouber-user.zeabur.app/v1/users";
+const uAPI = "https://ntouber-user.zeabur.app/v1/users";
+const dAPI = "https://ntouber-user.zeabur.app/v1/drivers";
+const pAPI = "https://ntouber-post.zeabur.app/api/posts/delete/";
+// del user post 待實作
 
 export default function AdminUsers() {
     const navigate = useNavigate();
@@ -15,7 +18,8 @@ export default function AdminUsers() {
         }
         
         try {
-            const r = await fetch(`${API}/delete/${userId}`, { method: "DELETE" });
+            const r = await fetch(`${uAPI}/delete/${userId}`, { method: "DELETE" });
+            const a = await fetch(`${dAPI}/delete/${userId}`, { method: "DELETE" })
 
             if (!r.ok) {
                 // 嘗試讀取錯誤訊息（如果後端有提供）
@@ -36,7 +40,7 @@ export default function AdminUsers() {
     useEffect(() => {
         async function fetchUsers() {
             try {
-                const r = await fetch(`${API}/getAll`, { method: "GET" });
+                const r = await fetch(`${uAPI}/getAll`, { method: "GET" });
                 if (!r.ok) {
                     throw new Error(`API 錯誤 (${r.status})`);
                 }
