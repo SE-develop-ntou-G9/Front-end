@@ -26,6 +26,8 @@ function detailPost() {
     const tags = [];
     if (postData.helmet) tags.push("自備安全帽");
     if (postData.leave) tags.push("中途下車");
+    // console.log("postData.id", postData.id);
+    
 
     //這是假裝有Admin
     const isAdmin = localStorage.getItem("isAdmin") === "true";
@@ -68,6 +70,58 @@ function detailPost() {
             alert(`發送請求失敗：${err.message}`);
         }
     };
+
+    const handleDelete = async () => {
+        // 1. 確認使用者權限 (Admin 身份)
+        if (!isAdmin) {
+            alert("只有管理員才能刪除貼文！");
+            return;
+        }
+
+        // 2. 確認貼文資料是否存在
+        if (!postData || !postData.id) {
+            console.error("無法取得貼文 ID 進行刪除。");
+            console.log("postData.id:", postData.id);
+            alert("無法取得貼文 ID 進行刪除。");
+            return;
+        }
+
+        // 3. 執行確認刪除提示
+        const isConfirmed = window.confirm(`確定要刪除這篇貼文嗎？\n貼文 ID: ${postData.ID}`);
+        if (!isConfirmed) {
+            return;
+        }
+        
+        // 假設 postData 中包含貼文 ID，例如 postData.ID
+        const post_id = postData.id; 
+        const url = `https://ntouber-post.zeabur.app/api/posts/delete/${post_id}`;
+        console.log("發送刪除請求 URL:", url);
+
+        try {
+            const res = await fetch(url, {
+                method: "DELETE", // 使用 DELETE 方法
+            });
+
+            // 嘗試解析 JSON 響應，如果沒有內容，則返回空對象
+            const data = await res.json().catch(() => ({}));
+            
+            if (!res.ok) {
+                console.error("刪除貼文失敗：", data);
+                throw new Error(data.message || `API 錯誤 (${res.status})`);
+            }
+
+            console.log("刪除貼文成功：", data);
+            alert("貼文已成功刪除！");
+            
+            // 刪除成功後，導航回上一頁或貼文列表頁面
+            navigate(-1); 
+            
+        } catch (err) {
+            console.error("刪除貼文發生錯誤：", err);
+            alert(`刪除貼文失敗：${err.message}`);
+        }
+    };
+
 
     return (
         <div className="flex justify-center">
@@ -136,7 +190,8 @@ function detailPost() {
                     </div>
                     <p className="text-xs">{postData.driver_id}</p>
                 </div>
-
+                
+                {!isAdmin && (
                 <div className="flex items-center justify-end text-gray-500">
                     {isLoggedIn ? (
                         <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
@@ -145,6 +200,7 @@ function detailPost() {
                         </button>
                     ) : null}
                 </div>
+                )}
                 {isAdmin && (
                     <div className="mt-6 flex justify-between gap-4">
 
@@ -169,6 +225,7 @@ function detailPost() {
 
                         {/* 刪除貼文 */}
                         <button
+                            onClick={handleDelete}
                             className="
                                 flex-1 
                                 bg-black 
