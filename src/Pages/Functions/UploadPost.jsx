@@ -31,8 +31,8 @@ function toApiJson(post, startAddress, destAddress, userName) {
         leave: !!post.leave,
 
         vehicle_info: post.vehicle_info || "unknown",
-        status: "open",                       // 他說不能是空的我也不知道怎麼辦
-        timestamp: "2025-10-31T06:56:57.647Z" // 他說不能是空的我也不知道怎麼辦
+        status: "open",  // 他說不能是空的我也不知道怎麼辦
+        // timestamp: "0" // 他說不能是空的我也不知道怎麼辦
     }
 }
 
@@ -48,7 +48,7 @@ function UploadPost() {
             driver_id: "",
             vehicle_info: null,
             status: "",
-            timestamp: "",
+            // timestamp: "",
             starting_point: {
                 Name: "",
                 Address: ""
@@ -161,8 +161,13 @@ function UploadPost() {
                 }
 
                 console.log("圖片上傳成功，回傳資料：", imgData);
+
+
+
                 
             }
+
+
             
 
             // 清空表單
