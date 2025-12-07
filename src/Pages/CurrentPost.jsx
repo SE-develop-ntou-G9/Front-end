@@ -30,7 +30,7 @@ function CurrentPost() {
     }, [user]);
 
     const driverPosts = myPosts.filter((p) => p.driver_id === user.ID);
-    const passengerPosts = myPosts.filter((p) => p.user_id === user.ID);
+    const passengerPosts = myPosts.filter((p) => p.client_id === user.ID);
 
     const StatusBadge = ({ status }) => {
         const colors = {
