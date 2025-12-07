@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
-import PostCard from "./Functions/PostCard";
+import PostCard from "./Functions/PostCard.jsx";
 import PostClass from "../models/PostClass";
 import { useUser } from "../contexts/UserContext.jsx";
 // import { useNavigate } from "react-router-dom";
