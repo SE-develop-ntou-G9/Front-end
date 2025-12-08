@@ -104,7 +104,6 @@ export const UserProvider = ({ children }) => {
             console.log("✅ 檢測到車主資料:", driverData);
             setDriver(driverData);
 
-            // ⭐ 根據 driver.status 決定前端角色
             switch (driverData.status) {
                 case "checking":
                     console.log("🔍 車主資格審核中");
@@ -140,16 +139,16 @@ export const UserProvider = ({ children }) => {
                     console.log("name:", Data.Name)
                     console.log("id:", Data.ID)
                     console.log("Admin:", Data.Admin)
-                     if (Data.Admin) {
+                    if (Data.Admin) {
                         setAdmin("1");
                     } else {
-                    setAdmin("0");
+                        setAdmin("0");
                     }
                 } else {
                     console.log("ℹ️ 無user資料，設為乘客");
                     setAdmin("0");
                 }
-               
+
             } else if (res.status === 404 || res.status === 500) {
                 console.log("ℹ️ 怪怪的（狀態碼: " + res.status + "）");
                 setAdmin("0");
