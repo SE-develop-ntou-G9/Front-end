@@ -150,21 +150,37 @@ export const UserProvider = ({ children }) => {
     // 登入
     const login = async (userData, token) => {
         try {
-            // 只儲存 token 和 userId
             localStorage.setItem("jwtToken", token);
             localStorage.setItem("userId", userData.id);
 
-            // 從後端獲取完整資料
-            await fetchUserData(userData.id);
+            const googleAvatar = userData.AvatarURL;
 
-            setUser(prev => ({
-                ...prev
-            }));
+            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userData.id}`);
+            const dbUser = res.ok ? await res.json() : {};
+
+            const finalAvatar =
+                dbUser.avatarURL ||
+                dbUser.avatar_url ||
+                googleAvatar ||
+                null;
+
+            const merged = {
+                ...dbUser,
+                ...userData,
+                AvatarURL: finalAvatar
+            };
+
+            setUser(merged);
+            setIsLoggedIn(true);
+            localStorage.setItem("user", JSON.stringify(merged));
+
         } catch (err) {
             console.error("login error:", err);
-            throw err;
         }
     };
+
+
+
 
     // 登出
     const logout = () => {
