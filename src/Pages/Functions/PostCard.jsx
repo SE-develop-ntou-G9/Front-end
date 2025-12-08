@@ -3,18 +3,22 @@ import PostClass from '../../models/PostClass';
 import { HiArrowRight } from "react-icons/hi";
 import DetailPost from './DetailPost';
 import { Routes, Route, Link } from "react-router-dom";
+import { useUser } from "../../contexts/UserContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 
-function postCard({ postData }) {
+function postCard({ postData , isAdmin}) {
     const navigate = useNavigate();
     if (!postData) return null;
     const tags = [];
     if (postData.helmet) tags.push("提供安全帽");
     if (postData.leave) tags.push("中途下車");
-
+    
     const [driver, setDriver] = useState(null);
 
     const User_id = postData.driver_id;
+
+    const dst = isAdmin === "1" ? "/AdminDetailPost" : "/detailPost";
+    
 
     useEffect(() => {
         async function fetchDriver() {
@@ -24,7 +28,6 @@ function postCard({ postData }) {
                 if (!res.ok) throw new Error("取得使用者資料失敗");
 
                 const data = await res.json();
-
 
                 setDriver(data);
 
@@ -37,8 +40,9 @@ function postCard({ postData }) {
         fetchDriver();
     }, [User_id]);
 
+        
     return (
-        <article className='postCard m-4' onClick={() => navigate("/detailPost", { state: { post: postData } })}>
+        <article className='postCard m-4' onClick={() => navigate(`${dst}`, { state: { post: postData } })}>
             <div className="flex h-24 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
                 <div className="flex">
                     <img src="https://placehold.co/100x50?text=Demo+Image&font=roboto" alt="demo" className="rounded-xl shadow" />
