@@ -32,8 +32,7 @@ export default class PostClass {
         description,
         helmet,
         contact_info,
-        leave,
-        image_url
+        leave
     }) {
     this.id = id;
     this.driver_id = driver_id;
@@ -67,6 +66,5 @@ export default class PostClass {
     this.contact_info = contact_info || {};
 
     this.leave = leave;
-    this.image_url = image_url;
   }
 }

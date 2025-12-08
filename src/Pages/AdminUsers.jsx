@@ -1,16 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import UserClass from "../models/UserClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
+import useAdminUserActions from "../Pages/hooks/useAdminUserActions";
+
+const uAPI = "https://ntouber-user.zeabur.app/v1/users";
+
+// del user post 待實作
 
 export default function AdminUsers() {
     const navigate = useNavigate();
+    const [users, setUser] = useState([]);
 
-    // 先假裝一下
-    const [users] = useState([
-        { id: 1, name: "淤蛇萬" },
-        { id: 2, name: "瓜騎兔" },
-        { id: 3, name: "Tony9737" }
-    ]);
+    // 引入並使用 Hook，傳入 setUser 函式
+    const { handleDelete, handleBlacklist } = useAdminUserActions(setUser);
+    
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const r = await fetch(`${uAPI}/getAll`, { method: "GET" });
+                if (!r.ok) {
+                    throw new Error(`API 錯誤 (${r.status})`);
+                }
+
+                const data = await r.json();
+                const mapped = data.map(user => new UserClass(user));
+                setUser(mapped);
+            } catch (err) {
+                console.error("抓取user失敗：", err);
+            }
+        }
+
+        fetchUsers();
+    }, []);
+    
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -51,9 +74,10 @@ export default function AdminUsers() {
 
                 {/* 用戶列表 */}
                 <div className="mt-4 space-y-4">
+
                     {users.map((u) => (
                         <div
-                            key={u.id}
+                            key={u.ID} 
                             className="
                                 bg-white 
                                 rounded-lg 
@@ -62,9 +86,56 @@ export default function AdminUsers() {
                                 border 
                                 text-sm 
                                 text-gray-800
+                                
+                                // ✨ 新增 Flex 佈局類別
+                                flex 
+                                justify-between // 使左右內容分散對齊
+                                items-center    // 使內容垂直居中
                             "
                         >
-                            <p className="font-medium">用戶名：{u.name}</p>
+                            <div 
+                                className="flex items-center space-x-3 cursor-pointer" 
+                                onClick={() => navigate("/admin/DetailUser", { state: { user: u } })}
+                            >
+                                
+                                <img 
+                                    src={u.avatarUrl || '預設圖片路徑'} 
+                                    alt={u.userName}
+                                    className="h-10 w-10 rounded-full object-cover"
+                                />
+                                
+                                <p className="font-medium">{u.userName}</p>
+                            </div>
+                            
+                            <div className="flex space-x-2">
+                                
+                                <button
+                                    onClick={() => handleBlacklist(u.ID)} //尚未實作
+                                    className="
+                                        px-3 py-1 
+                                        bg-yellow-500 hover:bg-yellow-600 
+                                        text-white text-xs 
+                                        rounded-full 
+                                        transition-colors
+                                    "
+                                >
+                                    黑名單
+                                </button>
+                                
+                                {/* 2.2 刪除按鈕 */}
+                                <button
+                                    onClick={() => handleDelete(u.ID)}
+                                    className="
+                                        px-3 py-1 
+                                        bg-red-500 hover:bg-red-600 
+                                        text-white text-xs 
+                                        rounded-full 
+                                        transition-colors
+                                    "
+                                >
+                                    刪除
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
