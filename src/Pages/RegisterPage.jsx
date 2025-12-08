@@ -89,7 +89,7 @@ function RegisterPage() {
                 return;
             }
 
-            alert("成功升級成車主！");
+            alert("成功向Admin申請車主！");
             await refreshUserData();
             navigate("/Profile");
 
