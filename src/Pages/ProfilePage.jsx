@@ -4,7 +4,7 @@ import { useUser } from "../contexts/UserContext.jsx";
 
 function ProfilePage() {
     const navigate = useNavigate();
-    const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();
+    const { user, driver, isLoggedIn, userRole, loading, logout} = useUser();
 
     useEffect(() => {
         // 只在組件 mount 時執行一次，用於 debug
