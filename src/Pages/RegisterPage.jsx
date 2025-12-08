@@ -70,7 +70,8 @@ function RegisterPage() {
             contact_info: loggedUser.PhoneNumber,
             scooter_type: user.carType,
             plate_num: user.licenseNum.toUpperCase(),
-            driver_license: frontUrl
+            driver_license: frontUrl,
+            Status:"checking"
         };
 
         console.log("送到後端的資料：", payload);
@@ -88,7 +89,7 @@ function RegisterPage() {
                 return;
             }
 
-            alert("成功升級成車主！");
+            alert("成功向Admin申請車主！");
             await refreshUserData();
             navigate("/Profile");
 

@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
-import PostCard from "./Functions/PostCard";
+import PostCard from "./Functions/PostCard.jsx";
 import PostClass from "../models/PostClass";
 import { useUser } from "../contexts/UserContext.jsx";
 // import { useNavigate } from "react-router-dom";
 import CardPresent from "./Functions/cardPresent";
 
 
-const API = "https://ntouber-post.zeabur.app/api/posts/all";
+const API = "https://ntouber-post.zeabur.app/api/posts/allpost";
 
 function AdminPage() {
     const [post, setPost] = useState([]);
     const navigate = useNavigate();
-    const { userRole, logout } = useUser();
-
+    const { userRole, isAdmin } = useUser();
+    // console.log("Admin:", isAdmin);
 
     useEffect(() => {
         async function fetchPosts() {
@@ -78,7 +78,7 @@ function AdminPage() {
                             )}
                         </div>
                     </div> */}
-                    <div className="flex gap-3 mt-6 mb-4">
+                    <div className="flex gap-4 mt-6 mb-4">
                         <button
                             className="
                                 px-5 py-2 
@@ -108,11 +108,28 @@ function AdminPage() {
                             "
                             onClick={() => navigate("/admin/drivers")}
                         >
+                            車主列表
+                        </button>
+
+
+                        <button
+                            className="
+                                px-5 py-2 
+                                rounded-full
+                                bg-gradient-to-r from-purple-50 to-purple-100
+                                text-gray-700 font-medium shadow-sm
+                                border border-purple-200
+                                hover:from-purple-100 hover:to-purple-200
+                                hover:shadow 
+                                transition-all
+                            "
+                            onClick={() => navigate("/admin/RegistDrivers")}
+                        >
                             審核車主
                         </button>
                     </div>
                     {/* 把卡片塞進來這下面 */}
-                    <CardPresent post={post} />
+                    <CardPresent post={post} isAdmin={isAdmin} />
 
 
                 </div>

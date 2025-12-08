@@ -9,7 +9,7 @@ function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { user, isLoggedIn, userRole } = useUser();
-  const isAdminPage = location.pathname.startsWith("/admin");
+  const isAdminPage = (location.pathname.startsWith("/admin") || location.pathname.startsWith("/AdminDetailPost"));
 
   // 🌟 1. 創建一個 Ref 來指向 SideBar 內部實際的 DOM 元素
   const sidebarRef = useRef(null);
@@ -48,8 +48,7 @@ function Header() {
         {/* 中間的標題 */}
         <button
           onClick={() => {
-            if (!isAdminPage) navigate("/");
-            // navigate("/");
+            {isAdminPage ? navigate("/admin") : navigate("/")}
           }}
           className="absolute left-1/2 -translate-x-1/2 text-xl font-bold text-gray-80"
         >
@@ -91,7 +90,6 @@ function Header() {
         </div>
       </header>
 
-      {/* 🌟 3. 將 Ref 傳入 SideBar */}
       <SideBar
         sidebarRef={sidebarRef} // 傳入 Ref
         isOpen={isSidebarOpen}
