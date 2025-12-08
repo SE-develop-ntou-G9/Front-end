@@ -6,7 +6,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 
-function PostCard({ postData , isAdmin}) {
+function postCard({ postData , isAdmin}) {
     const navigate = useNavigate();
     if (!postData) return null;
     const tags = [];
@@ -89,4 +89,4 @@ function PostCard({ postData , isAdmin}) {
     );
 }
 
-export default PostCard;
+export default postCard;
