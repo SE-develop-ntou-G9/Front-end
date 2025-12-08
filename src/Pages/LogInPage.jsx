@@ -17,6 +17,10 @@ function LoginPage() {
             const googleUser = jwtDecode(credential);
             const googlePicture = googleUser.picture;
 
+
+            // console.log("googleUser:", googleUser);
+            // console.log("googlePicture:", googleUser.picture);
+
             const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -28,16 +32,15 @@ function LoginPage() {
             const data = await res.json();
             const user = data.user;
 
-            console.log("登入成功:", data);
 
-
-            await login({
-                ...user,
-                AvatarURL: user.avatarURL || user.avatar_url || null
-            });
 
 
             const fullUser = await fetchFullUserInfo(user.id);
+
+            await login({
+                ...user,
+                AvatarURL: fullUser.AvatarURL || googlePicture || null
+            });
 
             if (!fullUser) {
                 alert("無法取得使用者資料");

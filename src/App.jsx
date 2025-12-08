@@ -18,6 +18,8 @@ import AdminRegistDrivers from "./Pages/AdminRegistDrivers";
 import AdminDetailDriver from "./Pages/Functions/AdminDetailDriver.jsx"
 import AdminDetailRegistDriver from "./Pages//Functions/AdminDetailRegistDriver.jsx"
 
+import CurrentPost from "./Pages/CurrentPost";
+
 import { useUser } from "./contexts/UserContext.jsx";
 
 function App() {
@@ -54,6 +56,7 @@ function App() {
           <Route path="/admin/RegistDrivers" element={<AdminRegistDrivers />} />
           <Route path="/admin/DetailDriver" element={<AdminDetailDriver />} />
           <Route path="/admin/DetailRegistDriver" element={<AdminDetailRegistDriver />} />
+          <Route path="/Current" element={<CurrentPost />} />
 
 
 
