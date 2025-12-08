@@ -32,7 +32,7 @@ function postCard({ postData , isAdmin}) {
                 setDriver(data);
 
             } catch (err) {
-                console.error("❌ 載入車主資料失敗:", err);
+                console.error(" 載入車主資料失敗:", err);
             }
         }
 
