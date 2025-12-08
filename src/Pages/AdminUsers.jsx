@@ -110,7 +110,7 @@ export default function AdminUsers() {
                             <div className="flex space-x-2">
                                 
                                 <button
-                                    onClick={() => handleBlacklist(u.ID)} //尚未實作
+                                    onClick={() => handleBlacklist(u.ID)}
                                     className="
                                         px-3 py-1 
                                         bg-yellow-500 hover:bg-yellow-600 
