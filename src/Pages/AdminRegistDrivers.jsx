@@ -1,17 +1,17 @@
-// fileName: AdminDrivers.jsx (重構)
+// fileName: AdminRegistDrivers.jsx (重構)
 
 import React, { useEffect, useState } from "react";
-import DriverClass from "../models/DriverClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
+import DriverClass from "../models/DriverClass";
 import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions"; // <--- 導入 Hook
 
 const API = "https://ntouber-user.zeabur.app/v1/drivers";
 
-export default function AdminDrivers() {
+export default function AdminRegistDrivers() {
     const navigate = useNavigate();
-    const [drivers, setDrivers] = useState([]); // <--- 修正變數名稱
-    const { handleDelete, handleBlacklist } = useAdminDriverActions(setDrivers); // <--- 使用 Hook
+    const [drivers, setDrivers] = useState([]); // <--- 修正狀態初始化
+    const { handleVerify } = useAdminDriverActions(setDrivers); // <--- 只需要審核功能
 
     useEffect(() => {
         async function fetchDrivers() {
@@ -24,10 +24,10 @@ export default function AdminDrivers() {
                 const data = await r.json();
                 const mapped = data.map(driver => new DriverClass(driver));
                 
-                //  篩選出已通過審核 (verified) 的車主
-                const verifiedDrivers = mapped.filter(d => d.status == 'verified');
-                
-                setDrivers(verifiedDrivers); // <--- 修正變數名稱
+                // 篩選出待審核 (checking) 的車主
+                const checkingDrivers = mapped.filter(d => d.status == "checking");
+                // console.log("drivers", checkingDrivers)
+                setDrivers(checkingDrivers);
             } catch (err) {
                 console.error("抓取driver失敗：", err);
             }
@@ -35,13 +35,11 @@ export default function AdminDrivers() {
 
         fetchDrivers();
     }, []);
-    
 
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-2xl mx-auto px-4 pb-16">
 
-                {/* 返回貼文 */}
                 <button
                     className="text-sm text-gray-600 mt-3"
                     onClick={() => navigate(-1)}
@@ -49,7 +47,6 @@ export default function AdminDrivers() {
                     ← 返回貼文
                 </button>
 
-                {/* 搜尋欄 */}
                 <div className="mt-4">
                     <div className="relative">
                         <input
@@ -68,17 +65,15 @@ export default function AdminDrivers() {
                     </div>
                 </div>
 
-                {/* 標題 */}
                 <div className="mt-6">
-                    <h2 className="text-base font-bold text-gray-900">認證車主</h2>
-                    <p className="text-xs text-gray-500 mt-0.5">查看系統中的所有認證車主</p>
+                    <h2 className="text-base font-bold text-gray-900">審核車主 ({drivers.length})</h2>
+                    <p className="text-xs text-gray-500 mt-0.5">查看申請車主資格的使用者</p>
                 </div>
 
-                {/* 車主列表 */}
                 <div className="mt-4 space-y-4">
                     {drivers.map((d) => (
                         <div
-                            key={d.userID} 
+                            key={d.userID} // <--- 修正 key
                             className="
                                 bg-white 
                                 rounded-lg 
@@ -92,43 +87,45 @@ export default function AdminDrivers() {
                                 items-center
                             "
                         >
-                            {/* 🚀 點擊導航到詳細頁面 */}
+                            {/* 🚀 點擊導航到詳細審核頁面 */}
                             <div 
-                                className="flex items-center space-x-3 cursor-pointer"
-                                onClick={() => navigate("/admin/DetailDriver", { state: { driver: d } })}
+                                className="flex-1 cursor-pointer"
+                                onClick={() => navigate("/admin/DetailRegistDriver", { state: { driver: d } })}
                             >
-                                <p className="font-medium">{d.name}</p>
-                                <p className="text-gray-500 text-xs">({d.plateNum})</p>
+                                <p className="font-medium">用戶名：{d.name}</p>
+                                <p className="mt-1 text-gray-600 text-xs">車型：{d.scooterType} / 車牌：{d.plateNum}</p>
                             </div>
-                            
-                            <div className="flex space-x-2">
+
+                            {/*
+                            { <div className="flex gap-3">
                                 
                                 <button
-                                    onClick={() => handleBlacklist(d.userID)}
+                                    onClick={() => handleVerify(d, 'verified')}
                                     className="
-                                        px-3 py-1 
-                                        bg-yellow-500 hover:bg-yellow-600 
-                                        text-white text-xs 
-                                        rounded-full 
-                                        transition-colors
+                                        py-2 px-3
+                                        bg-green-600 text-white 
+                                        rounded-full shadow-sm 
+                                        hover:bg-green-700 
+                                        transition text-xs
                                     "
                                 >
-                                    黑名單
+                                    通過
                                 </button>
-                                
+
                                 <button
-                                    onClick={() => handleDelete(d.userID)}
+                                    onClick={() => handleVerify(d, 'rejected')}
                                     className="
-                                        px-3 py-1 
-                                        bg-red-500 hover:bg-red-600 
-                                        text-white text-xs 
-                                        rounded-full 
-                                        transition-colors
+                                        py-2 px-3 
+                                        bg-red-600 text-white 
+                                        rounded-full shadow-sm 
+                                        hover:bg-red-700 
+                                        transition text-xs
                                     "
                                 >
-                                    刪除
+                                    拒絕
                                 </button>
-                            </div>
+                            </div> }
+                            */}
                         </div>
                     ))}
                 </div>

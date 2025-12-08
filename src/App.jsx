@@ -8,10 +8,15 @@ import LogInPage from "./Pages/LogInPage";
 import RegisterPage from "./Pages/RegisterPage";
 import ProfilePage from "./Pages/ProfilePage.jsx";
 import DetailPost from "./Pages/Functions/DetailPost.jsx";
+import AdminDetailPost from "./Pages/Functions/AdminDetailPost.jsx"
+import AdminDetailUser from "./Pages/Functions/AdminDetailUser.jsx"
 import EditProfilePage from "./Pages/EditProfilePage.jsx";
 import AdminPage from "./Pages/AdminPage";
 import AdminUsers from "./Pages/AdminUsers";
 import AdminDrivers from "./Pages/AdminDrivers";
+import AdminRegistDrivers from "./Pages/AdminRegistDrivers";
+import AdminDetailDriver from "./Pages/Functions/AdminDetailDriver.jsx"
+import AdminDetailRegistDriver from "./Pages//Functions/AdminDetailRegistDriver.jsx"
 
 import CurrentPost from "./Pages/CurrentPost";
 
@@ -43,9 +48,14 @@ function App() {
           <Route path="/uploadPost" element={<UploadPost />} />
           <Route path="/EditProfile" element={<EditProfilePage />} />
           <Route path="/detailPost" element={<DetailPost />} />
+          <Route path="/AdminDetailPost" element={<AdminDetailPost />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/drivers" element={<AdminDrivers />} />
+          <Route path="/admin/DetailUser" element={<AdminDetailUser />} />
+          <Route path="/admin/RegistDrivers" element={<AdminRegistDrivers />} />
+          <Route path="/admin/DetailDriver" element={<AdminDetailDriver />} />
+          <Route path="/admin/DetailRegistDriver" element={<AdminDetailRegistDriver />} />
           <Route path="/Current" element={<CurrentPost />} />
 
 

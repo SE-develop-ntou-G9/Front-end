@@ -7,16 +7,16 @@ import dayjs from "dayjs";
 import { useUser } from "../../contexts/UserContext.jsx";
 
 function detailPost() {
-    const { user, isLoggedIn, userRole, loading, logout } = useUser();
-    useEffect(() => {
-        // 只在組件 mount 時執行一次，用於 debug
-        console.group("ProfilePage 載入");
-        console.log("isLoggedIn:", isLoggedIn);
-        console.log("user:", user);
-        // console.log("driver:", driver);
-        console.log("userRole:", userRole);
-        console.groupEnd();
-    }, []);
+    const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();
+    // useEffect(() => {
+    //     // 只在組件 mount 時執行一次，用於 debug
+    //     console.group("ProfilePage 載入");
+    //     console.log("isLoggedIn:", isLoggedIn);
+    //     console.log("user:", user);
+    //     console.log("driver:", driver);
+    //     console.log("userRole:", userRole);
+    //     console.groupEnd();
+    // }, []);
 
     const navigate = useNavigate();
     const { state } = useLocation();
@@ -26,43 +26,23 @@ function detailPost() {
     const tags = [];
     if (postData.helmet) tags.push("自備安全帽");
     if (postData.leave) tags.push("中途下車");
-
-    //這是假裝有Admin
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-
-    const [driver, setDriver] = useState(null);
-    const User_id = postData.driver_id;
-    useEffect(() => {
-        async function fetchDriver() {
-            try {
-                const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${User_id}`);
-
-                if (!res.ok) throw new Error("取得使用者資料失敗");
-
-                const data = await res.json();
-
-
-                setDriver(data);
-
-            } catch (err) {
-                console.error("❌ 載入車主資料失敗:", err);
-            }
-        }
-
-        console.log(postData.image_url);
-        fetchDriver();
-    }, [User_id]);
-
+    // console.log("postData.id", postData.id);
+    
 
     const handleRequest = async () => {
         if (!isLoggedIn || !user) {
             alert("請先登入再發送請求");
             return;
         }
-        console.log(postData);
+
+        // 後端需要的三個參數
+        const time = postData.timestamp;      // 或 postData.departure_time 亦可
+
         const params = new URLSearchParams({
+
             post_id: postData.id,
             client_id: user.ID,
+
         });
 
         const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
@@ -83,14 +63,13 @@ function detailPost() {
 
             console.log("發送請求成功：", data);
             alert("已發送請求給車主！");
-            navigate("/");
         } catch (err) {
             console.error("發送請求發生錯誤：", err);
             alert(`發送請求失敗：${err.message}`);
         }
-
     };
 
+   
 
 
     return (
@@ -156,14 +135,15 @@ function detailPost() {
                 <div className="flex items-center h-5">
                     <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
                         <img
-                            src={driver?.AvatarURL || "https://placehold.co/80x80"}
+                            src="https://placehold.co/80x80"
                             alt="driver"
                             className="h-full w-full object-cover"
                         />
                     </div>
-                    <p className="text-xs">{driver?.Name || "載入中…"}</p>
+                    <p className="text-xs">{postData.driver_id}</p>
                 </div>
-
+                
+              
                 <div className="flex items-center justify-end text-gray-500">
                     {isLoggedIn ? (
                         <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
@@ -172,49 +152,8 @@ function detailPost() {
                         </button>
                     ) : null}
                 </div>
-                {isAdmin && (
-                    <div className="mt-6 flex justify-between gap-4">
-
-                        {/* 封鎖駕駛 */}
-                        <button
-                            className="
-                                flex-1 
-                                bg-black 
-                                text-white 
-                                py-3 
-                                rounded-full 
-                                shadow-md 
-                                hover:bg-gray-900 
-                                active:bg-gray-800
-                                transition-all 
-                                text-sm 
-                                font-semibold
-                            "
-                        >
-                            封鎖駕駛
-                        </button>
-
-                        {/* 刪除貼文 */}
-                        <button
-                            className="
-                                flex-1 
-                                bg-black 
-                                text-white 
-                                py-3 
-                                rounded-full 
-                                shadow-md 
-                                hover:bg-gray-900 
-                                active:bg-gray-800
-                                transition-all 
-                                text-sm 
-                                font-semibold
-                            "
-                        >
-                            刪除貼文
-                        </button>
-
-                    </div>
-                )}
+           
+               
             </article>
         </div>
 

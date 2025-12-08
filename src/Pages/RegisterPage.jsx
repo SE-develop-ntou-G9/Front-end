@@ -71,7 +71,7 @@ function RegisterPage() {
             scooter_type: user.carType,
             plate_num: user.licenseNum.toUpperCase(),
             driver_license: frontUrl,
-            status: "checking"
+            Status: "checking"
         };
 
         console.log("送到後端的資料：", payload);
@@ -89,7 +89,7 @@ function RegisterPage() {
                 return;
             }
 
-            alert("成功送出車主申請!!!");
+            alert("成功向Admin申請車主！");
             await refreshUserData();
             navigate("/Profile");
 

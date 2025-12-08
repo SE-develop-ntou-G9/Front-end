@@ -12,6 +12,8 @@ function EditProfilePage() {
     const [avatarPreview, setAvatarPreview] = useState(user?.AvatarURL || null);
 
     const [carType, setCarType] = useState(driver?.scooter_type || "");
+    const [DriverLicense, setDriverLicense] = useState(driver?.driver_license || "");
+    const [Status, setStatus] = useState(driver?.status || "");
     const [plateNum, setPlateNum] = useState(driver?.plate_num || "");
 
     const isDriver = userRole === "車主";
@@ -67,14 +69,16 @@ function EditProfilePage() {
 
             if (isDriver) {
                 const driverUpdateData = {
-                    user_id: user.ID,
-                    driver_name: name,
-                    contact_info: phone,
-                    scooter_type: carType,
-                    plate_num: plateNum.toUpperCase(),
-                    driver_license: driver?.driver_license || driver?.DriverLicense || null,
-                };
-
+                user_id: user.ID,
+                driver_name: name,
+                contact_info: phone,
+                scooter_type: carType,
+                plate_num: plateNum.toUpperCase(),
+                driver_license: DriverLicense, 
+                status: Status 
+            };  
+                console.log('Driver DriverLicense:', )
+                console.log('Driver Data:', driverUpdateData)
                 successDriver = await updateDriver(driverUpdateData);
             }
 
