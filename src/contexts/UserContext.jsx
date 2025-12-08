@@ -79,27 +79,43 @@ export const UserProvider = ({ children }) => {
         try {
             const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`);
 
-            if (res.ok) {
-                const driverData = await res.json();
-                if (driverData && Object.keys(driverData).length > 0) {
-                    console.log("✅ 檢測到車主資料:", driverData);
-                    setDriver(driverData);
-                    setUserRole("車主");
-                } else {
-                    console.log("ℹ️ 無車主資料，設為乘客");
-                    setDriver(null);
-                    setUserRole("乘客");
-                }
-            } else if (res.status === 404 || res.status === 500) {
-                // 404 或 500 表示用戶不是車主
-                console.log("ℹ️ 用戶不是車主（狀態碼: " + res.status + "）");
+            if (!res.ok) {
+                console.log("ℹ️ 用戶不是車主");
                 setDriver(null);
                 setUserRole("乘客");
-            } else {
-                console.log("⚠️ 無法檢查車主狀態，預設為乘客");
-                setDriver(null);
-                setUserRole("乘客");
+                return;
             }
+
+            const driverData = await res.json();
+
+            if (!driverData || Object.keys(driverData).length === 0) {
+                console.log("ℹ️ 無車主資料");
+                setDriver(null);
+                setUserRole("乘客");
+                return;
+            }
+
+            console.log("✅ 檢測到車主資料:", driverData);
+            setDriver(driverData);
+
+            // ⭐ 根據 driver.status 決定前端角色
+            switch (driverData.status) {
+                case "checking":
+                    console.log("🔍 車主資格審核中");
+                    setUserRole("審核中");
+                    break;
+
+                case "approved":
+                    console.log("🚗 車主資格已通過");
+                    setUserRole("車主");
+                    break;
+
+                default:
+                    console.log("❌ 其他狀態 (rejected/null)，視為乘客");
+                    setUserRole("乘客");
+                    break;
+            }
+
         } catch (err) {
             console.log("ℹ️ checkDriverStatus 異常，設為乘客:", err.message);
             setDriver(null);

@@ -32,9 +32,6 @@ function LoginPage() {
             const data = await res.json();
             const user = data.user;
 
-
-
-
             const fullUser = await fetchFullUserInfo(user.id);
 
             await login({
@@ -44,6 +41,12 @@ function LoginPage() {
 
             if (!fullUser) {
                 alert("無法取得使用者資料");
+                return;
+            }
+
+            if (fullUser.Admin == 1) {
+                alert(`歡迎管理員 ${fullUser.Name}！`);
+                navigate("/admin");
                 return;
             }
 

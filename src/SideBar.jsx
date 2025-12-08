@@ -81,7 +81,7 @@ function SideBar({ isOpen, onClose, sidebarRef }) {
                     {isLoggedIn && (
                         <>
                             <MenuItem label="目前貼文" icon={<HiClipboardList />} onClick={() => navigate("/Current")} onClose={onClose} />
-                            {userRole === "乘客" ? (
+                            {userRole === "乘客" && (
                                 <MenuItem
                                     label="升級成車主"
                                     icon={<HiUpload />}
@@ -89,7 +89,17 @@ function SideBar({ isOpen, onClose, sidebarRef }) {
                                     onClose={onClose}
                                     highlight
                                 />
-                            ) : (
+                            )}
+
+                            {userRole === "審核中" && (
+                                <MenuItem
+                                    label="審核中（等待通過）"
+                                    icon={<HiUpload />}
+                                    disabled={true}
+                                />
+                            )}
+
+                            {userRole === "車主" && (
                                 <MenuItem
                                     label="您已是車主"
                                     icon={<HiUpload />}
