@@ -55,7 +55,7 @@ export default function useAdminUserActions(setUser, navigate) {
     // 2. 加入黑名單的邏輯
     const handleBlacklist = async (userId) => {
         if (!window.confirm(`確定要把用戶 ${userId} 加入黑名單嗎？`)) return;
-
+        console.log("id:", userId)
         try {
             const r = await fetch(adminAPI, {
                 method: "POST",
