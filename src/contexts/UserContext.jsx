@@ -300,6 +300,7 @@ export const UserProvider = ({ children }) => {
         fetchUserData,
         setUser,
         updateDriver,
+        checkStatus,
     };
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
