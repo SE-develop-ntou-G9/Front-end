@@ -54,27 +54,12 @@ export default function useAdminDriverActions(setDriverList, navigate) {
      * 處理車主/待審核車主的審核操作 (通過或拒絕)
      */
     const handleVerify = useCallback(async (driverData, newStatus) => {
-        const action = newStatus = "verified" ? "verified" : "rejected";
+        const action = newStatus ;
         if (!window.confirm(`確定要對用戶: ${driverData.name} 執行 ${action} 操作嗎？`)) {
             return;
         }
 
         try {
-            // const res = await fetch(VERIFY_API, {
-            //     method: "PUT",
-            //     headers: {
-            //         "Content-Type": "application/json",
-            //     },
-            //     body: JSON.stringify({
-            //         user_id: driverData.userID,
-            //         driver_name: driverData.name,
-            //         contact_info: driverData.contactInfo,
-            //         scooter_type: driverData.scooterType ,
-            //         plate_num: driverData.plateNum.toUpperCase(),
-            //         driver_license: driverData.driverLicense, 
-            //         status: newStatus
-            //     }),
-            // });
             let successDriver = true;
             const driverUpdateData = {
                     user_id: driverData.userID,

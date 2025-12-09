@@ -88,9 +88,15 @@ export const UserProvider = ({ children }) => {
             if (res.ok) {
                 const driverData = await res.json();
                 if (driverData && Object.keys(driverData).length > 0) {
-                    console.log("✅ 檢測到車主資料:", driverData);
-                    setDriver(driverData);
-                    setUserRole("車主");
+                    if(driverData.status == "verified") {
+                        console.log("✅ 檢測到車主資料:", driverData);
+                        setDriver(driverData);
+                        setUserRole("車主");
+                    } else if (driverData.status == "rejected") {
+                        console.log("✅ 檢測到車主資料但不是車主:", driverData);
+                        setDriver(driverData);
+                        setUserRole("乘客");
+                    }
                 } else {
                     console.log("ℹ️ 無車主資料，設為乘客");
                     setDriver(null);
