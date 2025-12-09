@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { useUser } from "../../contexts/UserContext.jsx";
 
 function detailPost() {
-    const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();
+    const { user, isLoggedIn, userRole, loading, logout } = useUser();
     // useEffect(() => {
     //     // 只在組件 mount 時執行一次，用於 debug
     //     console.group("ProfilePage 載入");
@@ -28,15 +28,34 @@ function detailPost() {
     if (postData.leave) tags.push("中途下車");
     // console.log("postData.id", postData.id);
     
+    const [driver, setDriver] = useState(null);
+    const User_id = postData.driver_id;
+    useEffect(() => {
+        async function fetchDriver() {
+            try {
+                const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${User_id}`);
+
+                if (!res.ok) throw new Error("取得使用者資料失敗");
+
+                const data = await res.json();
+
+
+                setDriver(data);
+
+            } catch (err) {
+                console.error("❌ 載入車主資料失敗:", err);
+            }
+        }
+
+        console.log(postData.image_url);
+        fetchDriver();
+    }, [User_id]);
 
     const handleRequest = async () => {
         if (!isLoggedIn || !user) {
             alert("請先登入再發送請求");
             return;
         }
-
-        // 後端需要的三個參數
-        const time = postData.timestamp;      // 或 postData.departure_time 亦可
 
         const params = new URLSearchParams({
 
@@ -135,12 +154,12 @@ function detailPost() {
                 <div className="flex items-center h-5">
                     <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
                         <img
-                            src="https://placehold.co/80x80"
+                            src={driver?.AvatarURL || "https://placehold.co/80x80"}
                             alt="driver"
                             className="h-full w-full object-cover"
                         />
                     </div>
-                    <p className="text-xs">{postData.driver_id}</p>
+                    <p className="text-xs">{driver?.Name || "載入中…"}</p>
                 </div>
                 
               
