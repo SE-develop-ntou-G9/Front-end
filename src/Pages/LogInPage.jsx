@@ -9,6 +9,21 @@ function LoginPage() {
     const navigate = useNavigate();
     const { login, refreshUserData } = useUser();
 
+    async function isBlacklisted(userId) {
+		try {
+			const res = await fetch("https://ntouber-admin.zeabur.app/admin/blacklist", { method: "GET" });
+			if (!res.ok) throw new Error(`黑名單 API 錯誤 (${res.status})`);
+			const list = await res.json();
+
+			if (!Array.isArray(list)) return false;
+
+			return list.some((b) => String(b.userId) === String(userId));
+		} catch (err) {
+			console.error("檢查黑名單失敗：", err);
+			return false;
+		}
+	}
+
     const handleGoogleSuccess = async (response) => {
         try {
 
@@ -28,6 +43,12 @@ function LoginPage() {
 
             const data = await res.json();
             const user = data.user;
+
+            const blocked = await isBlacklisted(user.id);
+			if (blocked) {
+				alert("此帳號已被加入黑名單，無法登入。");
+				return;
+			}
 
             const fullUser = await fetchFullUserInfo(user.id);
 
