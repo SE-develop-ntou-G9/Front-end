@@ -32,13 +32,15 @@ export default class PostClass {
         description,
         helmet,
         contact_info,
-        leave
+        leave,
+        image_url
     }) {
     this.id = id;
     this.driver_id = driver_id;
     this.vehicle_info = vehicle_info;
     this.status = status;
     this.timestamp = timestamp;
+    this.image_url = image_url;
 
     // 巢狀起點物件
     this.starting_point = {
