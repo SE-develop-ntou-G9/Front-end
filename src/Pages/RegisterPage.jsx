@@ -5,7 +5,7 @@ import UserClass from "../models/UserClass";
 
 function RegisterPage() {
     const navigate = useNavigate();
-    const { user: loggedUser, refreshUserData } = useUser();
+    const { user: loggedUser, refreshUserData, driver } = useUser();
 
     const [user, setUser] = useState(
         new UserClass("", "", "", "", "", "", false)
@@ -64,6 +64,8 @@ function RegisterPage() {
 
         console.log(frontUrl);
 
+        let endpoint = "";
+        let method = "";
         const payload = {
             user_id: loggedUser.ID,
             driver_name: loggedUser.Name,
@@ -76,12 +78,22 @@ function RegisterPage() {
 
         console.log("送到後端的資料：", payload);
 
+        if (driver?.status === "rejected") {
+            endpoint = "https://ntouber-user.zeabur.app/v1/drivers/mod";
+            method = "PUT";
+            payload.driver_id = driver.ID;  // 🔥 若後端需要 driver_id 記得加
+        } else {
+            // 新增申請
+            endpoint = "https://ntouber-user.zeabur.app/v1/users/driver";
+            method = "POST";
+        }
         try {
-            const res = await fetch("https://ntouber-user.zeabur.app/v1/users/driver", {
-                method: "POST",
+            const res = await fetch(endpoint, {
+                method: method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
             });
+
 
             if (!res.ok) {
                 const err = await res.text();

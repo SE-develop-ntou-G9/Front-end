@@ -14,7 +14,7 @@ import { useUser } from "./contexts/UserContext.jsx";
 
 function SideBar({ isOpen, onClose, sidebarRef }) {
     const navigate = useNavigate();
-    const { isLoggedIn, userRole, user, refreshUserData, logout, isAdmin } = useUser();
+    const { isLoggedIn, userRole, user, refreshUserData, logout, isAdmin, driver } = useUser();
 
 
     const handleToggleRole = async () => {
@@ -81,13 +81,23 @@ function SideBar({ isOpen, onClose, sidebarRef }) {
                         <>
                             <MenuItem label="目前貼文" icon={<HiClipboardList />} onClick={() => navigate("/Current")} onClose={onClose} />
                             {userRole === "乘客" && (
-                                <MenuItem
-                                    label="升級成車主"
-                                    icon={<HiUpload />}
-                                    onClick={() => navigate("/Regist")}
-                                    onClose={onClose}
-                                    highlight
-                                />
+                                driver?.status === "rejected" ? (
+                                    <MenuItem
+                                        label="重新申請成為車主"
+                                        icon={<HiUpload />}
+                                        onClick={() => navigate("/Regist")}
+                                        onClose={onClose}
+                                        highlight
+                                    />
+                                ) : (
+                                    <MenuItem
+                                        label="升級成車主"
+                                        icon={<HiUpload />}
+                                        onClick={() => navigate("/Regist")}
+                                        onClose={onClose}
+                                        highlight
+                                    />
+                                )
                             )}
 
                             {userRole === "審核中" && (
