@@ -123,7 +123,7 @@ function SideBar({ isOpen, onClose, sidebarRef }) {
                                     onClose={onClose}
                                 />
                             }
-                            <MenuItem
+                            {/* <MenuItem
                                 label={isAdmin ? "切換回一般用戶" : "切換為管理員"}
                                 icon={<HiShieldCheck />}
                                 onClick={() => {
@@ -135,7 +135,7 @@ function SideBar({ isOpen, onClose, sidebarRef }) {
                                     window.location.reload();
                                 }}
                                 onClose={onClose}
-                            />
+                            /> */}
                         </>
 
                     )}
