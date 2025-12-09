@@ -5,7 +5,7 @@ import PostCard from "./Functions/PostCard.jsx";
 import PostClass from "../models/PostClass";
 import { useUser } from "../contexts/UserContext.jsx";
 // import { useNavigate } from "react-router-dom";
-import CardPresent from "./Functions/cardPresent";
+import CardPresent from "./Functions/CardPresent";
 import PostSearch from "./Functions/PostSearch.jsx";
 
 const API = "https://ntouber-post.zeabur.app/api/posts/all";
@@ -44,18 +44,6 @@ function UserPage() {
 
     return (
         <>
-            {/* 測試用登出按鈕
-            <div className="fixed bottom-4 right-4">
-                <button
-                    onClick={() => {
-                        logout();
-                        navigate("/login");
-                    }}
-                    className="px-4 py-2 bg-gray-800 text-white rounded"
-                >
-                    登出
-                </button>
-            </div> */}
 
             <div className="min-h-screen bg-gray-50">
                 <div className="max-w-2xl mx-auto px-4 pb-16">
