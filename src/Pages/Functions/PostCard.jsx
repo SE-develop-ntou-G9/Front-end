@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import PostClass from '../../models/PostClass';
+import PostClass from '../../models/PostClass.jsx';
 import { HiArrowRight } from "react-icons/hi";
-import DetailPost from './DetailPost';
+import DetailPost from './DetailPost.jsx';
 import { Routes, Route, Link } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -32,7 +32,7 @@ function postCard({ postData , isAdmin}) {
                 setDriver(data);
 
             } catch (err) {
-                console.error("❌ 載入車主資料失敗:", err);
+                console.error(" 載入車主資料失敗:", err);
             }
         }
 

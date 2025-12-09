@@ -23,19 +23,14 @@ export default function useAdminUserActions(setUser, navigate) {
         
         try {
             // 同時發送多個刪除請求
-            const results = await Promise.all([
-                fetch(`${uAPI}/delete/${userId}`, { method: "DELETE" }), // 刪除用戶
-                fetch(`${dAPI}/delete/${userId}`, { method: "DELETE" }), // 刪除駕駛資料
-                fetch(`${pAPI}/${userId}`, { method: "DELETE" }),       // 刪除駕駛的貼文
-                fetch(`${cAPI}/${userId}`, { method: "PATCH" })         // 解除用戶在客戶端的匹配
-            ]);
-
-            // 檢查是否有任何請求失敗
-            const failedResponse = results.find(r => !r.ok);
-
-            if (failedResponse) {
-                const errorData = await failedResponse.json();
-                throw new Error(`刪除失敗 (${failedResponse.status}): ${errorData.error || '未知錯誤'}`);
+            const r = await fetch(`${uAPI}/delete/${userId}`, { method: "DELETE" }); // 刪除用戶
+            const a = await fetch(`${dAPI}/delete/${userId}`, { method: "DELETE" }); // 刪除駕駛資料
+            const b = await fetch(`${pAPI}/${userId}`, { method: "DELETE" });        // 刪除駕駛的貼文
+            const c = await fetch(`${cAPI}/${userId}`, { method: "PATCH" });         // 解除用戶在客戶端的匹配
+            console.log("r = ", r);
+            if (!r.ok) {
+                const errorData = await r.json();
+                throw new Error(`刪除失敗 (${r.status}): ${errorData.error || '未知錯誤'}`);
             }
 
             // 成功後，如果傳入了 setUser，則更新列表
