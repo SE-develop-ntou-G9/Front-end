@@ -56,8 +56,6 @@ export const UserProvider = ({ children }) => {
             const userData = await res.json();
             console.log("✅ fetchUserData 成功:", userData);
 
-            const picture = localStorage.getItem("userPicture");
-
             setUser({
                 ...userData,
                 AvatarURL: userData.avatarURL || userData.avatar_url || userData.AvatarURL || null
@@ -110,7 +108,7 @@ export const UserProvider = ({ children }) => {
                     setUserRole("審核中");
                     break;
 
-                case "approved":
+                case "verified":
                     console.log("🚗 車主資格已通過");
                     setUserRole("車主");
                     break;

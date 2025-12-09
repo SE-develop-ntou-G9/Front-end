@@ -14,9 +14,8 @@ import { useUser } from "./contexts/UserContext.jsx";
 
 function SideBar({ isOpen, onClose, sidebarRef }) {
     const navigate = useNavigate();
-    const { isLoggedIn, userRole, user, refreshUserData, logout } = useUser();
+    const { isLoggedIn, userRole, user, refreshUserData, logout, isAdmin } = useUser();
 
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
 
     const handleToggleRole = async () => {
         alert("降級功能需要後端 API 支援");
