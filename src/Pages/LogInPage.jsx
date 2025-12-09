@@ -38,7 +38,7 @@ function LoginPage() {
                 ...user,
                 AvatarURL: fullUser.AvatarURL || googlePicture || DEFAULT_AVATAR || null
             });
-            await refreshUserData();
+
 
             if (!fullUser) {
                 alert("無法取得使用者資料");
@@ -57,9 +57,9 @@ function LoginPage() {
                 return;
             }
 
-            alert(`歡迎回來，${fullUser.Name}！`);
-
+            alert(`歡迎回來，${fullUser.Name}！`)
             navigate("/");
+            window.location.reload();
 
         } catch (error) {
             console.error("Google OAuth 發生錯誤：", error);
