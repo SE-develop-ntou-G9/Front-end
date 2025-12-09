@@ -15,8 +15,10 @@ import AdminPage from "./Pages/AdminPage";
 import AdminUsers from "./Pages/AdminUsers";
 import AdminDrivers from "./Pages/AdminDrivers";
 import AdminRegistDrivers from "./Pages/AdminRegistDrivers";
-import AdminDetailDriver from "./Pages/Functions/AdminDetailDriver.jsx"
-import AdminDetailRegistDriver from "./Pages//Functions/AdminDetailRegistDriver.jsx"
+import AdminDetailDriver from "./Pages/Functions/AdminDetailDriver.jsx";
+import AdminDetailBlacklist from "./Pages/Functions/AdminDetailBlacklist.jsx";
+import AdminDetailRegistDriver from "./Pages//Functions/AdminDetailRegistDriver.jsx";
+import AdminBlacklist from "./Pages/AdminBlacklist.jsx";
 
 import CurrentPost from "./Pages/CurrentPost";
 
@@ -56,6 +58,8 @@ function App() {
           <Route path="/admin/RegistDrivers" element={<AdminRegistDrivers />} />
           <Route path="/admin/DetailDriver" element={<AdminDetailDriver />} />
           <Route path="/admin/DetailRegistDriver" element={<AdminDetailRegistDriver />} />
+          <Route path="/admin/Blacklist" element={<AdminBlacklist />} />
+          <Route path="/admin/DetailBlacklist" element={<AdminDetailBlacklist />} />
           <Route path="/Current" element={<CurrentPost />} />
 
 
