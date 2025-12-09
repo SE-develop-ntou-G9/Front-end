@@ -127,6 +127,23 @@ function AdminPage() {
                         >
                             審核車主
                         </button>
+
+
+                        <button
+                            className="
+                                px-5 py-2 
+                                rounded-full
+                                bg-gradient-to-r from-purple-50 to-purple-100
+                                text-gray-700 font-medium shadow-sm
+                                border border-purple-200
+                                hover:from-purple-100 hover:to-purple-200
+                                hover:shadow 
+                                transition-all
+                            "
+                            onClick={() => navigate("/admin/Blacklist")}
+                        >
+                            黑名單列表
+                        </button>
                     </div>
                     {/* 把卡片塞進來這下面 */}
                     <CardPresent post={post} isAdmin={isAdmin} />
