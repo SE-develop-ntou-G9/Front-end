@@ -73,10 +73,6 @@ export default function AdminDetailUser() {
                     <span className="font-semibold w-24 inline-block">建立時間:</span> 
                     {new Date(userData.createdAt).toLocaleDateString()}
                 </p> */}
-                
-                {/* * 這裡可以新增更多詳細資訊，例如：
-                  * 帳號狀態 (是否黑名單)、駕駛/乘客身份、發文數量等。
-                */}
 
                 {/* 管理操作按鈕 */}
                 <div className="mt-6 flex space-x-3">

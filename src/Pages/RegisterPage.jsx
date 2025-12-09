@@ -71,7 +71,7 @@ function RegisterPage() {
             scooter_type: user.carType,
             plate_num: user.licenseNum.toUpperCase(),
             driver_license: frontUrl,
-            Status:"checking"
+            Status: "checking"
         };
 
         console.log("送到後端的資料：", payload);
