@@ -101,38 +101,11 @@ export default function AdminRegistDrivers() {
                         </div>
                     ))}
                 </div>
-                <div className="mt-6">
+                {/* <div className="mt-6">
                     <h2 className="text-base font-bold text-gray-900">重新審核車主 ({drivers.length})</h2>
                     <p className="text-xs text-gray-500 mt-0.5">查看重新申請車主資格的使用者</p>
-                </div>
-                <div className="mt-4 space-y-4">
-                    {rdrivers.map((c) => (
-                        <div
-                            key={c.userID} // <--- 修正 key
-                            className="
-                                bg-white 
-                                rounded-lg 
-                                p-4 
-                                shadow-sm 
-                                border 
-                                text-sm 
-                                text-gray-800
-                                flex 
-                                justify-between 
-                                items-center
-                            "
-                        >
-                            {/* 🚀 點擊導航到詳細審核頁面 */}
-                            <div 
-                                className="flex-1 cursor-pointer"
-                                onClick={() => navigate("/admin/DetailRegistDriver", { state: { rdriver: c } })}
-                            >
-                                <p className="font-medium">用戶名：{c.name}</p>
-                                <p className="mt-1 text-gray-600 text-xs">車型：{c.scooterType} / 車牌：{c.plateNum}</p>
-                            </div>   
-                        </div>
-                    ))}
-                </div>
+                </div> */}
+               
             </div>
         </div>
     );
