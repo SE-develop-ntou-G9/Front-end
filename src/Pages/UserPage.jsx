@@ -40,7 +40,7 @@ function UserPage() {
         setPost(mapped);
     };
 
-    
+
 
     return (
         <>

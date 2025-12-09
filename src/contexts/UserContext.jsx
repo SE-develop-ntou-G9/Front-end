@@ -233,6 +233,7 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+
     // 升級為車主（不帶 Authorization header）
     const upgradeToDriver = async (driverData) => {
         try {
@@ -278,7 +279,7 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    // 重新整理使用者資料
+
     const refreshUserData = async () => {
         if (user?.ID) {
             await fetchUserData(user.ID);
