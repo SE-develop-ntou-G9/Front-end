@@ -56,6 +56,8 @@ export const UserProvider = ({ children }) => {
             const userData = await res.json();
             console.log("✅ fetchUserData 成功:", userData);
 
+            const picture = localStorage.getItem("userPicture");
+
             setUser({
                 ...userData,
                 AvatarURL: userData.avatarURL || userData.avatar_url || userData.AvatarURL || null
@@ -83,42 +85,33 @@ export const UserProvider = ({ children }) => {
         try {
             const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`);
 
-            if (!res.ok) {
-                console.log("ℹ️ 用戶不是車主");
-                setDriver(null);
-                setUserRole("乘客");
-                return;
-            }
-
-            const driverData = await res.json();
-
-            if (!driverData || Object.keys(driverData).length === 0) {
-                console.log("ℹ️ 無車主資料");
-                setDriver(null);
-                setUserRole("乘客");
-                return;
-            }
-
-            console.log("✅ 檢測到車主資料:", driverData);
-            setDriver(driverData);
-
-            switch (driverData.status) {
-                case "checking":
-                    console.log("🔍 車主資格審核中");
-                    setUserRole("審核中");
-                    break;
-
-                case "verified":
-                    console.log("🚗 車主資格已通過");
-                    setUserRole("車主");
-                    break;
-
-                default:
-                    console.log("❌ 其他狀態 (rejected/null)，視為乘客");
+            if (res.ok) {
+                const driverData = await res.json();
+                if (driverData && Object.keys(driverData).length > 0) {
+                    if(driverData.status == "verified") {
+                        console.log("✅ 檢測到車主資料:", driverData);
+                        setDriver(driverData);
+                        setUserRole("車主");
+                    } else if (driverData.status == "rejected") {
+                        console.log("✅ 檢測到車主資料但不是車主:", driverData);
+                        setDriver(driverData);
+                        setUserRole("乘客");
+                    }
+                } else {
+                    console.log("ℹ️ 無車主資料，設為乘客");
+                    setDriver(null);
                     setUserRole("乘客");
-                    break;
+                }
+            } else if (res.status === 404 || res.status === 500) {
+                // 404 或 500 表示用戶不是車主
+                console.log("ℹ️ 用戶不是車主（狀態碼: " + res.status + "）");
+                setDriver(null);
+                setUserRole("乘客");
+            } else {
+                console.log("⚠️ 無法檢查車主狀態，預設為乘客");
+                setDriver(null);
+                setUserRole("乘客");
             }
-
         } catch (err) {
             console.log("ℹ️ checkDriverStatus 異常，設為乘客:", err.message);
             setDriver(null);
@@ -137,16 +130,16 @@ export const UserProvider = ({ children }) => {
                     console.log("name:", Data.Name)
                     console.log("id:", Data.ID)
                     console.log("Admin:", Data.Admin)
-                    if (Data.Admin) {
+                     if (Data.Admin) {
                         setAdmin("1");
                     } else {
-                        setAdmin("0");
+                    setAdmin("0");
                     }
                 } else {
                     console.log("ℹ️ 無user資料，設為乘客");
                     setAdmin("0");
                 }
-
+               
             } else if (res.status === 404 || res.status === 500) {
                 console.log("ℹ️ 怪怪的（狀態碼: " + res.status + "）");
                 setAdmin("0");
@@ -231,7 +224,6 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-
     // 升級為車主（不帶 Authorization header）
     const upgradeToDriver = async (driverData) => {
         try {
@@ -277,7 +269,7 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-
+    // 重新整理使用者資料
     const refreshUserData = async () => {
         if (user?.ID) {
             await fetchUserData(user.ID);

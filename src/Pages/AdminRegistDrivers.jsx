@@ -11,6 +11,7 @@ const API = "https://ntouber-user.zeabur.app/v1/drivers";
 export default function AdminRegistDrivers() {
     const navigate = useNavigate();
     const [drivers, setDrivers] = useState([]); // <--- 修正狀態初始化
+    const [rdrivers, setRDrivers] = useState([]); // tmp reject driver
     const { handleVerify } = useAdminDriverActions(setDrivers); // <--- 只需要審核功能
 
     useEffect(() => {
@@ -26,8 +27,10 @@ export default function AdminRegistDrivers() {
                 
                 // 篩選出待審核 (checking) 的車主
                 const checkingDrivers = mapped.filter(d => d.status == "checking");
+                const rDrivers = mapped.filter(c => c.status == "rejected");
                 // console.log("drivers", checkingDrivers)
                 setDrivers(checkingDrivers);
+                setRDrivers(rDrivers);
             } catch (err) {
                 console.error("抓取driver失敗：", err);
             }
@@ -94,42 +97,42 @@ export default function AdminRegistDrivers() {
                             >
                                 <p className="font-medium">用戶名：{d.name}</p>
                                 <p className="mt-1 text-gray-600 text-xs">車型：{d.scooterType} / 車牌：{d.plateNum}</p>
-                            </div>
-
-                            {/*
-                            { <div className="flex gap-3">
-                                
-                                <button
-                                    onClick={() => handleVerify(d, 'verified')}
-                                    className="
-                                        py-2 px-3
-                                        bg-green-600 text-white 
-                                        rounded-full shadow-sm 
-                                        hover:bg-green-700 
-                                        transition text-xs
-                                    "
-                                >
-                                    通過
-                                </button>
-
-                                <button
-                                    onClick={() => handleVerify(d, 'rejected')}
-                                    className="
-                                        py-2 px-3 
-                                        bg-red-600 text-white 
-                                        rounded-full shadow-sm 
-                                        hover:bg-red-700 
-                                        transition text-xs
-                                    "
-                                >
-                                    拒絕
-                                </button>
-                            </div> }
-                            */}
+                            </div>   
                         </div>
                     ))}
                 </div>
-
+                <div className="mt-6">
+                    <h2 className="text-base font-bold text-gray-900">重新審核車主 ({drivers.length})</h2>
+                    <p className="text-xs text-gray-500 mt-0.5">查看重新申請車主資格的使用者</p>
+                </div>
+                <div className="mt-4 space-y-4">
+                    {rdrivers.map((c) => (
+                        <div
+                            key={c.userID} // <--- 修正 key
+                            className="
+                                bg-white 
+                                rounded-lg 
+                                p-4 
+                                shadow-sm 
+                                border 
+                                text-sm 
+                                text-gray-800
+                                flex 
+                                justify-between 
+                                items-center
+                            "
+                        >
+                            {/* 🚀 點擊導航到詳細審核頁面 */}
+                            <div 
+                                className="flex-1 cursor-pointer"
+                                onClick={() => navigate("/admin/DetailRegistDriver", { state: { rdriver: c } })}
+                            >
+                                <p className="font-medium">用戶名：{c.name}</p>
+                                <p className="mt-1 text-gray-600 text-xs">車型：{c.scooterType} / 車牌：{c.plateNum}</p>
+                            </div>   
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

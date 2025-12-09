@@ -71,8 +71,13 @@ function CurrentPost() {
         await fetch(`https://ntouber-post.zeabur.app/api/posts/driver_posts/${post.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: "open" })
+            body: JSON.stringify({ 
+                client_id: "unknown",
+                status: "open",
+            })
         });
+
+
 
         alert("你已拒絕共乘，貼文已重新開放！");
         fetchPosts();

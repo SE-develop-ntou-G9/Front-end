@@ -5,13 +5,15 @@ import DriverClass from "../models/DriverClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions"; // <--- 導入 Hook
+import useAdminUserActions from "../Pages/hooks/useAdminUserActions"; // <--- 導入 Hook
 
 const API = "https://ntouber-user.zeabur.app/v1/drivers";
 
 export default function AdminDrivers() {
     const navigate = useNavigate();
     const [drivers, setDrivers] = useState([]); // <--- 修正變數名稱
-    const { handleDelete, handleBlacklist } = useAdminDriverActions(setDrivers); // <--- 使用 Hook
+    const { handleDelete } = useAdminDriverActions(setDrivers); // <--- 使用 Hook
+    const { handleBlacklist } = useAdminUserActions(setDrivers); // <--- 使用 Hook
 
     useEffect(() => {
         async function fetchDrivers() {

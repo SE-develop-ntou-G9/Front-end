@@ -3,6 +3,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAdminDriverActions from "../hooks/useAdminDriverActions"; 
+import useAdminUserActions from "../hooks/useAdminUserActions"; 
 // 假設 useAdminDriverActions 在 '../hooks/'
 
 export default function AdminDetailDriver() {
@@ -26,7 +27,8 @@ export default function AdminDetailDriver() {
         );
     }
 
-    const { handleDelete, handleBlacklist } = useAdminDriverActions(null, navigate);
+    const { handleDelete } = useAdminDriverActions(null, navigate);
+    const { handleBlacklist } = useAdminUserActions(null, navigate);
 
     return (
         <div className="min-h-screen bg-gray-50 p-4">
