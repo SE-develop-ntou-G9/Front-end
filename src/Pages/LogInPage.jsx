@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 
 function LoginPage() {
     const navigate = useNavigate();
-    const { login } = useUser();
+    const { login, refreshUserData } = useUser();
 
     const handleGoogleSuccess = async (response) => {
         try {
@@ -17,9 +17,6 @@ function LoginPage() {
             const googleUser = jwtDecode(credential);
             const googlePicture = googleUser.picture;
 
-
-            // console.log("googleUser:", googleUser);
-            // console.log("googlePicture:", googleUser.picture);
 
             const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
                 method: "POST",
@@ -32,18 +29,25 @@ function LoginPage() {
             const data = await res.json();
             const user = data.user;
 
-
-
-
             const fullUser = await fetchFullUserInfo(user.id);
 
+            const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+
+            console.log(googlePicture);
             await login({
                 ...user,
-                AvatarURL: fullUser.AvatarURL || googlePicture || null
+                AvatarURL: fullUser.AvatarURL || googlePicture || DEFAULT_AVATAR || null
             });
+
 
             if (!fullUser) {
                 alert("無法取得使用者資料");
+                return;
+            }
+
+            if (fullUser.Admin == 1) {
+                alert(`歡迎管理員 ${fullUser.Name}！`);
+                navigate("/admin");
                 return;
             }
 
@@ -53,8 +57,9 @@ function LoginPage() {
                 return;
             }
 
-            alert(`歡迎回來，${fullUser.Name}！`);
+            alert(`歡迎回來，${fullUser.Name}！`)
             navigate("/");
+            window.location.reload();
 
         } catch (error) {
             console.error("Google OAuth 發生錯誤：", error);

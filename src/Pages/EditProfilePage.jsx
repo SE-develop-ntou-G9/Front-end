@@ -69,15 +69,15 @@ function EditProfilePage() {
 
             if (isDriver) {
                 const driverUpdateData = {
-                user_id: user.ID,
-                driver_name: name,
-                contact_info: phone,
-                scooter_type: carType,
-                plate_num: plateNum.toUpperCase(),
-                driver_license: DriverLicense, 
-                status: Status 
-            };  
-                console.log('Driver DriverLicense:', )
+                    user_id: user.ID,
+                    driver_name: name,
+                    contact_info: phone,
+                    scooter_type: carType,
+                    plate_num: plateNum.toUpperCase(),
+                    driver_license: DriverLicense,
+                    status: Status
+                };
+                console.log('Driver DriverLicense:',)
                 console.log('Driver Data:', driverUpdateData)
                 successDriver = await updateDriver(driverUpdateData);
             }
