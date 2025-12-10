@@ -22,7 +22,7 @@ const PostSearch = ({ onResult }) => {
         if (to) params.append("end_point", to);
         if (meetTime) params.append("time", meetTime);
 
-        params.append("partial", "false");
+        params.append("partial", "true");
         params.append("limit", "50");
         params.append("offset", "0");
 
