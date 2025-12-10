@@ -8,7 +8,7 @@ function Header() {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, isLoggedIn, userRole } = useUser();
+  const { user, isLoggedIn, userRole, isAdmin } = useUser();
   const isAdminPage = (location.pathname.startsWith("/admin") || location.pathname.startsWith("/AdminDetailPost"));
 
   // 🌟 1. 創建一個 Ref 來指向 SideBar 內部實際的 DOM 元素
@@ -40,7 +40,10 @@ function Header() {
         {/* 左邊的選單 */}
         <button
           className="text-gray-600 text-2xl"
-          onClick={() => setIsSidebarOpen(true)}
+          onClick={() => {
+            if (!isAdminPage) setIsSidebarOpen(true);
+          }}
+        // disabled={isAdmin}
         >
           <HiMenu />
         </button>
@@ -48,7 +51,7 @@ function Header() {
         {/* 中間的標題 */}
         <button
           onClick={() => {
-            {isAdminPage ? navigate("/admin") : navigate("/")}
+            { isAdminPage ? navigate("/admin") : navigate("/") }
           }}
           className="absolute left-1/2 -translate-x-1/2 text-xl font-bold text-gray-80"
         >
