@@ -7,7 +7,6 @@ function CurrentPost() {
     const [myPosts, setMyPosts] = useState([]);
     const [activeTab, setActiveTab] = useState("driver");
 
-    // ⭐ 抽出 fetchPosts 讓 accept/reject 能呼叫
     async function fetchPosts() {
         try {
             const url = `https://ntouber-post.zeabur.app/api/posts/search/${user.ID}`;

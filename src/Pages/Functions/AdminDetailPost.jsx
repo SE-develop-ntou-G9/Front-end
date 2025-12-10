@@ -30,7 +30,7 @@ function AdminDetailPost() {
     
     const handleDelete = async () => {
 
-        // 2. 確認貼文資料是否存在
+
         if (!postData || !postData.id) {
             console.error("無法取得貼文 ID 進行刪除。");
             console.log("postData.id:", postData.id);
@@ -38,23 +38,23 @@ function AdminDetailPost() {
             return;
         }
 
-        // 3. 執行確認刪除提示
+
         const isConfirmed = window.confirm(`確定要刪除這篇貼文嗎？\n貼文 ID: ${postData.id}`);
         if (!isConfirmed) {
             return;
         }
         
-        // 假設 postData 中包含貼文 ID，例如 postData.ID
+
         const post_id = postData.id; 
         const url = `https://ntouber-post.zeabur.app/api/posts/delete/post/${post_id}`;
         console.log("發送刪除請求 URL:", url);
 
         try {
             const res = await fetch(url, {
-                method: "DELETE", // 使用 DELETE 方法
+                method: "DELETE", 
             });
 
-            // 嘗試解析 JSON 響應，如果沒有內容，則返回空對象
+
             const data = await res.json().catch(() => ({}));
             
             if (!res.ok) {
@@ -65,7 +65,7 @@ function AdminDetailPost() {
             console.log("刪除貼文成功：", data);
             alert("貼文已成功刪除！");
             
-            // 刪除成功後，導航回上一頁或貼文列表頁面
+            // 刪除成功後，導回上一頁或貼文列表頁面
             navigate(-1); 
             
         } catch (err) {
@@ -85,27 +85,22 @@ function AdminDetailPost() {
                 </div>
 
                 <div className="space-y-3 text-sm text-center font-bold">
-                    {/* 文字或顯示區塊 */}
                     {postData.starting_point.Name} {"→"} {postData.destination.Name}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    {/* 文字或顯示區塊 */}
                     起點: {postData.starting_point.Address}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    {/* 文字或顯示區塊 */}
                     終點: {postData.destination.Address}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    {/* 文字或顯示區塊 */}
                     集合時間: {dayjs(postData.departure_time).format("YYYY-MM-DD HH:mm")}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    {/* 文字或顯示區塊 */}
                     集合地點: {postData.meet_point.Name}
                 </div>
 
@@ -116,7 +111,6 @@ function AdminDetailPost() {
                 <div className="space-y-3 text-xs">
                     備註:
                     <div className="border border-gray-400 rounded-md p-4">
-                        {/* 文字或顯示區塊 */}
                         {postData.description}
                     </div>
                 </div>

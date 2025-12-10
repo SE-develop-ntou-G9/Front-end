@@ -67,12 +67,10 @@ function PostCard({ postData , isAdmin}) {
             </div>
 
             <div className="space-y-3 text-sm text-center font-bold">
-                {/* 文字或顯示區塊 */}
                 {postData.starting_point.Name} {"→"} {postData.destination.Name}
             </div>
 
             <div className="space-y-3 text-xs">
-                {/* 文字或顯示區塊 */}
                 {postData.notes}
             </div>
 
@@ -98,7 +96,6 @@ function PostCard({ postData , isAdmin}) {
                 <p className="text-xs">{driver?.Name || "載入中…"}</p>
             </div>
             <div className="flex items-center justify-between text-gray-500">
-                {/* 底部資訊或按鈕 */}
             </div>
 
         </article>

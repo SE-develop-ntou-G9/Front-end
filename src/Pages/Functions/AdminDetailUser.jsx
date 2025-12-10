@@ -27,9 +27,6 @@ export default function AdminDetailUser() {
 
     const { handleDelete, handleBlacklist } = useAdminUserActions(null, navigate);
     // console.log("email", userData.Email);
-    // 實作 handleDeleteUser 或 handleBlacklist 邏輯（可參考 AdminUsers.jsx）
-    // ...
-
     return (
         <div className="min-h-screen bg-gray-50 p-4">
             
@@ -77,7 +74,7 @@ export default function AdminDetailUser() {
                 {/* 管理操作按鈕 */}
                 <div className="mt-6 flex space-x-3">
                     <button
-                        // 🚀 使用 Hook 提供的 handleBlacklist
+                        //  使用 Hook 提供的 handleBlacklist
                         onClick={() => handleBlacklist(userData.ID)} 
                         className="
                             flex-1 
@@ -91,7 +88,7 @@ export default function AdminDetailUser() {
                         加入黑名單
                     </button>
                     <button
-                        // 🚀 使用 Hook 提供的 handleDelete
+                        //  使用 Hook 提供的 handleDelete
                         onClick={() => handleDelete(userData.ID)}
                         className="
                             flex-1 

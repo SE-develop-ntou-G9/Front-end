@@ -15,7 +15,6 @@ const adminAPI = "https://ntouber-admin.zeabur.app/admin/blacklist";
  */
 export default function useAdminUserActions(setUser, navigate) {
 
-    // 1. 刪除用戶的邏輯
     const handleDelete = async (userId) => {
         if (!window.confirm(`確定要刪除用戶 ID: ${userId} 嗎？此操作不可逆！`)) {
             return;
@@ -41,7 +40,7 @@ export default function useAdminUserActions(setUser, navigate) {
             console.log(`用戶 ${userId} 及其相關資料刪除成功`);
             alert(`用戶 ${userId} 及其相關資料已成功刪除！`);
             
-            // 如果傳入了 navigate，則導航回上一頁 (適用於 AdminDetailUser)
+            // 如果傳入了 navigate，則導回上一頁 (適用於 AdminDetailUser)
             if (navigate) {
                 navigate(-1);
             }

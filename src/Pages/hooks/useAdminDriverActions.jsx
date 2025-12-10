@@ -5,7 +5,6 @@ import { useUser } from "../../contexts/UserContext.jsx";
 const API = "https://ntouber-user.zeabur.app/v1/drivers";
 const POST_API = "https://ntouber-post.zeabur.app/api/posts/delete/driver";
 
-// 審核API
 const VERIFY_API = `${API}/mod`; 
 
 export default function useAdminDriverActions(setDriverList, navigate) {
@@ -14,18 +13,13 @@ export default function useAdminDriverActions(setDriverList, navigate) {
     const { updateDriver } = useUser();
     const getAvatarURL = {}
 
-    /**
-     * 處理車主/待審核車主的刪除
-     */
     const handleDelete = useCallback(async (userId) => {
         if (!window.confirm(`確定要刪除用戶 ID: ${userId} 嗎？此操作不可逆！`)) {
             return;
         }
         
         try {
-            // 1. 刪除車主資料
             const r = await fetch(`${API}/delete/${userId}`, { method: "DELETE" });
-            // 2. 刪除相關貼文
             const b = await fetch(`${POST_API}/${userId}`, { method: "DELETE" })
 
             if (!r.ok) {
@@ -40,7 +34,7 @@ export default function useAdminDriverActions(setDriverList, navigate) {
             console.log(`車主 ${userId} 刪除成功`);
             alert("車主已成功刪除！");
 
-            // 如果是在詳細頁面，導航回列表
+            // 如果是在詳細頁面，導回列表
             if (finalNavigate) finalNavigate(-1);
 
 
@@ -84,7 +78,7 @@ export default function useAdminDriverActions(setDriverList, navigate) {
             console.log(`用戶 ${driverData.userID} 狀態更新為 ${newStatus}`);
             alert(`${action}成功！`);
 
-            // 審核成功或失敗後，導航回列表
+            // 審核成功或失敗後，導回列表
             if (finalNavigate) finalNavigate(-1);
 
         } catch (err) {
@@ -93,10 +87,8 @@ export default function useAdminDriverActions(setDriverList, navigate) {
         }
     }, [setDriverList, finalNavigate]);
 
-    // 黑名單操作暫時留空或根據實際 API 實作
     const handleBlacklist = useCallback((userId) => {
         alert(`黑名單功能：用戶 ${userId}`);
-        // 實際呼叫黑名單 API
     }, []);
 
     return { handleDelete, handleBlacklist, handleVerify };
