@@ -90,7 +90,6 @@ function LoginPage() {
 
     async function fetchFullUserInfo(userId) {
         try {
-            // 不帶 Authorization header
             const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`);
 
             if (!res.ok) {

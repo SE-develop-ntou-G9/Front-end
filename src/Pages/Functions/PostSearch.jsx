@@ -33,7 +33,6 @@ const PostSearch = ({ onResult }) => {
             const data = await r.json();
             console.log("搜尋結果：", data);
 
-            // ⭐⭐ 把資料送回父元件
             onResult && onResult(data);
 
         } catch (err) {

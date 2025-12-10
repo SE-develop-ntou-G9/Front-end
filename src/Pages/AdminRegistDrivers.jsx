@@ -90,7 +90,7 @@ export default function AdminRegistDrivers() {
                                 items-center
                             "
                         >
-                            {/* 🚀 點擊導航到詳細審核頁面 */}
+                            {/*  點擊導航到詳細審核頁面 */}
                             <div 
                                 className="flex-1 cursor-pointer"
                                 onClick={() => navigate("/admin/DetailRegistDriver", { state: { driver: d } })}

@@ -7,14 +7,13 @@ function ProfilePage() {
     const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();
 
     useEffect(() => {
-        // 只在組件 mount 時執行一次，用於 debug
         console.group("ProfilePage 載入");
         console.log("isLoggedIn:", isLoggedIn);
         console.log("user:", user);
         console.log("driver:", driver);
         console.log("userRole:", userRole);
         console.groupEnd();
-    }, []);  // 空依賴陣列，    只執行一次
+    }, []); 
 
     const handleLogout = () => {
         logout();
