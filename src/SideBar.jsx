@@ -74,8 +74,6 @@ function SideBar({ isOpen, onClose, sidebarRef }) {
 
                     <MenuItem label="個人頁面" icon={<HiUser />} onClick={() => navigate("/Profile")} onClose={onClose} />
 
-
-
                     {/* 車主功能 */}
                     {isLoggedIn && (
                         <>
