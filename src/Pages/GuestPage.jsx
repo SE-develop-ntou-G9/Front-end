@@ -5,7 +5,7 @@ import UploadPost from "./Functions/UploadPost";
 import { HiSearch } from "react-icons/hi";
 import PostCard from "./Functions/PostCard";
 import PostClass from "../models/PostClass";
-import CardPresent from "./Functions/cardPresent";
+import CardPresent from "./Functions/CardPresent";
 import PostSearch from "./Functions/PostSearch";
 
 const API = "https://ntouber-post.zeabur.app/api/posts/all";
