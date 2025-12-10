@@ -5,7 +5,7 @@ import PostCard from "./Functions/PostCard.jsx";
 import PostClass from "../models/PostClass";
 import { useUser } from "../contexts/UserContext.jsx";
 // import { useNavigate } from "react-router-dom";
-import CardPresent from "./Functions/cardPresent";
+import CardPresent from "./Functions/CardPresent";
 
 
 const API = "https://ntouber-post.zeabur.app/api/posts/allpost";
