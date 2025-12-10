@@ -115,14 +115,14 @@ function SideBar({ isOpen, onClose, sidebarRef }) {
                                     disabled={true}
                                 />
                             )}
-                            {isAdmin &&
+                            {/* {isAdmin &&
                                 <MenuItem
                                     label="(測試) 管理者後台"
                                     icon={<HiShieldCheck />}
                                     onClick={() => navigate("/admin")}
                                     onClose={onClose}
                                 />
-                            }
+                            } */}
                             {/* <MenuItem
                                 label={isAdmin ? "切換回一般用戶" : "切換為管理員"}
                                 icon={<HiShieldCheck />}
