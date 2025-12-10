@@ -42,6 +42,8 @@ function detailPost() {
 
                 setDriver(data);
 
+                console.log(data);
+
             } catch (err) {
                 console.error("❌ 載入車主資料失敗:", err);
             }
@@ -126,6 +128,16 @@ function detailPost() {
                 <div className="space-y-3 text-xs">
 
                     集合地點: {postData.meet_point.Name}
+                </div>
+
+                <div className="space-y-3 text-xs">
+
+                    手機: {driver?.PhoneNumber}
+                </div>
+
+                <div className="space-y-3 text-xs">
+
+                    車型: {postData.vehicle_info}
                 </div>
 
                 {/* <div className="space-y-3 text-xs">

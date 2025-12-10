@@ -4,7 +4,7 @@ import PostClass from "../../models/PostClass";
 import cityDistrictMap from "../../models/Cities";
 import { useNavigate } from "react-router-dom";
 
-function toApiJson(post, startAddress, destAddress, userName) {
+function toApiJson(post, startAddress, destAddress, userName, vehicle_info) {
 
 
     const fullStartAddress = [startAddress.city, startAddress.district, startAddress.street]
@@ -30,7 +30,7 @@ function toApiJson(post, startAddress, destAddress, userName) {
         contact_info: {},
         leave: !!post.leave,
 
-        vehicle_info: post.vehicle_info || "unknown",
+        vehicle_info: vehicle_info || "unknown",
         status: "open",  // 他說不能是空的我也不知道怎麼辦
         // timestamp: "0" // 他說不能是空的我也不知道怎麼辦
     }
@@ -38,7 +38,7 @@ function toApiJson(post, startAddress, destAddress, userName) {
 
 function UploadPost() {
     const navigate = useNavigate();
-    const { user } = useUser();  // 從 UserContext 取得使用者資料
+    const { user, driver } = useUser();  // 從 UserContext 取得使用者資料
     const [imageFile, setImageFile] = useState("");
     
     // 初始化 PostClass 實例
@@ -113,7 +113,7 @@ function UploadPost() {
             return;
         }
 
-        const payload = toApiJson(post, startAddress, destAddress, user.ID);
+        const payload = toApiJson(post, startAddress, destAddress, user.ID, driver.scooter_type);
         setSubmitting(true);
 
         // const fullAddress = [address.city, address.district, address.street]
