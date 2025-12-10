@@ -15,6 +15,7 @@ export const UserProvider = ({ children }) => {
     const [driver, setDriver] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userRole, setUserRole] = useState(null);
+    const [isAdmin, setAdmin] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isFetching, setIsFetching] = useState(false);  // 防止重複請求
 
@@ -54,11 +55,17 @@ export const UserProvider = ({ children }) => {
 
             const userData = await res.json();
             console.log("✅ fetchUserData 成功:", userData);
-            setUser(userData);
+
+            const picture = localStorage.getItem("userPicture");
+
+            setUser({
+                ...userData,
+                AvatarURL: userData.avatarURL || userData.avatar_url || userData.AvatarURL || null
+            });
             setIsLoggedIn(true);
 
             // 檢查是否為車主
-            await checkDriverStatus(userId);
+            await checkStatus(userId);
         } catch (err) {
             console.error("fetchUserData error:", err);
             logout();
@@ -68,7 +75,12 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    // 檢查車主狀態（不帶 Authorization header）
+    const checkStatus = async (userId) => {
+        await checkDriverStatus(userId);
+        await checkAdminStatus(userId);
+    }
+
+    // 檢查車主&admin狀態（不帶 Authorization header）
     const checkDriverStatus = async (userId) => {
         try {
             const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`);
@@ -76,9 +88,20 @@ export const UserProvider = ({ children }) => {
             if (res.ok) {
                 const driverData = await res.json();
                 if (driverData && Object.keys(driverData).length > 0) {
-                    console.log("✅ 檢測到車主資料:", driverData);
-                    setDriver(driverData);
-                    setUserRole("車主");
+                    if (driverData.status == "verified") {
+                        console.log("✅ 檢測到車主資料:", driverData);
+                        setDriver(driverData);
+                        setUserRole("車主");
+                    }
+                    else if (driverData.status == "checking") {
+                        setDriver(driverData);
+                        setUserRole("審核中");
+                    }
+                    else if (driverData.status == "rejected") {
+                        console.log("✅ 檢測到車主資料但不是車主:", driverData);
+                        setDriver(driverData);
+                        setUserRole("乘客");
+                    }
                 } else {
                     console.log("ℹ️ 無車主資料，設為乘客");
                     setDriver(null);
@@ -101,20 +124,74 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    const checkAdminStatus = async (userId) => {
+        try {
+            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`);
+
+            if (res.ok) {
+                const Data = await res.json();
+                if (Data && Object.keys(Data).length > 0) {
+                    console.log("✅ 檢測到user資料:");
+                    console.log("name:", Data.Name)
+                    console.log("id:", Data.ID)
+                    console.log("Admin:", Data.Admin)
+                    if (Data.Admin) {
+                        setAdmin("1");
+                    } else {
+                        setAdmin("0");
+                    }
+                } else {
+                    console.log("ℹ️ 無user資料，設為乘客");
+                    setAdmin("0");
+                }
+
+            } else if (res.status === 404 || res.status === 500) {
+                console.log("ℹ️ 怪怪的（狀態碼: " + res.status + "）");
+                setAdmin("0");
+            } else {
+                console.log("⚠️ 無法檢查狀態");
+                setAdmin("0");
+            }
+        } catch (err) {
+            console.log("ℹ️ checkAdminStatus 異常，設為乘客:", err.message);
+            setAdmin("0");
+        }
+    };
+
     // 登入
     const login = async (userData, token) => {
         try {
-            // 只儲存 token 和 userId
             localStorage.setItem("jwtToken", token);
             localStorage.setItem("userId", userData.id);
 
-            // 從後端獲取完整資料
-            await fetchUserData(userData.id);
+            const googleAvatar = userData.AvatarURL;
+
+            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userData.id}`);
+            const dbUser = res.ok ? await res.json() : {};
+
+            const finalAvatar =
+                dbUser.avatarURL ||
+                dbUser.avatar_url ||
+                googleAvatar ||
+                null;
+
+            const merged = {
+                ...dbUser,
+                ...userData,
+                AvatarURL: finalAvatar
+            };
+
+            setUser(merged);
+            setIsLoggedIn(true);
+            localStorage.setItem("user", JSON.stringify(merged));
+
         } catch (err) {
             console.error("login error:", err);
-            throw err;
         }
     };
+
+
+
 
     // 登出
     const logout = () => {
@@ -137,6 +214,8 @@ export const UserProvider = ({ children }) => {
                 body: JSON.stringify(updateData),
             });
 
+            const text = await res.text();
+            console.log("後端回傳原始內容：", text);
             if (!res.ok) {
                 throw new Error("更新失敗");
             }
@@ -166,10 +245,31 @@ export const UserProvider = ({ children }) => {
             }
 
             // 重新檢查車主狀態
-            await checkDriverStatus(user.ID);
+            await checkStatus(user.ID);
             return true;
         } catch (err) {
             console.error("upgradeToDriver error:", err);
+            return false;
+        }
+    };
+
+    const updateDriver = async (driverData) => {
+        try {
+            const res = await fetch("https://ntouber-user.zeabur.app/v1/drivers/mod", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(driverData),
+            });
+
+            if (!res.ok) throw new Error("更新車主資料失敗");
+
+            await checkStatus(driverData.user_id);
+            return true;
+
+        } catch (err) {
+            console.error("updateDriver error:", err);
             return false;
         }
     };
@@ -186,6 +286,7 @@ export const UserProvider = ({ children }) => {
         driver,
         isLoggedIn,
         userRole,
+        isAdmin,
         loading,
         login,
         logout,
@@ -193,6 +294,9 @@ export const UserProvider = ({ children }) => {
         upgradeToDriver,
         refreshUserData,
         fetchUserData,
+        setUser,
+        updateDriver,
+        checkStatus,
     };
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

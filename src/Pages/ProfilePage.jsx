@@ -14,7 +14,7 @@ function ProfilePage() {
         console.log("driver:", driver);
         console.log("userRole:", userRole);
         console.groupEnd();
-    }, []);  // 空依賴陣列，只執行一次
+    }, []);  // 空依賴陣列，    只執行一次
 
     const handleLogout = () => {
         logout();
@@ -31,18 +31,6 @@ function ProfilePage() {
             </div>
         );
     }
-
-    // Debug: 顯示完整狀態
-    // const showDebugInfo = () => {
-    //     return (
-    //         <div className="max-w-md mx-auto mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded text-xs">
-    //             <h3 className="font-bold mb-2">Debug 資訊</h3>
-    //             <pre className="whitespace-pre-wrap overflow-auto">
-    //                 {JSON.stringify({ isLoggedIn, loading, user, driver, userRole }, null, 2)}
-    //             </pre>
-    //         </div>
-    //     );
-    // };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -97,9 +85,9 @@ function ProfilePage() {
                 <>
                     <div className="bg-black text-white py-10 px-6 flex flex-col items-center shadow-md">
                         <div className="w-20 h-20 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center">
-                            {user?.Picture ? (
+                            {user?.AvatarURL ? (
                                 <img
-                                    src={user.Picture}
+                                    src={user.AvatarURL}
                                     alt="Profile"
                                     className="w-full h-full object-cover"
                                 />

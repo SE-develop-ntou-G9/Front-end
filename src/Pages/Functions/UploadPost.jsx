@@ -4,7 +4,7 @@ import PostClass from "../../models/PostClass";
 import cityDistrictMap from "../../models/Cities";
 import { useNavigate } from "react-router-dom";
 
-function toApiJson(post, startAddress, destAddress, userName) {
+function toApiJson(post, startAddress, destAddress, userName, vehicle_info) {
 
 
     const fullStartAddress = [startAddress.city, startAddress.district, startAddress.street]
@@ -24,29 +24,31 @@ function toApiJson(post, startAddress, destAddress, userName) {
         meet_point: { Name: post.meet_point?.Name || "" },
         departure_time: post.departure_time ? new Date(post.departure_time).toISOString() : null,
         notes: post.notes || "",
-        description: "",
+        description: post.description,
         helmet: !!post.helmet,
         // contact_info: { Contact: post.contact || "" },
         contact_info: {},
         leave: !!post.leave,
 
-        vehicle_info: post.vehicle_info || "unknown",
-        status: "open",                       // 他說不能是空的我也不知道怎麼辦
-        timestamp: "2025-10-31T06:56:57.647Z" // 他說不能是空的我也不知道怎麼辦
+        vehicle_info: vehicle_info || "unknown",
+        status: "open",  // 他說不能是空的我也不知道怎麼辦
+        // timestamp: "0" // 他說不能是空的我也不知道怎麼辦
     }
 }
 
 function UploadPost() {
     const navigate = useNavigate();
-    const { user } = useUser();  // 從 UserContext 取得使用者資料
-
+    const { user, driver } = useUser();  // 從 UserContext 取得使用者資料
+    const [imageFile, setImageFile] = useState("");
+    
     // 初始化 PostClass 實例
+    
     const [post, setPost] = useState(
         new PostClass({
             driver_id: "",
             vehicle_info: null,
             status: "",
-            timestamp: "",
+            // timestamp: "",
             starting_point: {
                 Name: "",
                 Address: ""
@@ -111,7 +113,7 @@ function UploadPost() {
             return;
         }
 
-        const payload = toApiJson(post, startAddress, destAddress, user.Name);
+        const payload = toApiJson(post, startAddress, destAddress, user.ID, driver.scooter_type);
         setSubmitting(true);
 
         // const fullAddress = [address.city, address.district, address.street]
@@ -132,24 +134,41 @@ function UploadPost() {
                 console.log("後端回傳內容：", data);
                 throw new Error(data.message || `API 錯誤（${r.status})`);
             }
-            // // 從 localStorage 取得現有的資料陣列
-            // const existingPosts = JSON.parse(localStorage.getItem("posts")) || [];
+            console.log(data);
+            // 假設後端回傳的物件裡有 id 當 post_id
+            const postId = data;
 
-            // // 將新的 post 加入陣列，並串聯address
-            // const updatedPosts = [...existingPosts,  { ...post, desAddress: fullAddress }];
+            // 2. 如果有選圖片 → 呼叫 upload_image
+            if (imageFile && postId) {
+                console.log("HI");
+                const formData = new FormData();
+                formData.append("file", imageFile); // 這個 key 名稱要跟後端約好
 
-            // // 將更新後的陣列存回 localStorage
-            // localStorage.setItem("posts", JSON.stringify(updatedPosts));
+                const uploadUrl = `https://ntouber-post.zeabur.app/api/posts/upload_image?post_id=${postId}`;
+                
+                console.log("imageFile = ", imageFile);
+                console.log("formData = ", formData);
 
-            // alert(`資料已儲存到 localStorage：
-            //     出發地: ${post.origin}
-            //     目的地: ${post.destination}
-            //     出發時間: ${post.time}
-            //     集合地點: ${post.meetingPoint}
-            //     備註: ${post.note}
-            //     是否有安全帽: ${post.helmet ? "是" : "否"}
-            //     聯絡方式: ${post.contact}
-            // `);
+                const imgRes = await fetch(uploadUrl, {
+                    method: "PATCH",
+                    body: formData, // 不要自己加 Content-Type，瀏覽器會幫你加 boundary
+                });
+
+                const imgData = await imgRes.json().catch(() => ({}));
+                if (!imgRes.ok) {
+                    console.log("圖片上傳失敗：", imgData);
+                    throw new Error(imgData.message || `圖片上傳錯誤（${imgRes.status})`);
+                }
+
+                console.log("圖片上傳成功，回傳資料：", imgData);
+
+
+
+                
+            }
+
+
+            
 
             // 清空表單
             setPost(new PostClass({}));
@@ -161,9 +180,6 @@ function UploadPost() {
 
         } catch (err) {
             console.error(err);
-            // 失敗時，你可以選擇同時備份到 localStorage，避免表單遺失
-            // const fallback = JSON.parse(localStorage.getItem("posts") || "[]");
-            // localStorage.setItem("posts", JSON.stringify([...fallback, payload]));
             alert(`送出失敗：${err.message}`);
         } finally {
             setSubmitting(false);
@@ -315,10 +331,34 @@ function UploadPost() {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block mb-2">備註:</label>
+                    <label className="block mb-2">上傳照片：</label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                        const file = e.target.files && e.target.files[0];
+                        setImageFile(file || null);
+                        }}
+                        className="w-full"
+                    />
+                </div>
+
+
+                <div className="mb-4">
+                    <label className="block mb-2">貼文簡述:</label>
                     <textarea
                         name="notes"
                         value={post.notes}
+                        onChange={handleChange}
+                        className="w-full p-2 border rounded"
+                    ></textarea>
+                </div>
+
+                <div className="mb-4">
+                    <label className="block mb-2">備註:</label>
+                    <textarea
+                        name="description"
+                        value={post.description}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                     ></textarea>

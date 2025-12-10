@@ -5,42 +5,49 @@ import UserClass from "../models/UserClass";
 
 function RegisterPage() {
     const navigate = useNavigate();
-    const { user: loggedUser, refreshUserData } = useUser();  // 改用 refreshUserData
+    const { user: loggedUser, refreshUserData, driver } = useUser();
 
     const [user, setUser] = useState(
         new UserClass("", "", "", "", "", "", false)
     );
 
-    const [frontImage, setFrontImage] = useState(null); // 駕照正面
-    const [backImage, setBackImage] = useState(null);   // 駕照反面
+    //駕照們
+    const [frontFile, setFrontFile] = useState(null);
 
-    // 預覽圖片
-    // const [frontPreview, setFrontPreview] = useState(null);
-    // const [backPreview, setBackPreview] = useState(null);
+    const [frontPreview, setFrontPreview] = useState(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUser({ ...user, [name]: value });
     };
 
-    // 讀取圖片成 Base64
-    const handleImageUpload = (e, setImage, setPreview) => {
+    const handleFileSelect = (e, setFile, setPreview) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        //這是一個本來就可以直接用的東西
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImage(reader.result); // Base64 給後端
-            setPreview(reader.result); // 用於預覽
-        };
-        reader.readAsDataURL(file);
+        setFile(file);
+        setPreview(URL.createObjectURL(file));
+    };
+
+    const uploadLicense = async (file) => {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const res = await fetch("https://ntouber-user.zeabur.app/v1/images/license", {
+            method: "POST",
+            body: formData,
+        });
+
+
+        if (!res.ok) throw new Error("駕照上傳失敗");
+        const data = await res.json();
+
+        return data.url;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // 從 UserContext 中取得使用者資料
         if (!loggedUser || !loggedUser.ID) {
             alert("尚未登入");
             navigate("/login");
@@ -52,47 +59,50 @@ function RegisterPage() {
             return;
         }
 
-        // 檢查電話號碼
-        const phone = loggedUser.PhoneNumber || "";
+        // 上傳駕照圖片
+        let frontUrl = await uploadLicense(frontFile);
 
-        if (!phone.trim()) {
-            alert("您的使用者資料尚未填寫電話，請先至會員編輯頁面補上聯絡方式！");
-            navigate("/EditProfile");
-            return;
-        }
+        console.log(frontUrl);
 
+        let endpoint = "";
+        let method = "";
         const payload = {
             user_id: loggedUser.ID,
             driver_name: loggedUser.Name,
-            contact_info: phone,
+            contact_info: loggedUser.PhoneNumber,
             scooter_type: user.carType,
             plate_num: user.licenseNum.toUpperCase(),
+            driver_license: frontUrl,
+            Status: "checking"
         };
 
-        console.log("送到後端的車主資料：", payload);
+        console.log("送到後端的資料：", payload);
 
+        if (driver?.status === "rejected") {
+            endpoint = "https://ntouber-user.zeabur.app/v1/drivers/mod";
+            method = "PUT";
+            payload.driver_id = driver.ID;  // 🔥 若後端需要 driver_id 記得加
+        } else {
+            // 新增申請
+            endpoint = "https://ntouber-user.zeabur.app/v1/users/driver";
+            method = "POST";
+        }
         try {
-            // 使用正確的 API endpoint
-            const res = await fetch("https://ntouber-user.zeabur.app/v1/users/driver", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload)
+            const res = await fetch(endpoint, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
             });
+
 
             if (!res.ok) {
                 const err = await res.text();
-                console.error("後端錯誤：", err);
                 alert("申請失敗：" + err);
                 return;
             }
 
-            alert("成功升級成車主！");
-
-            // 重新整理使用者資料，會自動檢查車主狀態
+            alert("成功向Admin申請車主！");
             await refreshUserData();
-
             navigate("/Profile");
 
         } catch (err) {
@@ -134,74 +144,25 @@ function RegisterPage() {
                         />
                     </div>
 
-                    {/* 駕照正面
+                    {/* 駕照正面 */}
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">駕照正面</label>
-                        <label className="cursor-pointer flex items-center gap-2 px-2.5 py-1.5 
-       bg-white/80 backdrop-blur border border-gray-300 
-       shadow-sm text-gray-800 rounded-md hover:bg-gray-100 
-       transition text-xs w-fit">
 
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
-                                stroke="currentColor" className="w-4 h-4">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M6.75 7.5l-.625-1.25A1.125 1.125 0 017.125 5h9.75a1.125 1.125 0 011 .75L18.75 7.5H19.5A2.25 2.25 0 0121.75 9.75v7.5A2.25 2.25 0 0119.5 19.5H4.5A2.25 2.25 0 012.25 17.25v-7.5A2.25 2.25 0 014.5 7.5h2.25z" />
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M12 15.75a3 3 0 100-6 3 3 0 000 6z" />
-                            </svg>
-
-                            上傳駕照正面
-
+                        <label className="cursor-pointer flex items-center gap-2 px-3 py-2 
+                                bg-white border rounded-md shadow-sm hover:bg-gray-100 transition text-sm">
+                            📄 上傳駕照正面
                             <input
                                 type="file"
                                 accept="image/*"
                                 className="hidden"
-                                onChange={(e) => handleImageUpload(e, setFrontImage, setFrontPreview)}
+                                onChange={(e) => handleFileSelect(e, setFrontFile, setFrontPreview)}
                             />
                         </label>
-
-
 
                         {frontPreview && (
-                            <img src={frontPreview} alt="Front Preview" className="mt-2 rounded-md shadow" />
+                            <img src={frontPreview} className="mt-2 rounded-md shadow" alt="front" />
                         )}
-                    </div> */}
-
-                    {/* 駕照反面 */}
-                    {/* <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">駕照反面</label>
-
-                        <label className="cursor-pointer flex items-center gap-2 px-2.5 py-1.5 
-       bg-white/80 backdrop-blur border border-gray-300 
-       shadow-sm text-gray-800 rounded-md hover:bg-gray-100 
-       transition text-xs w-fit">
-
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
-                                stroke="currentColor" className="w-4 h-4">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M6.75 7.5l-.625-1.25A1.125 1.125 0 017.125 5h9.75a1.125 1.125 0 011 .75L18.75 7.5H19.5A2.25 2.25 0 0121.75 9.75v7.5A2.25 2.25 0 0119.5 19.5H4.5A2.25 2.25 0 012.25 17.25v-7.5A2.25 2.25 0 014.5 7.5h2.25z" />
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M12 15.75a3 3 0 100-6 3 3 0 000 6z" />
-                            </svg>
-
-                            上傳駕照反面
-
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => handleImageUpload(e, setBackImage, setBackPreview)}
-                            />
-                        </label>
-
-
-                        {backPreview && (
-                            <img src={backPreview} alt="Back Preview" className="mt-2 rounded-md shadow" />
-                        )}
-                    </div> */}
-
+                    </div>
 
                     <button
                         type="submit"

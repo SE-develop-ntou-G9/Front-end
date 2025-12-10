@@ -2,14 +2,36 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { useUser } from "../contexts/UserContext.jsx";
+import { jwtDecode } from "jwt-decode";
+
 
 function LoginPage() {
     const navigate = useNavigate();
-    const { login } = useUser();
+    const { login, refreshUserData } = useUser();
+
+    async function isBlacklisted(userId) {
+		try {
+			const res = await fetch("https://ntouber-admin.zeabur.app/admin/blacklist", { method: "GET" });
+			if (!res.ok) throw new Error(`黑名單 API 錯誤 (${res.status})`);
+			const list = await res.json();
+
+			if (!Array.isArray(list)) return false;
+
+			return list.some((b) => String(b.userId) === String(userId));
+		} catch (err) {
+			console.error("檢查黑名單失敗：", err);
+			return false;
+		}
+	}
 
     const handleGoogleSuccess = async (response) => {
         try {
+
             const credential = response.credential;
+
+            const googleUser = jwtDecode(credential);
+            const googlePicture = googleUser.picture;
+
 
             const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
                 method: "POST",
@@ -21,31 +43,44 @@ function LoginPage() {
 
             const data = await res.json();
             const user = data.user;
-            const token = data.token;
 
-            console.log("登入成功:", data);
+            const blocked = await isBlacklisted(user.id);
+			if (blocked) {
+				alert("此帳號已被加入黑名單，無法登入。");
+				return;
+			}
 
-            // 使用 Context 的 login 方法（這會自動 fetchUserData）
-            await login(user, token);
-
-            // login 完成後，Context 中的 user 已經更新
-            // 但我們需要再次查詢以確保有最新資料
             const fullUser = await fetchFullUserInfo(user.id);
+
+            const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+
+            console.log(googlePicture);
+            await login({
+                ...user,
+                AvatarURL: fullUser.AvatarURL || googlePicture || DEFAULT_AVATAR || null
+            });
+
 
             if (!fullUser) {
                 alert("無法取得使用者資料");
                 return;
             }
 
-            // 檢查是否需要補充資料
+            if (fullUser.Admin == 1) {
+                alert(`歡迎管理員 ${fullUser.Name}！`);
+                navigate("/admin");
+                return;
+            }
+
             if (!fullUser.PhoneNumber || fullUser.PhoneNumber.trim() === "") {
                 alert(`歡迎 ${fullUser.Name || user.name} 第一次登入！請先設定聯絡方式～`);
                 navigate("/EditProfile");
                 return;
             }
 
-            alert(`歡迎回來，${fullUser.Name}！`);
+            alert(`歡迎回來，${fullUser.Name}！`)
             navigate("/");
+            window.location.reload();
 
         } catch (error) {
             console.error("Google OAuth 發生錯誤：", error);
