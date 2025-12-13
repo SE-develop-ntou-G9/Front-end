@@ -13,7 +13,8 @@ const adminBlackAPI = "https://ntouber-admin.zeabur.app/admin/blacklist"; // 如
  */
 export default function useAdminDriverActions(setDrivers, navigate) {
     
-    // 從 useAdminUserActions 搬移過來的 handleDriverDelete 邏輯
+    const { updateDriver } = useUser();
+    const getAvatarURL = {}
     const handleDriverDelete = async (driver) => {
         // ... (刪除邏輯與錯誤處理保持不變)
         const userId = driver.userID;
@@ -83,7 +84,7 @@ export default function useAdminDriverActions(setDrivers, navigate) {
                 throw new Error(`至少有一個關鍵刪除操作失敗:\n${errorMessage}`);
             }
 
-            // ⭐ 只使用 setDrivers 更新列表 (這裡的 setDrivers 肯定有值)
+            // 只使用 setDrivers 更新列表 (這裡的 setDrivers 肯定有值)
             if (setDrivers) { 
                 setDrivers((prevDrivers) =>
                     prevDrivers.filter((d) => d.userID !== userId)
