@@ -6,6 +6,7 @@ import PostClass from "../../models/PostClass";
 import dayjs from "dayjs";
 import { useUser } from "../../contexts/UserContext.jsx";
 
+
 function detailPost() {
     const { user, isLoggedIn, userRole, loading, logout } = useUser();
     // useEffect(() => {
@@ -19,6 +20,7 @@ function detailPost() {
     // }, []);
 
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { state } = useLocation();
     const postData = state?.post;
     if (!postData) return <p>沒有收到貼文資料</p>;
@@ -54,6 +56,23 @@ function detailPost() {
     }, [User_id]);
 
     const handleRequest = async () => {
+
+        const postParams = new URLSearchParams({
+            post_id: postData.id,
+        });
+        const postUrl = `https://ntouber-post.zeabur.app/api/posts/getpost/${postData.id}`; 
+
+        const postRes = await fetch(postUrl, {
+                method: "GET",
+            });
+
+        const newPostData = await postRes.json().catch(() => ({}));
+        if (!postRes.ok) {
+            console.error("發送請求失敗：", newPostData);
+            throw new Error(newPostData.message || `API 錯誤 (${postRes.status})`);
+        }
+
+        if (isSubmitting) return;
         if (!isLoggedIn || !user) {
             alert("請先登入再發送請求");
             return;
@@ -61,16 +80,30 @@ function detailPost() {
 
         const params = new URLSearchParams({
 
-            post_id: postData.id,
+            post_id: newPostData.id,
             client_id: user.ID,
 
         });
 
+        console.log(newPostData);
+
+        if(user.ID == newPostData.driver_id){
+            alert("不能向自己發送請求");
+            return;
+        };
+
+        if(newPostData.status == "matched"){
+            alert("此請求已被匹配");
+            navigate("/")
+            return;
+        };
+
         const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
         console.log("發送請求 URL:", url);
+        setIsSubmitting(true);// 開始發送 (避免連點)
 
         try {
-            console.log(postData.timestamp);
+            console.log(newPostData.timestamp);
             const res = await fetch(url, {
                 method: "PATCH",
             });
@@ -84,9 +117,14 @@ function detailPost() {
 
             console.log("發送請求成功：", data);
             alert("已發送請求給車主！");
+            navigate('/');
+
         } catch (err) {
             console.error("發送請求發生錯誤：", err);
             alert(`發送請求失敗：${err.message}`);
+        } finally {
+        // 恢復狀態
+            setIsSubmitting(false);
         }
     };
 
