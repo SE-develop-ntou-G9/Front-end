@@ -6,19 +6,19 @@ import { Routes, Route, Link } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 
-function PostCard({ postData , isAdmin}) {
+function PostCard({ postData, isAdmin }) {
     const navigate = useNavigate();
     if (!postData) return null;
     const tags = [];
     if (postData.helmet) tags.push("提供安全帽");
     if (postData.leave) tags.push("中途下車");
-    
+
     const [driver, setDriver] = useState(null);
 
     const User_id = postData.driver_id;
 
     const dst = isAdmin === "1" ? "/AdminDetailPost" : "/detailPost";
-    
+
 
     useEffect(() => {
         async function fetchDriver() {
@@ -40,7 +40,7 @@ function PostCard({ postData , isAdmin}) {
         fetchDriver();
     }, [User_id]);
 
-        
+
     return (
         <article className='postCard m-4' onClick={() => navigate(`${dst}`, { state: { post: postData } })}>
             <div
