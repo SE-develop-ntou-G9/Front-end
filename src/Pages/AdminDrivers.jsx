@@ -1,19 +1,15 @@
-// fileName: AdminDrivers.jsx (重構)
-
 import React, { useEffect, useState } from "react";
 import DriverClass from "../models/DriverClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions"; // <--- 導入 Hook
-import useAdminUserActions from "../Pages/hooks/useAdminUserActions"; // <--- 導入 Hook
 
 const API = "https://ntouber-user.zeabur.app/v1/drivers";
 
 export default function AdminDrivers() {
     const navigate = useNavigate();
     const [drivers, setDrivers] = useState([]); // <--- 修正變數名稱
-    const { handleDelete } = useAdminDriverActions(setDrivers); // <--- 使用 Hook
-    const { handleBlacklist } = useAdminUserActions(setDrivers); // <--- 使用 Hook
+    const {handleDriverDelete, handleBlacklist } = useAdminDriverActions(setDrivers); // <--- 使用 Hook
 
     useEffect(() => {
         async function fetchDrivers() {
@@ -119,7 +115,7 @@ export default function AdminDrivers() {
                                 </button>
                                 
                                 <button
-                                    onClick={() => handleDelete(d.userID)}
+                                    onClick={() => handleDriverDelete(d)}
                                     className="
                                         px-3 py-1 
                                         bg-red-500 hover:bg-red-600 
