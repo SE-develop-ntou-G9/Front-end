@@ -13,7 +13,7 @@ export default function CardPresent({post,isAdmin}) {
             ) : (
                 post.map((p) => (
                     <PostCard
-                        key={p.driver_id}
+                        key={p.id}
                         postData={p}
                         isAdmin= {isAdmin}
                     />

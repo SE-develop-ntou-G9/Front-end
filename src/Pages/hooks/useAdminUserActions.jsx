@@ -137,7 +137,7 @@ export default function useAdminUserActions(setUser, navigate) {
         }
     };
 
-    const handleDeleteFromBlacklist = async (user, setBlacklist) => {
+    const handleUserDeleteFromBlacklist = async (user, setBlacklist) => {
         const userId = user.userId;
         const userName = user.userName || "未知用戶";
         if (!window.confirm(`確定要將用戶: ${userName} 從黑名單中移除嗎？`)) {
@@ -176,6 +176,6 @@ export default function useAdminUserActions(setUser, navigate) {
     return { 
         handleUserDelete, 
         handleUserBlacklist, 
-        handleDeleteFromBlacklist 
+        handleUserDeleteFromBlacklist
     };
 }
