@@ -11,9 +11,10 @@ const uAPI = "https://ntouber-user.zeabur.app/v1/users";
 export default function AdminUsers() {
     const navigate = useNavigate();
     const [users, setUser] = useState([]);
-
-    // 引入並使用 Hook，傳入 setUser 函式
-    const { handleDelete, handleBlacklist } = useAdminUserActions(setUser);
+    const [userData, setTmpUser] = useState();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [blacklistReason, setBlacklistReason] = useState('');
+    const { handleUserDelete, handleUserBlacklist } = useAdminUserActions(setUser);
     
     useEffect(() => {
         async function fetchUsers() {
@@ -33,6 +34,18 @@ export default function AdminUsers() {
 
         fetchUsers();
     }, []);
+
+    // 處理確認黑名單
+    const handleConfirmBlacklist = async () => {
+        if (!blacklistReason.trim()) {
+            alert('請務必填寫加入黑名單的理由！'); 
+            return;
+        }
+        await handleUserBlacklist(userData, blacklistReason.trim());
+        setIsModalOpen(false);
+        setBlacklistReason('');
+        setTmpUser(null);
+    };
     
 
     return (
@@ -110,7 +123,7 @@ export default function AdminUsers() {
                             <div className="flex space-x-2">
                                 
                                 <button
-                                    onClick={() => handleBlacklist(u.ID)}
+                                    onClick={() => {setIsModalOpen(true);setTmpUser(u)}} 
                                     className="
                                         px-3 py-1 
                                         bg-yellow-500 hover:bg-yellow-600 
@@ -119,12 +132,12 @@ export default function AdminUsers() {
                                         transition-colors
                                     "
                                 >
-                                    黑名單
+                                    加入黑名單
                                 </button>
                                 
                                 {/* 2.2 刪除按鈕 */}
                                 <button
-                                    onClick={() => handleDelete(u.ID)}
+                                    onClick={() => handleUserDelete(u)}
                                     className="
                                         px-3 py-1 
                                         bg-red-500 hover:bg-red-600 
@@ -141,6 +154,47 @@ export default function AdminUsers() {
                 </div>
 
             </div>
+             {/*黑名單理由輸入彈窗*/}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                        <h3 className="text-lg font-bold mb-4">加入黑名單：輸入理由</h3>
+                        
+                        <div className="mb-4">
+                            <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
+                                用戶 {userData.userName} (ID: {userData.ID})
+                            </label>
+                            <textarea
+                                id="reason"
+                                rows="4"
+                                className="w-full p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+                                placeholder="請填寫加入黑名單的具體理由，此為必填項目。"
+                                value={blacklistReason}
+                                onChange={(e) => setBlacklistReason(e.target.value)}
+                            />
+                        </div>
+                        
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={() => {
+                                    setIsModalOpen(false);
+                                    setBlacklistReason(''); 
+                                    setTmpUser(null);
+                                }}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+                            >
+                                取消
+                            </button>
+                            <button
+                                onClick={handleConfirmBlacklist}
+                                className="px-4 py-2 text-sm font-medium text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+                            >
+                                確認加入黑名單
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
