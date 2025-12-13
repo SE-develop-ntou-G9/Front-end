@@ -132,6 +132,11 @@ function UserPage() {
                                 {myHistoryPosts2.map((postItem, index) => (
                                     <li
                                         key={index}
+                                        onClick={() =>
+                                            navigate("/detailPost", {
+                                                state: { post: postItem },
+                                            })
+                                        }
                                         className="group flex items-center gap-4 p-4 bg-white rounded-xl border shadow-sm 
                                hover:shadow-md hover:-translate-y-1 transition-transform cursor-pointer"
                                     >

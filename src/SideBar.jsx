@@ -77,7 +77,7 @@ function SideBar({ isOpen, onClose, sidebarRef }) {
                     {/* 車主功能 */}
                     {isLoggedIn && (
                         <>
-                            <MenuItem label="目前貼文" icon={<HiClipboardList />} onClick={() => navigate("/Current")} onClose={onClose} />
+                            <MenuItem label="我的貼文" icon={<HiClipboardList />} onClick={() => navigate("/Current")} onClose={onClose} />
                             {userRole === "乘客" && (
                                 driver?.status === "rejected" ? (
                                     <MenuItem
