@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { HiSearch } from "react-icons/hi";
+import { HiSearch, HiRefresh } from "react-icons/hi";
 import PostCard from "./Functions/PostCard.jsx";
 import PostClass from "../models/PostClass";
 import { useUser } from "../contexts/UserContext.jsx";
@@ -15,6 +15,8 @@ function UserPage() {
     const navigate = useNavigate();
     const { user, userRole, isAdmin } = useUser();
     const [myHistoryPosts2, setMyHistoryPosts] = useState([]);
+    const [refreshKey, setRefreshKey] = useState(0);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     useEffect(() => {
         async function fetchPosts() {
@@ -33,7 +35,7 @@ function UserPage() {
         }
 
         fetchPosts();
-    }, []
+    }, [refreshKey]
     );
     useEffect(() => {
         if (!user?.ID) return;
@@ -56,12 +58,19 @@ function UserPage() {
         }
 
         fetchMyHistory();
-    }, [user]);
+    }, [user, refreshKey]);
 
 
     const handleSearchResult = (resultArray) => {
         const mapped = resultArray.map(p => new PostClass(p));
         setPost(mapped);
+    };
+
+    const handleRefresh = () => {
+        setRefreshKey(prev => prev + 1);// 修改 Key，強迫 useEffect 重跑
+        
+        setIsRefreshing(true);
+        setTimeout(() => setIsRefreshing(false), 800);
     };
 
 
@@ -95,7 +104,19 @@ function UserPage() {
                     <div className="mt-5">
                         <div className="mt-5 flex items-center justify-between">
                             <div>
-                                <h2 className="text-base font-bold text-gray-900">最新共乘邀請</h2>
+                                <h2 className="text-base font-bold text-gray-900">最新共乘邀請
+                                    <button 
+                                        onClick={handleRefresh}
+                                        className="p-1 rounded-full hover:bg-gray-200 text-gray-500 transition-all active:scale-95"
+                                        title="重新整理"
+                                    >
+                                    <HiRefresh 
+                                        className={`text-lg transform transition-transform duration-700 ${isRefreshing ? "animate-spin text-purple-600" : ""}`} 
+                                    />
+                                </button>
+
+                                </h2>
+                                
                                 <p className="text-xs text-gray-500 mt-0.5">查查看其他用戶的共乘請求</p>
                             </div>
 
