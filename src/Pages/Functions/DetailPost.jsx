@@ -29,7 +29,7 @@ function detailPost() {
     if (postData.helmet) tags.push("自備安全帽");
     if (postData.leave) tags.push("中途下車");
     // console.log("postData.id", postData.id);
-    
+
     const [driver, setDriver] = useState(null);
     const User_id = postData.driver_id;
     useEffect(() => {
@@ -60,11 +60,11 @@ function detailPost() {
         const postParams = new URLSearchParams({
             post_id: postData.id,
         });
-        const postUrl = `https://ntouber-post.zeabur.app/api/posts/getpost/${postData.id}`; 
+        const postUrl = `https://ntouber-post.zeabur.app/api/posts/getpost/${postData.id}`;
 
         const postRes = await fetch(postUrl, {
-                method: "GET",
-            });
+            method: "GET",
+        });
 
         const newPostData = await postRes.json().catch(() => ({}));
         if (!postRes.ok) {
@@ -87,12 +87,12 @@ function detailPost() {
 
         console.log(newPostData);
 
-        if(user.ID == newPostData.driver_id){
+        if (user.ID == newPostData.driver_id) {
             alert("不能向自己發送請求");
             return;
         };
 
-        if(newPostData.status == "matched"){
+        if (newPostData.status == "matched") {
             alert("此請求已被匹配");
             navigate("/")
             return;
@@ -123,13 +123,20 @@ function detailPost() {
             console.error("發送請求發生錯誤：", err);
             alert(`發送請求失敗：${err.message}`);
         } finally {
-        // 恢復狀態
+            // 恢復狀態
             setIsSubmitting(false);
         }
     };
 
-   
-
+    const canSendRequest =
+        isLoggedIn &&
+        user?.ID !== postData.driver_id &&
+        postData.status === "open";
+    const isMyPost = isLoggedIn && user?.ID === postData.driver_id;
+    const canEditPost =
+        isLoggedIn &&
+        user?.ID === postData.driver_id &&
+        postData.status === "open";
 
     return (
         <div className="flex justify-center">
@@ -211,18 +218,28 @@ function detailPost() {
                     </div>
                     <p className="text-xs">{driver?.Name || "載入中…"}</p>
                 </div>
-                
-              
+
+
                 <div className="flex items-center justify-end text-gray-500">
-                    {isLoggedIn ? (
-                        <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
+                    {canEditPost && (
+                        <button
+                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
+                            onClick={() => navigate(`/edit-post/${postData.id}`)}
+                        >
+                            ✏️ 編輯貼文
+                        </button>
+                    )}
+
+                    {canSendRequest ? (
+                        <button
+                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
                             onClick={handleRequest} >
                             發送請求
                         </button>
                     ) : null}
                 </div>
-           
-               
+
+
             </article>
         </div>
 

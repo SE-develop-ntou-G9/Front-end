@@ -19,7 +19,7 @@ import AdminDetailDriver from "./Pages/Functions/AdminDetailDriver.jsx";
 import AdminDetailBlacklist from "./Pages/Functions/AdminDetailBlacklist.jsx";
 import AdminDetailRegistDriver from "./Pages//Functions/AdminDetailRegistDriver.jsx";
 import AdminBlacklist from "./Pages/AdminBlacklist.jsx";
-
+import EditPostPage from "./Pages/EditPostPage.jsx";
 import CurrentPost from "./Pages/CurrentPost";
 
 import { useUser } from "./contexts/UserContext.jsx";
@@ -61,6 +61,7 @@ function App() {
           <Route path="/admin/Blacklist" element={<AdminBlacklist />} />
           <Route path="/admin/DetailBlacklist" element={<AdminDetailBlacklist />} />
           <Route path="/Current" element={<CurrentPost />} />
+          <Route path="/edit-post/:postId" element={<EditPostPage />} />
 
 
 
