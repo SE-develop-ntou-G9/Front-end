@@ -10,8 +10,8 @@ export default function AdminBlacklist() {
 	const navigate = useNavigate();
 	const [blacklist, setBlacklist] = useState([]);
     
-    // ⭐ 取得新的操作函數。這裡不需要傳入 setUser 或 navigate。
-    const { handleDeleteFromBlacklist } = useAdminUserActions();
+    // 取得新的操作函數。這裡不需要傳入 setUser 或 navigate。
+    const { handleUserDeleteFromBlacklist } = useAdminUserActions();
 	useEffect(() => {
 		async function fetchBlacklist() {
 			try {
@@ -114,7 +114,7 @@ export default function AdminBlacklist() {
 
                             {/* 新增從黑名單移除按鈕 */}
                             <button
-                                onClick={() => handleDeleteFromBlacklist(b, setBlacklist)}
+                                onClick={() => handleUserDeleteFromBlacklist(b, setBlacklist)}
                                 className="
                                     px-3 py-1 
                                     bg-green-500 hover:bg-green-600 
