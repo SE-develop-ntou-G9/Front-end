@@ -56,7 +56,7 @@ export const UserProvider = ({ children }) => {
             const userData = await res.json();
             console.log("✅ fetchUserData 成功:", userData);
 
-            const picture = localStorage.getItem("userPicture");
+            // const picture = localStorage.getItem("userPicture"); 
 
             setUser({
                 ...userData,

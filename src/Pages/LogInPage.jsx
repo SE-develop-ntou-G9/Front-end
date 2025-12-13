@@ -10,19 +10,19 @@ function LoginPage() {
     const { login, refreshUserData } = useUser();
 
     async function isBlacklisted(userId) {
-		try {
-			const res = await fetch("https://ntouber-admin.zeabur.app/admin/blacklist", { method: "GET" });
-			if (!res.ok) throw new Error(`黑名單 API 錯誤 (${res.status})`);
-			const list = await res.json();
+        try {
+            const res = await fetch("https://ntouber-admin.zeabur.app/admin/blacklist", { method: "GET" });
+            if (!res.ok) throw new Error(`黑名單 API 錯誤 (${res.status})`);
+            const list = await res.json();
 
-			if (!Array.isArray(list)) return false;
+            if (!Array.isArray(list)) return false;
 
-			return list.some((b) => String(b.userId) === String(userId));
-		} catch (err) {
-			console.error("檢查黑名單失敗：", err);
-			return false;
-		}
-	}
+            return list.some((b) => String(b.userId) === String(userId));
+        } catch (err) {
+            console.error("檢查黑名單失敗：", err);
+            return false;
+        }
+    }
 
     const handleGoogleSuccess = async (response) => {
         try {
@@ -45,10 +45,10 @@ function LoginPage() {
             const user = data.user;
 
             const blocked = await isBlacklisted(user.id);
-			if (blocked) {
-				alert("此帳號已被加入黑名單，無法登入。");
-				return;
-			}
+            if (blocked) {
+                alert("此帳號已被加入黑名單，無法登入。");
+                return;
+            }
 
             const fullUser = await fetchFullUserInfo(user.id);
 
@@ -69,12 +69,14 @@ function LoginPage() {
             if (fullUser.Admin == 1) {
                 alert(`歡迎管理員 ${fullUser.Name}！`);
                 navigate("/admin");
+                window.location.reload();
                 return;
             }
 
             if (!fullUser.PhoneNumber || fullUser.PhoneNumber.trim() === "") {
                 alert(`歡迎 ${fullUser.Name || user.name} 第一次登入！請先設定聯絡方式～`);
                 navigate("/EditProfile");
+                window.location.reload();
                 return;
             }
 

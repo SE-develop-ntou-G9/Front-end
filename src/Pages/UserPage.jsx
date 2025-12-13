@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { HiSearch } from "react-icons/hi";
+import { HiSearch, HiRefresh } from "react-icons/hi";
 import PostCard from "./Functions/PostCard.jsx";
 import PostClass from "../models/PostClass";
 import { useUser } from "../contexts/UserContext.jsx";
@@ -15,6 +15,8 @@ function UserPage() {
     const navigate = useNavigate();
     const { user, userRole, isAdmin } = useUser();
     const [myHistoryPosts2, setMyHistoryPosts] = useState([]);
+    const [refreshKey, setRefreshKey] = useState(0);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     useEffect(() => {
         async function fetchPosts() {
@@ -33,7 +35,7 @@ function UserPage() {
         }
 
         fetchPosts();
-    }, []
+    }, [refreshKey]
     );
     useEffect(() => {
         if (!user?.ID) return;
@@ -56,12 +58,19 @@ function UserPage() {
         }
 
         fetchMyHistory();
-    }, [user]);
+    }, [user, refreshKey]);
 
 
     const handleSearchResult = (resultArray) => {
         const mapped = resultArray.map(p => new PostClass(p));
         setPost(mapped);
+    };
+
+    const handleRefresh = () => {
+        setRefreshKey(prev => prev + 1);// 修改 Key，強迫 useEffect 重跑
+        
+        setIsRefreshing(true);
+        setTimeout(() => setIsRefreshing(false), 800);
     };
 
 
@@ -89,14 +98,36 @@ function UserPage() {
                         </div>
                     </div> */}
 
-                    <PostSearch onResult={handleSearchResult} />
+                    <PostSearch 
+                        onResult={handleSearchResult} 
+                        resetTrigger={refreshKey}
+                        // 當搜尋開始時，把 post 清空
+                        onSearchStart={() => setPost([])} 
+                    />
 
                     {/* 標題區 */}
                     <div className="mt-5">
                         <div className="mt-5 flex items-center justify-between">
                             <div>
                                 <h2 className="text-base font-bold text-gray-900">最新共乘邀請</h2>
+                                
                                 <p className="text-xs text-gray-500 mt-0.5">查查看其他用戶的共乘請求</p>
+                                 <button
+                                        onClick={handleRefresh}
+                                        disabled={isRefreshing} // 防止重複點擊
+                                        className="group flex items-center gap-1.5 px-3 py-1.5 
+                                                bg-white border border-gray-200 rounded-lg 
+                                                text-xs font-medium text-gray-600 
+                                                hover:bg-gray-50 hover:text-purple-600 hover:border-purple-200 
+                                                active:scale-95 transition-all shadow-sm"
+                                        title="清除搜尋條件並重新載入列表"
+                                    >
+                                        <HiRefresh
+                                            className={`text-sm transform transition-transform duration-700 
+                                            ${isRefreshing ? "animate-spin text-purple-600" : "group-hover:rotate-180"}`}
+                                        />
+                                        <span>清除並重新整理</span>
+                                    </button>
                             </div>
 
                             {userRole === "車主" ? (
@@ -132,6 +163,11 @@ function UserPage() {
                                 {myHistoryPosts2.map((postItem, index) => (
                                     <li
                                         key={index}
+                                        onClick={() =>
+                                            navigate("/detailPost", {
+                                                state: { post: postItem },
+                                            })
+                                        }
                                         className="group flex items-center gap-4 p-4 bg-white rounded-xl border shadow-sm 
                                hover:shadow-md hover:-translate-y-1 transition-transform cursor-pointer"
                                     >

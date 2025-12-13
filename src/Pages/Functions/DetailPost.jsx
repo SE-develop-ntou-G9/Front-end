@@ -6,6 +6,7 @@ import PostClass from "../../models/PostClass";
 import dayjs from "dayjs";
 import { useUser } from "../../contexts/UserContext.jsx";
 
+
 function detailPost() {
     const { user, isLoggedIn, userRole, loading, logout } = useUser();
     // useEffect(() => {
@@ -19,6 +20,7 @@ function detailPost() {
     // }, []);
 
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { state } = useLocation();
     const postData = state?.post;
     if (!postData) return <p>沒有收到貼文資料</p>;
@@ -27,7 +29,7 @@ function detailPost() {
     if (postData.helmet) tags.push("提供安全帽");
     if (postData.leave) tags.push("中途下車");
     // console.log("postData.id", postData.id);
-    
+
     const [driver, setDriver] = useState(null);
     const User_id = postData.driver_id;
     useEffect(() => {
@@ -54,6 +56,23 @@ function detailPost() {
     }, [User_id]);
 
     const handleRequest = async () => {
+
+        const postParams = new URLSearchParams({
+            post_id: postData.id,
+        });
+        const postUrl = `https://ntouber-post.zeabur.app/api/posts/getpost/${postData.id}`;
+
+        const postRes = await fetch(postUrl, {
+            method: "GET",
+        });
+
+        const newPostData = await postRes.json().catch(() => ({}));
+        if (!postRes.ok) {
+            console.error("發送請求失敗：", newPostData);
+            throw new Error(newPostData.message || `API 錯誤 (${postRes.status})`);
+        }
+
+        if (isSubmitting) return;
         if (!isLoggedIn || !user) {
             alert("請先登入再發送請求");
             return;
@@ -61,16 +80,30 @@ function detailPost() {
 
         const params = new URLSearchParams({
 
-            post_id: postData.id,
+            post_id: newPostData.id,
             client_id: user.ID,
 
         });
 
+        console.log(newPostData);
+
+        if (user.ID == newPostData.driver_id) {
+            alert("不能向自己發送請求");
+            return;
+        };
+
+        if (newPostData.status == "matched") {
+            alert("此請求已被匹配");
+            navigate("/")
+            return;
+        };
+
         const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
         console.log("發送請求 URL:", url);
+        setIsSubmitting(true);// 開始發送 (避免連點)
 
         try {
-            console.log(postData.timestamp);
+            console.log(newPostData.timestamp);
             const res = await fetch(url, {
                 method: "PATCH",
             });
@@ -84,14 +117,26 @@ function detailPost() {
 
             console.log("發送請求成功：", data);
             alert("已發送請求給車主！");
+            navigate('/');
+
         } catch (err) {
             console.error("發送請求發生錯誤：", err);
             alert(`發送請求失敗：${err.message}`);
+        } finally {
+            // 恢復狀態
+            setIsSubmitting(false);
         }
     };
 
-   
-
+    const canSendRequest =
+        isLoggedIn &&
+        user?.ID !== postData.driver_id &&
+        postData.status === "open";
+    const isMyPost = isLoggedIn && user?.ID === postData.driver_id;
+    const canEditPost =
+        isLoggedIn &&
+        user?.ID === postData.driver_id &&
+        postData.status === "open";
 
     return (
         <div className="flex justify-center">
@@ -173,18 +218,28 @@ function detailPost() {
                     </div>
                     <p className="text-xs">{driver?.Name || "載入中…"}</p>
                 </div>
-                
-              
+
+
                 <div className="flex items-center justify-end text-gray-500">
-                    {isLoggedIn ? (
-                        <button className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
+                    {canEditPost && (
+                        <button
+                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
+                            onClick={() => navigate(`/edit-post/${postData.id}`)}
+                        >
+                            ✏️ 編輯貼文
+                        </button>
+                    )}
+
+                    {canSendRequest ? (
+                        <button
+                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
                             onClick={handleRequest} >
                             發送請求
                         </button>
                     ) : null}
                 </div>
-           
-               
+
+
             </article>
         </div>
 
