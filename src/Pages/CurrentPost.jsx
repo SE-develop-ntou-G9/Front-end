@@ -1,12 +1,46 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../contexts/UserContext.jsx";
 import PostCard from "./Functions/PostCard";
+import { motion, AnimatePresence } from "framer-motion";
+
+function SkeletonCard() {
+    return (
+        <div className="p-4 bg-white rounded-xl shadow animate-pulse space-y-3">
+            <div className="h-4 bg-gray-200 rounded w-2/3" />
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="h-24 bg-gray-200 rounded" />
+        </div>
+    );
+}
 
 function CurrentPost() {
     const { user } = useUser();
     const [myPosts, setMyPosts] = useState([]);
     const [activeTab, setActiveTab] = useState("driver");
     const [clientMap, setClientMap] = useState({});
+    const [loading, setLoading] = useState(true);
+
+
+    const listVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.04,
+                delayChildren: 0.05,
+            }
+        }
+    };
+
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 12 },
+        show: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.15 }
+        }
+    };
 
 
     async function fetchClientInfo(clientId) {
@@ -33,6 +67,7 @@ function CurrentPost() {
 
     async function fetchPosts() {
         try {
+            setLoading(true);
             const url = `https://ntouber-post.zeabur.app/api/posts/search/${user.ID}`;
             const res = await fetch(url);
 
@@ -43,6 +78,7 @@ function CurrentPost() {
             posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             setMyPosts(posts);
+            setLoading(false);
         } catch (err) {
             console.error("Posts fetch error:", err);
         }
@@ -61,31 +97,28 @@ function CurrentPost() {
 
     useEffect(() => {
         async function loadClientInfo() {
-            const map = {};
-
             const clientIds = [
-                ...new Set(
-                    myPosts
-                        .filter(p => p.client_id)
-                        .map(p => p.client_id)
+                ...new Set(myPosts.filter(p => p.client_id).map(p => p.client_id))
+            ].filter(id => !clientMap[id]);
+
+            if (clientIds.length === 0) return;
+
+            const results = await Promise.all(
+                clientIds.map(id =>
+                    fetchClientInfo(id).then(info => ({ id, info }))
                 )
-            ];
+            );
 
-            for (const id of clientIds) {
-                if (!clientMap[id]) {
-                    map[id] = await fetchClientInfo(id);
-                }
-            }
+            const newMap = {};
+            results.forEach(r => {
+                newMap[r.id] = r.info;
+            });
 
-            if (Object.keys(map).length > 0) {
-                setClientMap(prev => ({ ...prev, ...map }));
-            }
+            setClientMap(prev => ({ ...prev, ...newMap }));
         }
 
-        if (myPosts.length > 0) {
-            loadClientInfo();
-        }
-    }, [myPosts]);
+        if (myPosts.length > 0) loadClientInfo();
+    }, [myPosts, clientMap]);
 
 
 
@@ -146,11 +179,19 @@ function CurrentPost() {
 
 
     const renderPosts = (posts) => (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {posts.map((post) => (
-                <div
+        <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-5"
+            variants={listVariants}
+            initial="hidden"
+            animate="show"
+            transition={{ duration: 0.18, ease: "easeOut" }}
+        >
+            {posts.map(post => (
+                <motion.div
                     key={post.id}
-                    className="relative bg-white rounded-xl shadow-md transition transform hover:-translate-y-1 hover:shadow-xl p-3"
+                    variants={itemVariants}
+                    whileHover={{ y: -6, scale: 1.01 }}
+                    className="relative"
                 >
                     <div className="absolute right-3 top-3 z-10">
                         <StatusBadge status={post.status} />
@@ -159,7 +200,10 @@ function CurrentPost() {
                     {activeTab === "driver" && post.client_id && (
                         <div className="flex items-center gap-2 text-sm text-gray-600 px-2 mb-1">
                             <img
-                                src={clientMap[post.client_id]?.avatar || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
+                                src={
+                                    clientMap[post.client_id]?.avatar ||
+                                    "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                                }
                                 alt="avatar"
                                 className="w-6 h-6 rounded-full object-cover"
                             />
@@ -171,7 +215,6 @@ function CurrentPost() {
                             </span>
                         </div>
                     )}
-
 
                     <PostCard postData={post} />
 
@@ -191,13 +234,20 @@ function CurrentPost() {
                             </button>
                         </div>
                     )}
-                </div>
+                </motion.div>
             ))}
-        </div>
+        </motion.div>
     );
 
+
     return (
-        <div className="p-5 max-w-4xl mx-auto">
+        <motion.div
+            className="p-5 max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.35 }}
+        >
             <h2 className="text-3xl font-bold text-gray-800 mb-6">目前貼文</h2>
 
             <div className="flex gap-10 mb-6 border-b border-gray-300 pb-2 text-lg font-medium">
@@ -222,8 +272,49 @@ function CurrentPost() {
                 </button>
             </div>
 
-            {activeTab === "driver" ? renderPosts(driverPosts) : renderPosts(passengerPosts)}
-        </div>
+            <AnimatePresence mode="wait">
+                {activeTab === "driver" && (
+                    <motion.div
+                        key="driver"
+                        initial={{ opacity: 0, x: -40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 40 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {loading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                {Array.from({ length: 4 }).map((_, i) => (
+                                    <SkeletonCard key={i} />
+                                ))}
+                            </div>
+                        ) : (
+                            renderPosts(driverPosts)
+                        )}
+                    </motion.div>
+                )}
+
+                {activeTab === "passenger" && (
+                    <motion.div
+                        key="passenger"
+                        initial={{ opacity: 0, x: 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -40 }}
+                        transition={{ duration: 0.25 }}
+                    >
+                        {loading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                {Array.from({ length: 4 }).map((_, i) => (
+                                    <SkeletonCard key={i} />
+                                ))}
+                            </div>
+                        ) : (
+                            renderPosts(passengerPosts)
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+        </motion.div>
     );
 }
 

@@ -19,20 +19,41 @@ export const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [isFetching, setIsFetching] = useState(false);  // 防止重複請求
 
-    // 初始化：檢查是否有 token
     useEffect(() => {
-        const token = localStorage.getItem("jwtToken");
-        if (token) {
-            const storedUserId = localStorage.getItem("userId");
-            if (storedUserId) {
-                fetchUserData(storedUserId);
-            } else {
+        async function init() {
+            try {
+                const token = localStorage.getItem("jwtToken");
+                const userId = localStorage.getItem("userId");
+
+                if (token && userId) {
+                    await fetchUserData(userId);   // ← 一定要 await
+                    setIsLoggedIn(true);
+                }
+            } catch (err) {
+                console.error("Init failed", err);
+                logout();
+            } finally {
                 setLoading(false);
             }
-        } else {
-            setLoading(false);
         }
+
+        init();
     }, []);
+
+    // 初始化：檢查是否有 token
+    // useEffect(() => {
+    //     const token = localStorage.getItem("jwtToken");
+    //     if (token) {
+    //         const storedUserId = localStorage.getItem("userId");
+    //         if (storedUserId) {
+    //             fetchUserData(storedUserId);
+    //         } else {
+    //             setLoading(false);
+    //         }
+    //     } else {
+    //         setLoading(false);
+    //     }
+    // }, []);
 
     // 從後端獲取使用者資料（不帶 Authorization header）
     const fetchUserData = async (userId) => {
