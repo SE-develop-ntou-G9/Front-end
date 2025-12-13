@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext.jsx";
-
+import { motion, AnimatePresence } from "framer-motion";
 function EditProfilePage() {
     const navigate = useNavigate();
 
@@ -95,7 +95,14 @@ function EditProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+        <motion.div
+            className="min-h-screen bg-gray-100 flex items-center justify-center p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+        >
+
             <div className="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
 
                 <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">
@@ -214,7 +221,7 @@ function EditProfilePage() {
                     </button>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }
 
