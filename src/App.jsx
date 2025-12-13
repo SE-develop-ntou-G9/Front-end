@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import UploadPost from "./Pages/Functions/UploadPost";
 import Header from "./header.jsx";
 import UserPage from "./Pages/UserPage";
@@ -21,11 +21,12 @@ import AdminDetailRegistDriver from "./Pages//Functions/AdminDetailRegistDriver.
 import AdminBlacklist from "./Pages/AdminBlacklist.jsx";
 import EditPostPage from "./Pages/EditPostPage.jsx";
 import CurrentPost from "./Pages/CurrentPost";
-
+import { AnimatePresence } from "framer-motion";
 import { useUser } from "./contexts/UserContext.jsx";
 
 function App() {
   const { isLoggedIn, userRole, loading } = useUser();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -43,34 +44,36 @@ function App() {
       <Header />
 
       <div className="pt-12">
-        <Routes>
-          <Route path="/login" element={<LogInPage />} />
-          <Route path="/Regist" element={<RegisterPage />} />
-          <Route path="/Profile" element={<ProfilePage />} />
-          <Route path="/uploadPost" element={<UploadPost />} />
-          <Route path="/EditProfile" element={<EditProfilePage />} />
-          <Route path="/detailPost" element={<DetailPost />} />
-          <Route path="/AdminDetailPost" element={<AdminDetailPost />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/drivers" element={<AdminDrivers />} />
-          <Route path="/admin/DetailUser" element={<AdminDetailUser />} />
-          <Route path="/admin/RegistDrivers" element={<AdminRegistDrivers />} />
-          <Route path="/admin/DetailDriver" element={<AdminDetailDriver />} />
-          <Route path="/admin/DetailRegistDriver" element={<AdminDetailRegistDriver />} />
-          <Route path="/admin/Blacklist" element={<AdminBlacklist />} />
-          <Route path="/admin/DetailBlacklist" element={<AdminDetailBlacklist />} />
-          <Route path="/Current" element={<CurrentPost />} />
-          <Route path="/edit-post/:postId" element={<EditPostPage />} />
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/login" element={<LogInPage />} />
+            <Route path="/Regist" element={<RegisterPage />} />
+            <Route path="/Profile" element={<ProfilePage />} />
+            <Route path="/uploadPost" element={<UploadPost />} />
+            <Route path="/EditProfile" element={<EditProfilePage />} />
+            <Route path="/detailPost" element={<DetailPost />} />
+            <Route path="/AdminDetailPost" element={<AdminDetailPost />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/drivers" element={<AdminDrivers />} />
+            <Route path="/admin/DetailUser" element={<AdminDetailUser />} />
+            <Route path="/admin/RegistDrivers" element={<AdminRegistDrivers />} />
+            <Route path="/admin/DetailDriver" element={<AdminDetailDriver />} />
+            <Route path="/admin/DetailRegistDriver" element={<AdminDetailRegistDriver />} />
+            <Route path="/admin/Blacklist" element={<AdminBlacklist />} />
+            <Route path="/admin/DetailBlacklist" element={<AdminDetailBlacklist />} />
+            <Route path="/Current" element={<CurrentPost />} />
+            <Route path="/edit-post/:postId" element={<EditPostPage />} />
 
 
 
-          {isLoggedIn ? (
-            <Route path="/*" element={<UserPage />} />
-          ) : (
-            <Route path="/*" element={<GuestPage />} />
-          )}
-        </Routes>
+            {isLoggedIn ? (
+              <Route path="/*" element={<UserPage />} />
+            ) : (
+              <Route path="/*" element={<GuestPage />} />
+            )}
+          </Routes>
+        </AnimatePresence>
       </div>
     </>
   );

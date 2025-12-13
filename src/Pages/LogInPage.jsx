@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { useUser } from "../contexts/UserContext.jsx";
 import { jwtDecode } from "jwt-decode";
-
+import { motion } from "framer-motion";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -113,9 +113,14 @@ function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center
-    bg-gradient-to-br from-gray-100 via-white to-gray-200">
-
+        <motion.div
+            className="min-h-screen flex items-center justify-center
+      bg-gradient-to-br from-gray-100 via-white to-gray-200"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+        >
 
 
 
@@ -153,7 +158,7 @@ function LoginPage() {
                     登入即代表您同意 NTOUber 系統使用條款與隱私政策
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 
 }
