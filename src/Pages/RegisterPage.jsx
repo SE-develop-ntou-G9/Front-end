@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext.jsx";
 import UserClass from "../models/UserClass";
-
+import { motion, AnimatePresence } from "framer-motion";
 function RegisterPage() {
     const navigate = useNavigate();
     const { user: loggedUser, refreshUserData, driver } = useUser();
@@ -113,7 +113,14 @@ function RegisterPage() {
 
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <motion.div
+            className="flex flex-col items-center justify-center min-h-screen bg-gray-50"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.3 }}
+        >
+
             <div className="bg-white shadow-md rounded-lg p-6 w-80 border border-gray-200">
                 <h2 className="text-center text-xl font-bold text-gray-800 mb-4">
                     升級成為車主
@@ -181,7 +188,7 @@ function RegisterPage() {
                     </button>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }
 

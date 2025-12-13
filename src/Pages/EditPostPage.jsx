@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { useUser } from "../contexts/UserContext.jsx";
 import cityDistrictMap from "../models/Cities";
-
+import { motion, AnimatePresence } from "framer-motion";
 function splitTaiwanAddress(address = "") {
     const cityMatch = address.match(/^(.*?[市縣])/);
     const districtMatch = address.match(/(.*?[區鄉鎮市])/);
@@ -221,7 +221,14 @@ function EditPostPage() {
 
 
     return (
-        <div className="max-w-2xl mx-auto my-10 bg-white rounded-2xl shadow-lg border border-gray-100">
+        <motion.div
+            className="max-w-2xl mx-auto my-10 bg-white rounded-2xl shadow-lg"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+        >
+
             <div className="px-8 py-6">
                 <h2 className="text-2xl font-bold text-gray-800">編輯貼文</h2>
                 <p className="text-sm text-gray-500 mt-1">
@@ -433,7 +440,7 @@ function EditPostPage() {
                     </div>
                 </form>
             </div>
-        </div>
+        </motion.div>
     );
 
 }
