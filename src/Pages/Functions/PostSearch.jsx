@@ -1,13 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { HiSwitchVertical, HiSearch } from "react-icons/hi";
 import { FaMapMarkerAlt, FaRegCircle, FaRegCalendarAlt } from "react-icons/fa";
 
 const API_BASE = "https://ntouber-post.zeabur.app/api/posts";
 
-const PostSearch = ({ onResult }) => {
+const PostSearch = ({ onResult, resetTrigger, onSearchStart }) => {
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
     const [meetTime, setMeetTime] = useState("");
+
+    
+
+    useEffect(() => {
+        // 判斷 > 0 是為了避免網頁剛載入時就執行 (看需求，通常沒差)
+        if (resetTrigger > 0) {
+            setFrom("");
+            setTo("");
+            setMeetTime("");
+        }
+    }, [resetTrigger]);
 
     const handleSwap = () => {
         const temp = from;
@@ -16,6 +27,9 @@ const PostSearch = ({ onResult }) => {
     };
 
     const handleSearch = async () => {
+        if (onSearchStart) {
+            onSearchStart(); 
+        }
         const params = new URLSearchParams();
 
         if (from) params.append("start_point", from);
