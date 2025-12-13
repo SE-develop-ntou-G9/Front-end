@@ -79,7 +79,7 @@ export default function AdminDetailRegistDriver() {
                     <span className="text-orange-500 font-bold">{driverData.status}</span>
                 </p>
 
-                {/* 🚀 審核操作按鈕 */}
+                {/*  審核操作按鈕 */}
                 <div className="mt-6 flex space-x-3">
                     <button
                         onClick={() => handleVerify(driverData, 'verified')} 

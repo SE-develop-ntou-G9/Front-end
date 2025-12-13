@@ -94,7 +94,7 @@ export default function AdminDrivers() {
                                 items-center
                             "
                         >
-                            {/* 🚀 點擊導航到詳細頁面 */}
+                            {/*  點擊導航到詳細頁面 */}
                             <div 
                                 className="flex items-center space-x-3 cursor-pointer"
                                 onClick={() => navigate("/admin/DetailDriver", { state: { driver: d } })}

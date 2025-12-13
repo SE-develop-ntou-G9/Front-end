@@ -10,7 +10,7 @@ export default function AdminDetailDriver() {
     const navigate = useNavigate();
     const { state } = useLocation();
     
-    // 從 state 中取得傳遞過來的車主資料 (DriverClass 實例)
+    // 從 state 中取得傳遞過來的車主資料
     const driverData = state?.driver; 
 
     if (!driverData) {

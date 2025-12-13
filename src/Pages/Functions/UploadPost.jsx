@@ -8,10 +8,10 @@ function toApiJson(post, startAddress, destAddress, userName, vehicle_info) {
 
 
     const fullStartAddress = [startAddress.city, startAddress.district, startAddress.street]
-        .filter(Boolean)     // 移掉沒填的欄位
+        .filter(Boolean)  
         .join("");
     const fullDestAddress = [destAddress.city, destAddress.district, destAddress.street]
-        .filter(Boolean)     // 移掉沒填的欄位
+        .filter(Boolean)   
         .join("");
 
     return {
@@ -31,8 +31,7 @@ function toApiJson(post, startAddress, destAddress, userName, vehicle_info) {
         leave: !!post.leave,
 
         vehicle_info: vehicle_info || "unknown",
-        status: "open",  // 他說不能是空的我也不知道怎麼辦
-        // timestamp: "0" // 他說不能是空的我也不知道怎麼辦
+        status: "open", 
     }
 }
 
@@ -41,7 +40,7 @@ function UploadPost() {
     const { user, driver } = useUser();  // 從 UserContext 取得使用者資料
     const [imageFile, setImageFile] = useState("");
     
-    // 初始化 PostClass 實例
+    // 初始化 PostClass
     
     const [post, setPost] = useState(
         new PostClass({
@@ -124,25 +123,21 @@ function UploadPost() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
-                // 若需要帶 token： headers: { "Content-Type":"application/json", "Authorization": "Bearer xxx" }
             });
 
             const data = await r.json().catch(() => ({}));
             if (!r.ok) {
-                // 後端若有 message 就顯示
                 console.log("送出的 payload：", payload);
                 console.log("後端回傳內容：", data);
                 throw new Error(data.message || `API 錯誤（${r.status})`);
             }
             console.log(data);
-            // 假設後端回傳的物件裡有 id 當 post_id
             const postId = data;
 
-            // 2. 如果有選圖片 → 呼叫 upload_image
             if (imageFile && postId) {
                 console.log("HI");
                 const formData = new FormData();
-                formData.append("file", imageFile); // 這個 key 名稱要跟後端約好
+                formData.append("file", imageFile);
 
                 const uploadUrl = `https://ntouber-post.zeabur.app/api/posts/upload_image?post_id=${postId}`;
                 
@@ -151,7 +146,7 @@ function UploadPost() {
 
                 const imgRes = await fetch(uploadUrl, {
                     method: "PATCH",
-                    body: formData, // 不要自己加 Content-Type，瀏覽器會幫你加 boundary
+                    body: formData,
                 });
 
                 const imgData = await imgRes.json().catch(() => ({}));
@@ -170,7 +165,6 @@ function UploadPost() {
 
             
 
-            // 清空表單
             setPost(new PostClass({}));
             setStartAddress({ city: "", district: "", street: "" });
             setDestAddress({ city: "", district: "", street: "" });
