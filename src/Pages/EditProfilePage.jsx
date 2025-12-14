@@ -15,8 +15,14 @@ function EditProfilePage() {
     const [DriverLicense, setDriverLicense] = useState(driver?.driver_license || "");
     const [Status, setStatus] = useState(driver?.status || "");
     const [plateNum, setPlateNum] = useState(driver?.plate_num || "");
+    const [phoneError, setPhoneError] = useState("");
+    const [nameError, setNameError] = useState("");
 
     const isDriver = userRole === "車主";
+    const isPhoneInvalid = !phone || !phone.trim() || !!phoneError;
+    const isFormInvalid = !name.trim() || !!nameError || !phone.trim() || !!phoneError;
+
+    const phoneRegex = /^09\d{2}-?\d{3}-?\d{3}$/;
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
@@ -51,6 +57,11 @@ function EditProfilePage() {
     const handleSave = async () => {
         try {
             if (!user?.ID) return alert("尚未登入");
+
+            if (isFormInvalid) {
+                alert("請先填寫正確的姓名與電話");
+                return;
+            }
 
             let avatarUrl = user.AvatarURL;
             if (avatarFile) avatarUrl = await uploadAvatar();
@@ -146,25 +157,73 @@ function EditProfilePage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             姓名
                         </label>
+
                         <input
                             type="text"
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-black outline-none"
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setName(value);
+
+                                if (!value.trim()) {
+                                    setNameError("姓名不得為空");
+                                } else {
+                                    setNameError("");
+                                }
+                            }}
+                            placeholder="請輸入姓名"
+                            className={`w-full border rounded-md px-3 py-2 outline-none transition
+            ${nameError
+                                    ? "border-red-500 focus:ring-red-500"
+                                    : "border-gray-300 focus:ring-black"
+                                }`}
                         />
+
+                        {nameError && (
+                            <p className="text-sm text-red-500 mt-1">{nameError}</p>
+                        )}
                     </div>
+
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             電話
                         </label>
+
                         <input
                             type="text"
                             value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-black outline-none"
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setPhone(value);
+
+                                if (!value.trim()) {
+                                    setPhoneError("電話號碼為必填");
+                                } else if (!/^09\d{2}-?\d{3}-?\d{3}$/.test(value)) {
+                                    setPhoneError("電話格式錯誤，請輸入 09xx-xxx-xxx");
+                                } else {
+                                    setPhoneError("");
+                                }
+                            }}
+                            placeholder="09xx-xxx-xxx"
+                            className={`w-full border rounded-md px-3 py-2 outline-none transition
+            ${phoneError
+                                    ? "border-red-500 focus:ring-red-500"
+                                    : "border-gray-300 focus:ring-black"
+                                }`}
                         />
+
+                        {phoneError && (
+                            <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+                        )}
                     </div>
+
+                    {isPhoneInvalid && (
+                        <p className="text-sm text-red-500 mt-4 text-center">
+                            ⚠️ 請正確填寫電話號碼後，才能儲存或離開此頁
+                        </p>
+                    )}
+
                 </div>
 
                 {/* 車主資料 */}
@@ -208,17 +267,35 @@ function EditProfilePage() {
                 <div className="mt-8 space-y-3">
                     <button
                         onClick={handleSave}
-                        className="w-full py-3 bg-black text-white rounded-md shadow hover:bg-gray-800 transition font-medium"
+                        disabled={isFormInvalid}
+                        className={`w-full py-3 rounded-md shadow font-medium transition
+                        ${isFormInvalid
+                                ? "bg-gray-400 cursor-not-allowed text-white"
+                                : "bg-black hover:bg-gray-800 text-white"
+                            }`}
                     >
                         儲存變更
                     </button>
 
+
                     <button
-                        onClick={() => navigate("/Profile")}
-                        className="w-full py-3 bg-white border border-gray-400 rounded-md shadow text-gray-700 hover:bg-gray-100 transition font-medium"
+                        onClick={() => {
+                            if (isFormInvalid) {
+                                alert("請先填寫完整且正確的姓名與電話");
+                                return;
+                            }
+                            navigate("/Profile");
+                        }}
+                        className={`w-full py-3 border rounded-md shadow font-medium transition
+                        ${isFormInvalid
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-300"
+                                : "bg-white text-gray-700 border-gray-400 hover:bg-gray-100"
+                            }`}
                     >
                         取消
                     </button>
+
+
                 </div>
             </div>
         </motion.div>
