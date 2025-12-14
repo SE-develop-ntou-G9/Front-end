@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useAdminUserActions from "../Pages/hooks/useAdminUserActions"; 
 
 const BL_API = "https://ntouber-admin.zeabur.app/admin/blacklist";
 const USER_API = "https://ntouber-user.zeabur.app/v1/users";
 
+
 export default function AdminBlacklist() {
 	const navigate = useNavigate();
 	const [blacklist, setBlacklist] = useState([]);
-
+    
+    // 取得新的操作函數。這裡不需要傳入 setUser 或 navigate。
+    const { handleUserDeleteFromBlacklist } = useAdminUserActions();
 	useEffect(() => {
 		async function fetchBlacklist() {
 			try {
@@ -107,6 +111,21 @@ export default function AdminBlacklist() {
 								/>
 								<p className="font-medium">{b.userName}</p>
 							</div>
+
+                            {/* 新增從黑名單移除按鈕 */}
+                            <button
+                                onClick={() => handleUserDeleteFromBlacklist(b, setBlacklist)}
+                                className="
+                                    px-3 py-1 
+                                    bg-green-500 hover:bg-green-600 
+                                    text-white text-xs 
+                                    rounded-full 
+                                    transition-colors
+                                "
+                            >
+                                移出黑名單
+                            </button>
+
 						</div>
 					))}
 				</div>
