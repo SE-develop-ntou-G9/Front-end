@@ -4,6 +4,7 @@ import SideBar from "./SideBar";
 import { HiMenu } from "react-icons/hi";
 import { IoNotificationsOutline, IoCloseCircle } from "react-icons/io5";
 import { useUser } from "./contexts/UserContext.jsx";
+import { fetchUserById } from "./Pages/hooks/useUserFetcher.jsx";
 
 const BASE_URL = "https://ntouber-user.zeabur.app/v1";
 
@@ -21,6 +22,7 @@ function Header() {
     const [notifications, setNotifications] = useState([]); // 儲存通知列表
     const [isNotificationOpen, setIsNotificationOpen] = useState(false); // 控制通知選單顯示
     const notificationRef = useRef(null); // 用於判斷點擊是否在通知選單外部
+    const [senderUsers, setSenderUsers] = useState({});
 
     const fetchNotifications = async (userId) => {
         // console.log("嘗試獲取通知，userId:", userId);
@@ -43,8 +45,24 @@ function Header() {
             }
 
             const data = await response.json();
-            console.log("data:", data);
-            setNotifications(data.notifications || data || []);
+            // console.log("data:", data);
+            const fetchedNotifications = data.notifications || data || [];
+            setNotifications(fetchedNotifications);
+
+            const senderIds = [
+                ...new Set(fetchedNotifications.map((n) => n.SenderID)),
+            ].filter((id) => id && !senderUsers[id]); // 過濾掉已有的 ID
+
+            senderIds.forEach(async (id) => {
+                const senderData = await fetchUserById(id);
+                if (senderData) {
+                    // 更新 senderUsers 狀態
+                    setSenderUsers((prev) => ({
+                        ...prev,
+                        [id]: senderData,
+                    }));
+                }
+            });
         } catch (error) {
             console.error("抓取通知失敗：", error);
         }
@@ -54,19 +72,17 @@ function Header() {
         if (isLoggedIn && user?.ID) {
             fetchNotifications(user.ID);
         } else {
-            setNotifications([]); 
+            setNotifications([]);
         }
-    }, [isLoggedIn, user?.ID]); // 依賴登入狀態和用戶 ID
+    }, [isLoggedIn, user?.ID]);
 
     const deleteNotification = async (notificationId) => {
         try {
-            // 樂觀更新：先在本地移除
-            setNotifications(
-                // 使用 notification.ID 來匹配後端 notify_id
-                (prev) => prev.filter((n) => n.ID !== notificationId)
+            setNotifications((prev) =>
+                prev.filter((n) => n.ID !== notificationId)
             );
 
-            const url = `${BASE_URL}/delete/notifications/${notificationId}`;
+            const url = `${BASE_URL}/notifications/${notificationId}`;
 
             const response = await fetch(url, {
                 method: "DELETE",
@@ -141,7 +157,7 @@ function Header() {
 
                 {/* 右邊的登入/登出和通知 */}
                 <div className="flex items-center gap-4 relative">
-                    {/* 🔔 通知圖示 (只在登入時顯示) */}
+                    {/* 通知圖示 (只在登入時顯示) */}
                     {isLoggedIn && (
                         <div ref={notificationRef} className="relative">
                             <button
@@ -159,7 +175,7 @@ function Header() {
                                 )}
                             </button>
 
-                            {/* 🔔 通知下拉選單 */}
+                            {/* 通知下拉選單 */}
                             {isNotificationOpen && (
                                 <div className="absolute right-0 mt-3 w-80 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden z-20">
                                     <div className="p-3 font-bold border-b">
@@ -168,53 +184,86 @@ function Header() {
                                     {notifications.length > 0 ? (
                                         <div className="max-h-96 overflow-y-auto">
                                             {notifications.map(
-                                                (notification) => (
-                                                    <div
-                                                        // 🚨 使用後端模型的 ID 欄位
-                                                        key={notification.ID}
-                                                        className="flex justify-between items-start p-3 border-b hover:bg-gray-50 transition"
-                                                    >
-                                                        <p className="text-sm flex-1 mr-2 leading-relaxed">
-                                                            {/* 🚨 使用後端模型的 SenderID 和 Message 欄位 */}
-                                                            <span className="font-semibold block">
-                                                                來自{" "}
-                                                                {notification.SenderID ||
-                                                                    "系統"}{" "}
-                                                                的通知
-                                                            </span>
-                                                            <span className="text-gray-600">
-                                                                {notification.Message ||
-                                                                    "無內容"}
-                                                            </span>
-                                                            {/* 顯示時間戳和狀態 (可選) */}
-                                                            <span className="text-xs text-gray-400 mt-1 block">
-                                                                {notification.TimeStamp
-                                                                    ? new Date(
-                                                                          notification.TimeStamp
-                                                                      ).toLocaleString()
-                                                                    : "未知時間"}
-                                                                {notification.Status ===
-                                                                    "unread" && (
-                                                                    <span className="ml-2 text-red-500 font-bold">
-                                                                        ●
-                                                                    </span>
-                                                                )}
-                                                            </span>
-                                                        </p>
-                                                        <button
-                                                            className="text-gray-400 hover:text-red-600 transition"
-                                                            // 🚨 使用後端模型的 ID 欄位進行刪除
-                                                            onClick={() =>
-                                                                deleteNotification(
-                                                                    notification.ID
-                                                                )
+                                                (notification) => {
+                                                    // 🔔 獲取發送者資料
+                                                    const sender =
+                                                        senderUsers[
+                                                            notification
+                                                                .SenderID
+                                                        ];
+                                                    const senderName =
+                                                        sender?.Name ||
+                                                        "系統/未知用戶";
+                                                    const senderAvatar =
+                                                        sender?.AvatarURL;
+
+                                                    return (
+                                                        <div
+                                                            key={
+                                                                notification.ID
                                                             }
-                                                            title="刪除通知"
+                                                            className="flex justify-between items-start p-3 border-b hover:bg-gray-50 transition"
                                                         >
-                                                            <IoCloseCircle className="text-xl" />
-                                                        </button>
-                                                    </div>
-                                                )
+                                                            <div className="flex items-start">
+                                                                {/* 🔔 顯示發送者頭像 */}
+                                                                <div className="w-8 h-8 rounded-full flex-shrink-0 mr-3 overflow-hidden">
+                                                                    {senderAvatar ? (
+                                                                        <img
+                                                                            src={
+                                                                                senderAvatar
+                                                                            }
+                                                                            alt="Sender Avatar"
+                                                                            className="w-full h-full object-cover"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-full h-full bg-gray-400 flex items-center justify-center text-white font-bold text-sm">
+                                                                            {senderName.charAt(
+                                                                                0
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
+                                                                <p className="text-sm flex-1 mr-2 leading-relaxed">
+                                                                    <span className="font-semibold block">
+                                                                        {/* 🔔 顯示發送者名稱 */}
+                                                                        {
+                                                                            senderName
+                                                                        }
+                                                                    </span>
+                                                                    <span className="text-gray-600">
+                                                                        {notification.Message ||
+                                                                            "無內容"}
+                                                                    </span>
+                                                                    <span className="text-xs text-gray-400 mt-1 block">
+                                                                        {notification.TimeStamp
+                                                                            ? new Date(
+                                                                                  notification.TimeStamp
+                                                                              ).toLocaleString()
+                                                                            : "未知時間"}
+                                                                        {notification.Status ===
+                                                                            "unread" && (
+                                                                            <span className="ml-2 text-red-500 font-bold">
+                                                                                ●
+                                                                            </span>
+                                                                        )}
+                                                                    </span>
+                                                                </p>
+                                                            </div>
+                                                            <button
+                                                                className="text-gray-400 hover:text-red-600 transition flex-shrink-0"
+                                                                onClick={() =>
+                                                                    deleteNotification(
+                                                                        notification.ID
+                                                                    )
+                                                                }
+                                                                title="刪除通知"
+                                                            >
+                                                                <IoCloseCircle className="text-xl" />
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                }
                                             )}
                                         </div>
                                     ) : (
