@@ -54,10 +54,9 @@ function LoginPage() {
 
             const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
-            console.log(googlePicture);
             await login({
                 ...user,
-                AvatarURL: fullUser.AvatarURL || googlePicture || DEFAULT_AVATAR || null
+                AvatarURL: fullUser.AvatarURL || googlePicture || DEFAULT_AVATAR
             });
 
 
