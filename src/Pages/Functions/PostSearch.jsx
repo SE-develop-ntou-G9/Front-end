@@ -8,7 +8,7 @@ const PostSearch = ({ onResult, resetTrigger, onSearchStart }) => {
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
     const [meetTime, setMeetTime] = useState("");
-
+    const isSearchDisabled = !from.trim() && !to.trim() && !meetTime;
     
 
     useEffect(() => {
@@ -119,8 +119,13 @@ const PostSearch = ({ onResult, resetTrigger, onSearchStart }) => {
                     <div className="w-14 flex items-center justify-center">
                         <button
                             onClick={handleSearch}
-                            className="p-3 rounded-full bg-gray-100 text-gray-500
-                                       hover:bg-gray-200 active:scale-95 transition shadow-md"
+                            disabled={isSearchDisabled}
+                            className={`p-3 rounded-full transition-all duration-300 shadow-md flex items-center justify-center
+                                ${isSearchDisabled 
+                                    ? "bg-gray-100 text-gray-300 cursor-not-allowed"  // Disabled 樣式
+                                    : "p-3 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 active:scale-95 transition shadow-md"
+                                    }
+                            `}
                             title="搜尋"
                         >
                             <HiSearch className="text-xl" />
