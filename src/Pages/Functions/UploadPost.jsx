@@ -101,10 +101,12 @@ function UploadPost() {
     });
 
     const API = "https://ntouber-post.zeabur.app/api/posts/";
-    const [submitting, setSubmitting] = useState(false);
+    const [isSubmitting, setSubmitting] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (isSubmitting) return;
 
         // 檢查是否已登入
         if (!user || !user.Name) {
@@ -115,9 +117,6 @@ function UploadPost() {
         const payload = toApiJson(post, startAddress, destAddress, user.ID, driver.scooter_type);
         setSubmitting(true);
 
-        // const fullAddress = [address.city, address.district, address.street]
-        // .filter(Boolean)     // 移掉沒填的欄位
-        // .join("");
         try {
             const r = await fetch(API, {
                 method: "POST",
