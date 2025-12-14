@@ -1,118 +1,97 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { HiArrowRight } from "react-icons/hi";
-import { useLocation } from "react-router-dom";
-import PostClass from "../../models/PostClass";
-import dayjs from "dayjs";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext.jsx";
+import dayjs from "dayjs";
+import { motion, AnimatePresence } from "framer-motion";
+import { HiArrowRight, HiOutlineLocationMarker, HiOutlineCalendar, HiOutlinePhone, HiOutlineUser } from "react-icons/hi";
+import { MdEdit, MdSend, MdTwoWheeler, MdClose } from "react-icons/md";
 
-
-function detailPost() {
+function DetailPost() {
     const { user, isLoggedIn, userRole, loading, logout } = useUser();
-    // useEffect(() => {
-    //     // 只在組件 mount 時執行一次，用於 debug
-    //     console.group("ProfilePage 載入");
-    //     console.log("isLoggedIn:", isLoggedIn);
-    //     console.log("user:", user);
-    //     console.log("driver:", driver);
-    //     console.log("userRole:", userRole);
-    //     console.groupEnd();
-    // }, []);
-
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // 控制圖片放大
+    const [isImageOpen, setIsImageOpen] = useState(false);
+
     const { state } = useLocation();
     const postData = state?.post;
-    if (!postData) return <p>沒有收到貼文資料</p>;
+
+    if (!postData) return (
+        <div className="flex justify-center items-center h-screen text-gray-500">
+            <p>沒有收到貼文資料</p>
+        </div>
+    );
 
     const tags = [];
-    if (postData.helmet) tags.push("自備安全帽");
+    if (postData.helmet) tags.push("提供安全帽");
     if (postData.leave) tags.push("中途下車");
-    // console.log("postData.id", postData.id);
 
     const [driver, setDriver] = useState(null);
     const User_id = postData.driver_id;
+
     useEffect(() => {
         async function fetchDriver() {
             try {
                 const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${User_id}`);
-
                 if (!res.ok) throw new Error("取得使用者資料失敗");
-
                 const data = await res.json();
-
-
                 setDriver(data);
-
                 console.log(data);
-
             } catch (err) {
                 console.error("❌ 載入車主資料失敗:", err);
             }
         }
-
         console.log(postData.image_url);
         fetchDriver();
     }, [User_id]);
 
     const handleRequest = async () => {
-
         const postParams = new URLSearchParams({
             post_id: postData.id,
         });
         const postUrl = `https://ntouber-post.zeabur.app/api/posts/getpost/${postData.id}`;
 
-        const postRes = await fetch(postUrl, {
-            method: "GET",
-        });
-
-        const newPostData = await postRes.json().catch(() => ({}));
-        if (!postRes.ok) {
-            console.error("發送請求失敗：", newPostData);
-            throw new Error(newPostData.message || `API 錯誤 (${postRes.status})`);
-        }
-
-        if (isSubmitting) return;
-        if (!isLoggedIn || !user) {
-            alert("請先登入再發送請求");
-            return;
-        }
-
-        const params = new URLSearchParams({
-
-            post_id: newPostData.id,
-            client_id: user.ID,
-
-        });
-
-        console.log(newPostData);
-
-        if (user.ID == newPostData.driver_id) {
-            alert("不能向自己發送請求");
-            return;
-        };
-
-        if (newPostData.status == "matched") {
-            alert("此請求已被匹配");
-            navigate("/")
-            return;
-        };
-
-        const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
-        console.log("發送請求 URL:", url);
-        setIsSubmitting(true);// 開始發送 (避免連點)
-
         try {
-            console.log(newPostData.timestamp);
-            const res = await fetch(url, {
-                method: "PATCH",
+            const postRes = await fetch(postUrl, { method: "GET" });
+            const newPostData = await postRes.json().catch(() => ({}));
+
+            if (!postRes.ok) {
+                console.error("發送請求失敗：", newPostData);
+                throw new Error(newPostData.message || `API 錯誤 (${postRes.status})`);
+            }
+
+            if (isSubmitting) return;
+            if (!isLoggedIn || !user) {
+                alert("請先登入再發送請求");
+                return;
+            }
+
+            const params = new URLSearchParams({
+                post_id: newPostData.id,
+                client_id: user.ID,
             });
 
+            if (user.ID == newPostData.driver_id) {
+                alert("不能向自己發送請求");
+                return;
+            };
+
+            if (newPostData.status == "matched") {
+                alert("此請求已被匹配");
+                navigate("/")
+                return;
+            };
+
+            const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
+            setIsSubmitting(true);
+
+            const res = await fetch(url, { method: "PATCH" });
             const data = await res.json().catch(() => ({}));
+
             if (!res.ok) {
                 console.error("發送請求失敗：", data);
                 throw new Error(data.message || `API 錯誤 (${res.status})`);
-
             }
 
             console.log("發送請求成功：", data);
@@ -123,127 +102,216 @@ function detailPost() {
             console.error("發送請求發生錯誤：", err);
             alert(`發送請求失敗：${err.message}`);
         } finally {
-            // 恢復狀態
             setIsSubmitting(false);
         }
     };
 
-    const canSendRequest =
-        isLoggedIn &&
-        user?.ID !== postData.driver_id &&
-        postData.status === "open";
-    const isMyPost = isLoggedIn && user?.ID === postData.driver_id;
-    const canEditPost =
-        isLoggedIn &&
-        user?.ID === postData.driver_id &&
-        postData.status === "open";
+    const canSendRequest = isLoggedIn && user?.ID !== postData.driver_id && postData.status === "open";
+    const canEditPost = isLoggedIn && user?.ID === postData.driver_id && postData.status === "open";
+
+    // 動畫設定
+    const containerVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+    };
 
     return (
-        <div className="flex justify-center">
-            <article className='postCard m-4 w-3/4'>
-                {/* <div className="flex h-50 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400"> */}
-                <div className="w-full bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden h-64 mb-4">
+        <div className="flex justify-center min-h-screen bg-gray-50 py-8 px-4">
+            <motion.article 
+                className="w-full max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+            >
+                {/* 圖片區塊 */}
+                <div 
+                    className="relative w-full h-64 bg-gray-200 cursor-zoom-in group"
+                    onClick={() => setIsImageOpen(true)} // 點擊大容器會放大
+                >
                     <img
-                        src={postData?.image_url || "https://placehold.co/200x150?text=Demo+Image&font=roboto"}
-                        alt="demo"
-                        className="max-w-full max-h-full object-contain rounded-xl"
+                        src={postData?.image_url || "https://placehold.co/600x400?text=No+Image"}
+                        alt="Route view"
+                        className="w-full h-full object-cover transition-transform duration-500"
                     />
-                </div>
-                {/* </div> */}
-                <div className="space-y-3 text-sm text-center font-bold">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                    
+                    {/* 提示文字 */}
+                    <div className="absolute top-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        點擊放大
+                    </div>
 
-                    {postData.starting_point.Name} {"→"} {postData.destination.Name}
-                </div>
+                    {/* 司機資訊 
+                        修改點：
+                        1. 移除了 pointer-events-none
+                        2. 加入 cursor-default 避免顯示放大鏡
+                        3. 加入 onClick stopPropagation 阻止冒泡
+                    */}
+                    <div 
+                        className="absolute bottom-4 left-4 flex items-center space-x-3 text-white cursor-default z-10"
+                        onClick={(e) => {
+                            e.stopPropagation(); // 關鍵：阻止點擊事件傳遞給父層 (防止放大)
+                        }}
+                    >
+                        <div className="h-12 w-12 rounded-full border-2 border-white overflow-hidden shadow-md">
+                            <img
+                                src={driver?.AvatarURL || "https://placehold.co/80x80"}
+                                alt="driver"
+                                className="h-full w-full object-cover"
+                            />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium opacity-80">駕駛</p>
+                            <p className="text-lg font-bold leading-none">{driver?.Name || "載入中..."}</p>
+                        </div>
+                    </div>
 
-                <div className="space-y-3 text-xs">
-
-                    起點: {postData.starting_point.Address}
-                </div>
-
-                <div className="space-y-3 text-xs">
-
-                    終點: {postData.destination.Address}
-                </div>
-
-                <div className="space-y-3 text-xs">
-
-                    集合時間: {dayjs(postData.departure_time).format("YYYY-MM-DD HH:mm")}
-                </div>
-
-                <div className="space-y-3 text-xs">
-
-                    集合地點: {postData.meet_point.Name}
-                </div>
-
-                <div className="space-y-3 text-xs">
-
-                    手機: {driver?.PhoneNumber}
-                </div>
-
-                <div className="space-y-3 text-xs">
-
-                    車型: {postData.vehicle_info}
-                </div>
-
-                {/* <div className="space-y-3 text-xs">
-                聯絡方式: 
-                <p>{postData.contact}</p>
-            </div> */}
-                <div className="space-y-3 text-xs">
-                    備註:
-                    <div className="border border-gray-400 rounded-md p-4">
-
-                        {postData.description}
+                    {/* Tags (保持不互動) */}
+                    <div className="absolute bottom-4 right-4 flex flex-wrap gap-2 justify-end pointer-events-none">
+                        {tags.map((tag) => (
+                            <span
+                                key={tag}
+                                className="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full text-xs font-medium shadow-sm"
+                            >
+                                {tag}
+                            </span>
+                        ))}
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => (
-                        <span
-                            key={tag}
-                            className="rounded-lg bg-gray-100 px-1.5 py-0.5 text-[8px] font-medium text-gray-700"
-                        >
-                            {tag}
+                {/* 內容區塊 */}
+                <div className="p-6 md:p-8 space-y-8">
+                    
+                    {/* 路線標題 */}
+                    <div className="flex flex-col items-center justify-center space-y-2 pb-4 border-b border-gray-100">
+                        <div className="flex items-center space-x-3 text-2xl font-black text-gray-800 tracking-tight">
+                            <span>{postData.starting_point.Name}</span>
+                            <HiArrowRight className="text-gray-400" />
+                            <span>{postData.destination.Name}</span>
+                        </div>
+                        <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">
+                            {dayjs(postData.departure_time).format("YYYY/MM/DD HH:mm")} 出發
                         </span>
-                    ))}
-                </div>
+                    </div>
 
-                <div className="flex items-center h-5">
-                    <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
-                        <img
-                            src={driver?.AvatarURL || "https://placehold.co/80x80"}
-                            alt="driver"
-                            className="h-full w-full object-cover"
+                    {/* 詳細資訊 Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <InfoItem 
+                            icon={<HiOutlineLocationMarker className="w-5 h-5 text-indigo-500" />}
+                            label="起點地址"
+                            value={postData.starting_point.Address}
+                        />
+                        <InfoItem 
+                            icon={<HiOutlineLocationMarker className="w-5 h-5 text-red-500" />}
+                            label="終點地址"
+                            value={postData.destination.Address}
+                        />
+                         <InfoItem 
+                            icon={<HiOutlineLocationMarker className="w-5 h-5 text-green-500" />}
+                            label="集合地點"
+                            value={postData.meet_point.Name}
+                        />
+                        <InfoItem 
+                            icon={<MdTwoWheeler className="w-5 h-5 text-blue-500" />}
+                            label="車型資訊"
+                            value={postData.vehicle_info}
+                        />
+                        <InfoItem 
+                            icon={<HiOutlinePhone className="w-5 h-5 text-gray-500" />}
+                            label="聯絡電話"
+                            value={driver?.PhoneNumber || "---"}
                         />
                     </div>
-                    <p className="text-xs">{driver?.Name || "載入中…"}</p>
+
+                    {/* 備註區塊 */}
+                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                        <h3 className="text-sm font-bold text-gray-600 mb-2">行程備註</h3>
+                        <p className={`text-sm leading-relaxed whitespace-pre-wrap ${!postData.description ? "text-gray-400 italic" : "text-gray-600"}`}>
+                            {postData.description || "暫無備註"}
+                        </p>
+                    </div>
+
+                    {/* 按鈕 */}
+                    <div className="flex items-center justify-end gap-3 pt-4">
+                        {canEditPost && (
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+                                onClick={() => navigate(`/edit-post/${postData.id}`)}
+                            >
+                                <MdEdit /> 編輯貼文
+                            </motion.button>
+                        )}
+
+                        {canSendRequest && (
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className={`flex items-center gap-2 px-6 py-2.5 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/30 transition-all ${
+                                    isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+                                }`}
+                                onClick={handleRequest}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    "處理中..."
+                                ) : (
+                                    <>
+                                        <MdSend /> 發送請求
+                                    </>
+                                )}
+                            </motion.button>
+                        )}
+                    </div>
                 </div>
+            </motion.article>
 
-
-                <div className="flex items-center justify-end text-gray-500">
-                    {canEditPost && (
+            {/* 圖片放大燈箱 */}
+            <AnimatePresence>
+                {isImageOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+                        onClick={() => setIsImageOpen(false)}
+                    >
                         <button
-                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
-                            onClick={() => navigate(`/edit-post/${postData.id}`)}
+                            className="absolute top-5 right-5 p-2 bg-white/10 rounded-full text-white hover:bg-white/20 transition"
+                            onClick={() => setIsImageOpen(false)}
                         >
-                            ✏️ 編輯貼文
+                            <MdClose size={24} />
                         </button>
-                    )}
 
-                    {canSendRequest ? (
-                        <button
-                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition text-sm"
-                            onClick={handleRequest} >
-                            發送請求
-                        </button>
-                    ) : null}
-                </div>
-
-
-            </article>
+                        <motion.img
+                            src={postData?.image_url || "https://placehold.co/600x400?text=No+Image"}
+                            alt="Full view"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl cursor-default"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
-
     );
 }
 
-export default detailPost;
+// 輔助組件
+const InfoItem = ({ icon, label, value }) => (
+    <div className="flex items-start gap-3">
+        <div className="mt-0.5 p-2 bg-gray-50 rounded-lg shrink-0">
+            {icon}
+        </div>
+        <div>
+            <p className="text-xs text-gray-400 font-medium mb-0.5">{label}</p>
+            <p className="text-sm font-semibold text-gray-700 break-words">{value}</p>
+        </div>
+    </div>
+);
+
+export default DetailPost;

@@ -182,9 +182,9 @@ function UserPage() {
                                     >
                                         <HiRefresh
                                             className={`text-sm transition-transform duration-700 
-                                     ${isRefreshing ? "animate-spin text-purple-600" : "group-hover:rotate-180"}`}
+                                            ${isRefreshing ? "animate-spin text-purple-600" : "group-hover:rotate-180"}`}
                                         />
-                                        <span>重新整理</span>
+                                        <span>清除並重新整理</span>
                                     </button>
                                 </div>
 
