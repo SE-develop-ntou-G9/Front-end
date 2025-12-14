@@ -46,25 +46,24 @@ function Header() {
 
             const data = await response.json();
             // console.log("data:", data);
-            if (data != null){
-              const fetchedNotifications = data.notifications || data || [];
-              setNotifications(fetchedNotifications);
-  
-              const senderIds = [
-                  ...new Set(fetchedNotifications.map((n) => n.SenderID)),
-              ].filter((id) => id && !senderUsers[id]); // 過濾掉已有的 ID
-  
-              senderIds.forEach(async (id) => {
-                  const senderData = await fetchUserById(id);
-                  if (senderData) {
-                      // 更新 senderUsers 狀態
-                      setSenderUsers((prev) => ({
-                          ...prev,
-                          [id]: senderData,
-                      }));
-                  }
-              });
-              
+            if (data != null) {
+                const fetchedNotifications = data.notifications || data || [];
+                setNotifications(fetchedNotifications);
+
+                const senderIds = [
+                    ...new Set(fetchedNotifications.map((n) => n.SenderID)),
+                ].filter((id) => id && !senderUsers[id]); // 過濾掉已有的 ID
+
+                senderIds.forEach(async (id) => {
+                    const senderData = await fetchUserById(id);
+                    if (senderData) {
+                        // 更新 senderUsers 狀態
+                        setSenderUsers((prev) => ({
+                            ...prev,
+                            [id]: senderData,
+                        }));
+                    }
+                });
             }
         } catch (error) {
             console.error("抓取通知失敗：", error);
@@ -72,28 +71,28 @@ function Header() {
     };
 
     useEffect(() => {
-    let intervalId;
+        let intervalId;
 
-    if (isLoggedIn && user?.ID) {
-        fetchNotifications(user.ID); 
-        // POLLING
-        const POLLING_INTERVAL = 5000; // 5 sec
-        
-        intervalId = setInterval(() => {
-            // console.log(`[Polling] 正在定時檢查通知...`);
+        if (isLoggedIn && user?.ID) {
             fetchNotifications(user.ID);
-        }, POLLING_INTERVAL);
-    } else {
-        setNotifications([]);
-    }
+            // POLLING
+            const POLLING_INTERVAL = 5000; // 5 sec
 
-    return () => {
-        if (intervalId) {
-            clearInterval(intervalId);
-            // console.log("[Polling] 定時器已清除。");
+            intervalId = setInterval(() => {
+                // console.log(`[Polling] 正在定時檢查通知...`);
+                fetchNotifications(user.ID);
+            }, POLLING_INTERVAL);
+        } else {
+            setNotifications([]);
         }
-    };
-}, [isLoggedIn, user?.ID]);
+
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                // console.log("[Polling] 定時器已清除。");
+            }
+        };
+    }, [isLoggedIn, user?.ID]);
 
     const deleteNotification = async (notificationId) => {
         try {
@@ -115,6 +114,35 @@ function Header() {
                     `刪除通知 API 錯誤: ${response.status} ${response.statusText}`
                 );
             }
+        } catch (error) {
+            console.error("刪除通知失敗，請手動刷新或重試。", error);
+        }
+    };
+
+    const deleteAllNotification = async () => {
+        //
+        if (notifications.length === 0 || !user?.ID) return;
+
+        setNotifications([]);
+        setIsNotificationOpen(false);
+
+        try {
+            const url = `${BASE_URL}/notifications/all/${user?.ID}`;
+
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    `刪除所有通知 API 錯誤: ${response.status} ${response.statusText}`
+                );
+            }
+
+            // console.log("所有通知刪除成功。");
         } catch (error) {
             console.error("刪除通知失敗，請手動刷新或重試。", error);
         }
@@ -196,8 +224,18 @@ function Header() {
                             {/* 通知下拉選單 */}
                             {isNotificationOpen && (
                                 <div className="absolute right-0 mt-3 w-80 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden z-20">
-                                    <div className="p-3 font-bold border-b">
-                                        通知 ({unreadCount} 則)
+                                    <div className="p-3 font-bold border-b flex justify-between items-center">
+                                        <span>通知 ({unreadCount} 則)</span>
+                                        {/*清空按鈕 */}
+                                        {notifications.length > 0 && (
+                                            <button
+                                                className="text-xs font-normal text-red-500 hover:text-red-700 transition px-2 py-1 rounded hover:bg-red-50"
+                                                onClick={deleteAllNotification} // 呼叫清空函式
+                                                title="清空所有通知"
+                                            >
+                                                清空
+                                            </button>
+                                        )}
                                     </div>
                                     {notifications.length > 0 ? (
                                         <div className="max-h-96 overflow-y-auto">
