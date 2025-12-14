@@ -46,35 +46,54 @@ function Header() {
 
             const data = await response.json();
             // console.log("data:", data);
-            const fetchedNotifications = data.notifications || data || [];
-            setNotifications(fetchedNotifications);
-
-            const senderIds = [
-                ...new Set(fetchedNotifications.map((n) => n.SenderID)),
-            ].filter((id) => id && !senderUsers[id]); // 過濾掉已有的 ID
-
-            senderIds.forEach(async (id) => {
-                const senderData = await fetchUserById(id);
-                if (senderData) {
-                    // 更新 senderUsers 狀態
-                    setSenderUsers((prev) => ({
-                        ...prev,
-                        [id]: senderData,
-                    }));
-                }
-            });
+            if (data != null){
+              const fetchedNotifications = data.notifications || data || [];
+              setNotifications(fetchedNotifications);
+  
+              const senderIds = [
+                  ...new Set(fetchedNotifications.map((n) => n.SenderID)),
+              ].filter((id) => id && !senderUsers[id]); // 過濾掉已有的 ID
+  
+              senderIds.forEach(async (id) => {
+                  const senderData = await fetchUserById(id);
+                  if (senderData) {
+                      // 更新 senderUsers 狀態
+                      setSenderUsers((prev) => ({
+                          ...prev,
+                          [id]: senderData,
+                      }));
+                  }
+              });
+              
+            }
         } catch (error) {
             console.error("抓取通知失敗：", error);
         }
     };
 
     useEffect(() => {
-        if (isLoggedIn && user?.ID) {
+    let intervalId;
+
+    if (isLoggedIn && user?.ID) {
+        fetchNotifications(user.ID); 
+        // POLLING
+        const POLLING_INTERVAL = 5000; // 5 sec
+        
+        intervalId = setInterval(() => {
+            // console.log(`[Polling] 正在定時檢查通知...`);
             fetchNotifications(user.ID);
-        } else {
-            setNotifications([]);
+        }, POLLING_INTERVAL);
+    } else {
+        setNotifications([]);
+    }
+
+    return () => {
+        if (intervalId) {
+            clearInterval(intervalId);
+            // console.log("[Polling] 定時器已清除。");
         }
-    }, [isLoggedIn, user?.ID]);
+    };
+}, [isLoggedIn, user?.ID]);
 
     const deleteNotification = async (notificationId) => {
         try {
@@ -125,8 +144,7 @@ function Header() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [isSidebarOpen, isNotificationOpen]); // 監聽兩個狀態
-    // 計算未讀通知數量，這裡假設所有收到的都是未讀。
-    // 如果要依賴 Status 欄位，可以改為：notifications.filter(n => n.Status === 'unread').length
+
     const unreadCount = notifications.length;
 
     return (
@@ -185,7 +203,7 @@ function Header() {
                                         <div className="max-h-96 overflow-y-auto">
                                             {notifications.map(
                                                 (notification) => {
-                                                    // 🔔 獲取發送者資料
+                                                    // 獲取發送者資料
                                                     const sender =
                                                         senderUsers[
                                                             notification
@@ -205,7 +223,7 @@ function Header() {
                                                             className="flex justify-between items-start p-3 border-b hover:bg-gray-50 transition"
                                                         >
                                                             <div className="flex items-start">
-                                                                {/* 🔔 顯示發送者頭像 */}
+                                                                {/* 顯示發送者頭像 */}
                                                                 <div className="w-8 h-8 rounded-full flex-shrink-0 mr-3 overflow-hidden">
                                                                     {senderAvatar ? (
                                                                         <img
@@ -226,7 +244,7 @@ function Header() {
 
                                                                 <p className="text-sm flex-1 mr-2 leading-relaxed">
                                                                     <span className="font-semibold block">
-                                                                        {/* 🔔 顯示發送者名稱 */}
+                                                                        {/* 顯示發送者名稱 */}
                                                                         {
                                                                             senderName
                                                                         }
