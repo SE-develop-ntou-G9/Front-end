@@ -1,10 +1,25 @@
-// fileName: AdminRegistDrivers.jsx (重構)
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 import DriverClass from "../models/DriverClass";
-import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions"; // <--- 導入 Hook
+import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions"; 
+import { fetchUserById } from "./hooks/useUserFetcher.jsx";
+
+const Avatar = ({ user }) => (
+    <div className="w-10 h-10 rounded-full flex-shrink-0">
+        {user?.AvatarURL ? (
+            <img
+                src={user.AvatarURL}
+                alt="User Avatar"
+                className="w-full h-full object-cover rounded-full"
+            />
+        ) : (
+            <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold">
+                {user?.Name ? user.Name.charAt(0) : "..."}
+            </div>
+        )}
+    </div>
+);
 
 const API = "https://ntouber-user.zeabur.app/v1/drivers";
 
@@ -12,7 +27,8 @@ export default function AdminRegistDrivers() {
     const navigate = useNavigate();
     const [drivers, setDrivers] = useState([]); // <--- 修正狀態初始化
     const [rdrivers, setRDrivers] = useState([]); // tmp reject driver
-    const { handleVerify } = useAdminDriverActions(setDrivers); // <--- 只需要審核功能
+    const { handleVerify } = useAdminDriverActions(setDrivers); // <--- 被我拔掉了
+    const [userMap, setUserMap] = useState({});
 
     useEffect(() => {
         async function fetchDrivers() {
@@ -31,6 +47,16 @@ export default function AdminRegistDrivers() {
                 // console.log("drivers", checkingDrivers)
                 setDrivers(checkingDrivers);
                 setRDrivers(rDrivers);
+
+                const allDriverIds = [...new Set([...checkingDrivers, ...rDrivers].map(d => d.userID))];
+                allDriverIds.forEach(async (id) => {
+                    if (!userMap[id]) { 
+                        const userData = await fetchUserById(id);
+                        if (userData) {
+                            setUserMap(prev => ({ ...prev, [id]: userData }));
+                        }
+                    }
+                });
             } catch (err) {
                 console.error("抓取driver失敗：", err);
             }
@@ -74,7 +100,9 @@ export default function AdminRegistDrivers() {
                 </div>
 
                 <div className="mt-4 space-y-4">
-                    {drivers.map((d) => (
+                    {drivers.map((d) => {
+                        const user = userMap[d.userID];
+                        return (
                         <div
                             key={d.userID} // <--- 修正 key
                             className="
@@ -92,14 +120,18 @@ export default function AdminRegistDrivers() {
                         >
                             {/*  點擊導航到詳細審核頁面 */}
                             <div 
-                                className="flex-1 cursor-pointer"
-                                onClick={() => navigate("/admin/DetailRegistDriver", { state: { driver: d } })}
-                            >
-                                <p className="font-medium">用戶名：{d.name}</p>
-                                <p className="mt-1 text-gray-600 text-xs">車型：{d.scooterType} / 車牌：{d.plateNum}</p>
+                                    className="flex-1 cursor-pointer flex items-center space-x-3"
+                                    onClick={() => navigate("/admin/DetailRegistDriver", { state: { driver: d } })}
+                                >
+                                    <Avatar user={user} />
+                                    <div>
+                                        <p className="font-medium">用戶名：{d.name}</p>
+                                        <p className="mt-1 text-gray-600 text-xs">車型：{d.scooterType} / 車牌：{d.plateNum}</p>
+                                    </div>
                             </div>   
                         </div>
-                    ))}
+                        )
+                    })}
                 </div>
                 {/* <div className="mt-6">
                     <h2 className="text-base font-bold text-gray-900">重新審核車主 ({drivers.length})</h2>

@@ -1,16 +1,36 @@
-// fileName: AdminDetailRegistDriver.jsx
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAdminDriverActions from "../hooks/useAdminDriverActions"; 
-// 假設 useAdminDriverActions 在 '../hooks/'
+import { fetchUserById } from "../hooks/useUserFetcher.jsx";
+
+const Avatar = ({ user }) => (
+    <div className="w-20 h-20 rounded-full flex-shrink-0">
+        {user?.AvatarURL ? (
+            <img
+                src={user.AvatarURL}
+                alt="User Avatar"
+                className="w-full h-full object-cover rounded-full"
+            />
+        ) : (
+            <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold">
+                {user?.Name ? user.Name.charAt(0) : "..."}
+            </div>
+        )}
+    </div>
+);
 
 export default function AdminDetailRegistDriver() {
     const navigate = useNavigate();
     const { state } = useLocation();
     
-    // 從 state 中取得傳遞過來的車主資料 (DriverClass 實例)
     const driverData = state?.driver; 
+    const [driverUser, setDriverUser] = useState(null);
+
+    useEffect(() => {
+        if (driverData?.userID) {
+            fetchUserById(driverData.userID).then(setDriverUser);
+        }
+    }, [driverData]);
 
     if (!driverData) {
         return (
@@ -45,7 +65,7 @@ export default function AdminDetailRegistDriver() {
                 {/* 基本資訊顯示與 AdminDetailDriver 相似 */}
                 <div className="flex items-center space-x-4">
                     <div className="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center text-xs">
-                        {driverData.name[0]}
+                        <Avatar user={driverUser} />
                     </div>
                     <div className="flex flex-col">
                         <p className="text-lg font-bold">{driverData.name}</p>
