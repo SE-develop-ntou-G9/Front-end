@@ -18,7 +18,7 @@ function PostCard({ postData, isAdmin }) {
     const User_id = postData.driver_id;
 
     const dst = isAdmin === "1" ? "/AdminDetailPost" : "/detailPost";
-    const Admin = isAdmin === "1" ? True : false;
+    const Admin = isAdmin === "1" ? true : false;
 
 
     useEffect(() => {
