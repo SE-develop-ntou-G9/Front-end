@@ -148,6 +148,7 @@ export default function useAdminDriverActions(setDrivers, navigate) {
 
     const handleBlacklist = useCallback((userId) => {
         alert(`黑名單功能：用戶 ${userId}`);
+        console.log("還沒做")
     }, []);
 
     return { handleDriverDelete, handleBlacklist, handleVerify };

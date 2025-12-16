@@ -6,10 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HiArrowRight, HiOutlineLocationMarker, HiOutlineCalendar, HiOutlinePhone, HiOutlineUser } from "react-icons/hi";
 import { MdEdit, MdSend, MdTwoWheeler, MdClose } from "react-icons/md";
 
+import { useUserNotify } from "../hooks/useUserNotify.jsx";
+
 function DetailPost() {
     const { user, isLoggedIn, userRole, loading, logout } = useUser();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { sendNotification } = useUserNotify();
     
     // 控制圖片放大
     const [isImageOpen, setIsImageOpen] = useState(false);
@@ -95,6 +98,17 @@ function DetailPost() {
             }
 
             console.log("發送請求成功：", data);
+            const senderName = user?.Name || "某位用戶";
+            const message = `${senderName} 向您的行程 ${newPostData.starting_point.Name} > ${newPostData.destination.Name} 發送了共乘請求。請去"我的貼文"查看:)`;
+            //  console.log("driver_id",newPostData.driver_id);
+            //  console.log("user?.ID",user?.ID);
+
+            await sendNotification({
+                receiverId: newPostData.driver_id, // 接收方: 車主 ID
+                senderId: user?.ID,                  // 發送方: 當前登入用戶 ID
+                message: message,
+            });
+            // ----------------------------------------------------
             alert("已發送請求給車主！");
             navigate('/');
 

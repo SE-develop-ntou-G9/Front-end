@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "../contexts/UserContext.jsx";
 import PostCard from "./Functions/PostCard";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUserNotify } from "./hooks/useUserNotify.jsx";
 
 function SkeletonCard() {
     return (
@@ -19,6 +20,7 @@ function CurrentPost() {
     const [activeTab, setActiveTab] = useState("driver");
     const [clientMap, setClientMap] = useState({});
     const [loading, setLoading] = useState(true);
+    const { sendNotification } = useUserNotify();
 
 
     const listVariants = {
@@ -155,6 +157,16 @@ function CurrentPost() {
             body: JSON.stringify({ status: "closed" })
         });
 
+        if (post.client_id && user.ID) {
+            const message = `您的共乘請求 ${post.starting_point.Name} > ${post.destination.Name} 已被車主 ${user.Name || '已匹配'} 接受！請去"我的貼文"查看:)`;
+            
+            await sendNotification({
+                receiverId: post.client_id, // 接收方: 乘客 ID
+                senderId: user.ID,          // 發送方: 車主/目前用戶 ID
+                message: message,
+            });
+        }
+
         alert("已接受共乘，貼文已關閉！");
         fetchPosts();
     }
@@ -171,7 +183,15 @@ function CurrentPost() {
             })
         });
 
-
+        if (post.client_id && user.ID) {
+            const message = `很抱歉，您的共乘請求 ${post.starting_point.Name} > ${post.destination.Name} 被車主 ${user.Name || '拒絕'} 拒絕了，貼文已重新開放。`;
+            
+            await sendNotification({
+                receiverId: post.client_id, // 接收方: 乘客 ID
+                senderId: user.ID,            // 發送方: 車主/目前用戶 ID
+                message: message,
+            });
+        }
 
         alert("你已拒絕共乘，貼文已重新開放！");
         fetchPosts();
