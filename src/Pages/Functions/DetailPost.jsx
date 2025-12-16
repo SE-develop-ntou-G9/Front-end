@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext.jsx";
 import dayjs from "dayjs";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiArrowRight, HiOutlineLocationMarker, HiOutlineCalendar, HiOutlinePhone, HiOutlineUser } from "react-icons/hi";
 import { MdEdit, MdSend, MdTwoWheeler, MdClose } from "react-icons/md";
-
 import { useUserNotify } from "../hooks/useUserNotify.jsx";
+import DriverPopover from "../../components/DriverPopover.jsx";
 
 function DetailPost() {
+    const driverCardRef = useRef(null);
+
     const { user, isLoggedIn, userRole, loading, logout } = useUser();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { sendNotification } = useUserNotify();
-    
+    const [showDriverCard, setShowDriverCard] = useState(false);
+
     // 控制圖片放大
     const [isImageOpen, setIsImageOpen] = useState(false);
 
@@ -48,6 +51,22 @@ function DetailPost() {
         console.log(postData.image_url);
         fetchDriver();
     }, [User_id]);
+    useEffect(() => {
+        function handleClickOutside(e) {
+            if (
+                showDriverCard &&
+                driverCardRef.current &&
+                !driverCardRef.current.contains(e.target)
+            ) {
+                setShowDriverCard(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showDriverCard]);
 
     const handleRequest = async () => {
         const postParams = new URLSearchParams({
@@ -131,14 +150,14 @@ function DetailPost() {
 
     return (
         <div className="flex justify-center min-h-screen bg-gray-50 py-8 px-4">
-            <motion.article 
+            <motion.article
                 className="w-full max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
             >
                 {/* 圖片區塊 */}
-                <div 
+                <div
                     className="relative w-full h-64 bg-gray-200 cursor-zoom-in group"
                     onClick={() => setIsImageOpen(true)} // 點擊大容器會放大
                 >
@@ -148,7 +167,7 @@ function DetailPost() {
                         className="w-full h-full object-cover transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-                    
+
                     {/* 提示文字 */}
                     <div className="absolute top-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                         點擊放大
@@ -160,41 +179,54 @@ function DetailPost() {
                         2. 加入 cursor-default 避免顯示放大鏡
                         3. 加入 onClick stopPropagation 阻止冒泡
                     */}
-                    <div 
-                        className="absolute bottom-4 left-4 flex items-center space-x-3 text-white cursor-default z-10"
-                        onClick={(e) => {
-                            e.stopPropagation(); // 關鍵：阻止點擊事件傳遞給父層 (防止放大)
-                        }}
+                    <div
+                        ref={driverCardRef}
+                        className="absolute bottom-4 left-4 flex items-center space-x-3 text-white z-10"
+                        onClick={(e) => e.stopPropagation()}  // 防止被外部點擊關閉
                     >
-                        <div className="h-12 w-12 rounded-full border-2 border-white overflow-hidden shadow-md">
-                            <img
-                                src={driver?.AvatarURL || "https://placehold.co/80x80"}
-                                alt="driver"
-                                className="h-full w-full object-cover"
-                            />
+                        <div
+                            className="absolute bottom-4 left-4 flex items-center space-x-3 text-white cursor-default z-10"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowDriverCard(prev => !prev);
+                            }}
+                        >
+                            <div className="h-12 w-12 rounded-full border-2 border-white overflow-hidden shadow-md">
+                                <img
+                                    src={driver?.AvatarURL || "https://placehold.co/80x80"}
+                                    alt="driver"
+                                    className="h-full w-full object-cover"
+                                />
+                            </div>
+                            {showDriverCard && (
+                                <DriverPopover
+                                    driver={driver}
+                                    onClose={() => setShowDriverCard(false)}
+                                />
+                            )}
+                            <div>
+                                <p className="text-sm font-medium opacity-80">駕駛</p>
+                                <p className="text-lg font-bold leading-none">{driver?.Name || "載入中..."}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm font-medium opacity-80">駕駛</p>
-                            <p className="text-lg font-bold leading-none">{driver?.Name || "載入中..."}</p>
-                        </div>
-                    </div>
 
-                    {/* Tags (保持不互動) */}
-                    <div className="absolute bottom-4 right-4 flex flex-wrap gap-2 justify-end pointer-events-none">
-                        {tags.map((tag) => (
-                            <span
-                                key={tag}
-                                className="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full text-xs font-medium shadow-sm"
-                            >
-                                {tag}
-                            </span>
-                        ))}
+                        {/* Tags (保持不互動) */}
+                        <div className="absolute bottom-4 right-4 flex flex-wrap gap-2 justify-end pointer-events-none">
+                            {tags.map((tag) => (
+                                <span
+                                    key={tag}
+                                    className="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full text-xs font-medium shadow-sm"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
                 {/* 內容區塊 */}
                 <div className="p-6 md:p-8 space-y-8">
-                    
+
                     {/* 路線標題 */}
                     <div className="flex flex-col items-center justify-center space-y-2 pb-4 border-b border-gray-100">
                         <div className="flex items-center space-x-3 text-2xl font-black text-gray-800 tracking-tight">
@@ -209,27 +241,27 @@ function DetailPost() {
 
                     {/* 詳細資訊 Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <InfoItem 
+                        <InfoItem
                             icon={<HiOutlineLocationMarker className="w-5 h-5 text-indigo-500" />}
                             label="起點地址"
                             value={postData.starting_point.Address}
                         />
-                        <InfoItem 
+                        <InfoItem
                             icon={<HiOutlineLocationMarker className="w-5 h-5 text-red-500" />}
                             label="終點地址"
                             value={postData.destination.Address}
                         />
-                         <InfoItem 
+                        <InfoItem
                             icon={<HiOutlineLocationMarker className="w-5 h-5 text-green-500" />}
                             label="集合地點"
                             value={postData.meet_point.Name}
                         />
-                        <InfoItem 
+                        <InfoItem
                             icon={<MdTwoWheeler className="w-5 h-5 text-blue-500" />}
                             label="車型資訊"
                             value={postData.vehicle_info}
                         />
-                        <InfoItem 
+                        <InfoItem
                             icon={<HiOutlinePhone className="w-5 h-5 text-gray-500" />}
                             label="聯絡電話"
                             value={driver?.PhoneNumber || "---"}
@@ -261,9 +293,8 @@ function DetailPost() {
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                className={`flex items-center gap-2 px-6 py-2.5 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/30 transition-all ${
-                                    isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
-                                }`}
+                                className={`flex items-center gap-2 px-6 py-2.5 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/30 transition-all ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+                                    }`}
                                 onClick={handleRequest}
                                 disabled={isSubmitting}
                             >
