@@ -99,11 +99,10 @@ function DetailPost() {
 
             console.log("發送請求成功：", data);
             const senderName = user?.Name || "某位用戶";
-            const message = `${senderName} 向您的行程 ${newPostData.starting_point.Name} > ${newPostData.destination.Name} 發送了共乘請求。`;
+            const message = `${senderName} 向您的行程 ${newPostData.starting_point.Name} > ${newPostData.destination.Name} 發送了共乘請求。請去"我的貼文"查看:)`;
             //  console.log("driver_id",newPostData.driver_id);
             //  console.log("user?.ID",user?.ID);
 
-            // 我們使用 await，但即使發送通知失敗，也不影響共乘請求的成功
             await sendNotification({
                 receiverId: newPostData.driver_id, // 接收方: 車主 ID
                 senderId: user?.ID,                  // 發送方: 當前登入用戶 ID
