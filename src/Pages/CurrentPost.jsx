@@ -158,7 +158,7 @@ function CurrentPost() {
         });
 
         if (post.client_id && user.ID) {
-            const message = `您的共乘請求 ${post.starting_point.Name} > ${post.destination.Name} 已被車主 ${user.Name || '已匹配'} 接受！`;
+            const message = `您的共乘請求 ${post.starting_point.Name} > ${post.destination.Name} 已被車主 ${user.Name || '已匹配'} 接受！請去"我的貼文"查看:)`;
             
             await sendNotification({
                 receiverId: post.client_id, // 接收方: 乘客 ID
