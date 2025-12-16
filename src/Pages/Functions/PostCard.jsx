@@ -87,38 +87,37 @@ function PostCard({ postData, isAdmin }) {
             </div>
 
             <div className="flex items-center h-5">
-            <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
-                <img
-                    src={driver?.AvatarURL || "https://placehold.co/80x80"}
-                    alt="driver"
-                    className="h-full w-full object-cover"
-                />
-            </div>
-            <p className="text-xs">{driver?.Name || "載入中…"}</p>
-            
-            {Admin && (
-                <p 
-                    className={`
+                <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
+                    <img
+                        src={driver?.AvatarURL || "https://placehold.co/80x80"}
+                        alt="driver"
+                        className="h-full w-full object-cover"
+                    />
+                </div>
+                <p className="text-xs">{driver?.Name || "載入中…"}</p>
+
+                {Admin && (
+                    <p
+                        className={`
                         text-xs 
                         p-1 
                         rounded 
                         ml-auto 
                         text-white 
                         font-semibold 
-                        ${
-                            postData?.status === "open"
+                        ${postData?.status === "open"
                                 ? "bg-green-500"
                                 : postData?.status === "matched"
-                                ? "bg-amber-500" // 亮橘色
-                                : postData?.status === "closed"
-                                ? "bg-red-500"
-                                : "bg-gray-400" // 預設/載入中 顏色
-                        }
+                                    ? "bg-amber-500" // 亮橘色
+                                    : postData?.status === "closed"
+                                        ? "bg-red-500"
+                                        : "bg-gray-400" // 預設/載入中 顏色
+                            }
                     `}
-                >
-                    {postData?.status || "載入中…"}
-                </p>
-            )}
+                    >
+                        {postData?.status || "載入中…"}
+                    </p>
+                )}
             </div>
             <div className="flex items-center justify-between text-gray-500">
             </div>

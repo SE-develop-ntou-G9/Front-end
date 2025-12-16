@@ -3,6 +3,7 @@ import { useUser } from "../contexts/UserContext.jsx";
 import PostCard from "./Functions/PostCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserNotify } from "./hooks/useUserNotify.jsx";
+import PassengerPopover from "../components/PassengerPopover.jsx";
 
 function SkeletonCard() {
     return (
@@ -21,6 +22,7 @@ function CurrentPost() {
     const [clientMap, setClientMap] = useState({});
     const [loading, setLoading] = useState(true);
     const { sendNotification } = useUserNotify();
+    const [activePassengerId, setActivePassengerId] = useState(null);
 
 
     const listVariants = {
@@ -57,6 +59,8 @@ function CurrentPost() {
             return {
                 name: data.Name,
                 avatar: data.AvatarURL,
+                Email: data.Email,
+                PhoneNumber: data.PhoneNumber,
             };
         } catch (err) {
             console.error("取得乘客資訊錯誤:", err);
@@ -137,7 +141,7 @@ function CurrentPost() {
 
         const text = {
             open: "開放中",
-            matched: "已匹配",
+            matched: "匹配中",
             closed: "已關閉",
         };
 
@@ -159,7 +163,7 @@ function CurrentPost() {
 
         if (post.client_id && user.ID) {
             const message = `您的共乘請求 ${post.starting_point.Name} > ${post.destination.Name} 已被車主 ${user.Name || '已匹配'} 接受！請去"我的貼文"查看:)`;
-            
+
             await sendNotification({
                 receiverId: post.client_id, // 接收方: 乘客 ID
                 senderId: user.ID,          // 發送方: 車主/目前用戶 ID
@@ -185,7 +189,7 @@ function CurrentPost() {
 
         if (post.client_id && user.ID) {
             const message = `很抱歉，您的共乘請求 ${post.starting_point.Name} > ${post.destination.Name} 被車主 ${user.Name || '拒絕'} 拒絕了，貼文已重新開放。`;
-            
+
             await sendNotification({
                 receiverId: post.client_id, // 接收方: 乘客 ID
                 senderId: user.ID,            // 發送方: 車主/目前用戶 ID
@@ -218,23 +222,42 @@ function CurrentPost() {
                     </div>
 
                     {activeTab === "driver" && post.client_id && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600 px-2 mb-1">
-                            <img
-                                src={
-                                    clientMap[post.client_id]?.avatar ||
-                                    "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                                }
-                                alt="avatar"
-                                className="w-6 h-6 rounded-full object-cover"
-                            />
-                            <span className="font-medium text-gray-800">
-                                乘客：
-                            </span>
-                            <span>
-                                {clientMap[post.client_id]?.name || "載入中..."}
-                            </span>
+                        <div className="relative px-2 mb-1">
+                            <div
+                                className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActivePassengerId(
+                                        activePassengerId === post.client_id
+                                            ? null
+                                            : post.client_id
+                                    );
+                                }}
+                            >
+                                <img
+                                    src={
+                                        clientMap[post.client_id]?.avatar ||
+                                        "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                                    }
+                                    alt="avatar"
+                                    className="w-6 h-6 rounded-full object-cover"
+                                />
+                                <span className="font-medium text-gray-800">乘客：</span>
+                                <span>
+                                    {clientMap[post.client_id]?.name || "載入中..."}
+                                </span>
+                            </div>
+
+                            {/*  浮動小卡ㄎㄚ */}
+                            {activePassengerId === post.client_id && (
+                                <PassengerPopover
+                                    passenger={clientMap[post.client_id]}
+                                    onClose={() => setActivePassengerId(null)}
+                                />
+                            )}
                         </div>
                     )}
+
 
                     <PostCard postData={post} />
 
@@ -258,11 +281,27 @@ function CurrentPost() {
             ))}
         </motion.div>
     );
+    function EmptyState({ text }) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col items-center justify-center py-20 text-gray-500"
+            >
+                <p className="text-lg font-medium">{text}</p>
+                <p className="text-sm mt-2 text-gray-400">
+                    有新的貼文時會顯示在這裡
+                </p>
+            </motion.div>
+        );
+    }
 
 
     return (
         <motion.div
             className="p-5 max-w-4xl mx-auto"
+            onClick={() => setActivePassengerId(null)}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -307,9 +346,12 @@ function CurrentPost() {
                                     <SkeletonCard key={i} />
                                 ))}
                             </div>
+                        ) : driverPosts.length === 0 ? (
+                            <EmptyState text="目前沒有車主貼文喔!!!" />
                         ) : (
                             renderPosts(driverPosts)
                         )}
+
                     </motion.div>
                 )}
 
@@ -327,9 +369,12 @@ function CurrentPost() {
                                     <SkeletonCard key={i} />
                                 ))}
                             </div>
+                        ) : passengerPosts.length === 0 ? (
+                            <EmptyState text="目前沒有乘客貼文喔 🙋" />
                         ) : (
                             renderPosts(passengerPosts)
                         )}
+
                     </motion.div>
                 )}
             </AnimatePresence>

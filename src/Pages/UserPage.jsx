@@ -277,7 +277,7 @@ function UserPage() {
                                                     {postItem.status === "closed"
                                                         ? "已完成"
                                                         : postItem.status === "matched"
-                                                            ? "已匹配"
+                                                            ? "匹配中"
                                                             : "開放中"}
                                                 </span>
                                             </div>
