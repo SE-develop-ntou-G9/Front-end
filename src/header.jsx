@@ -184,7 +184,7 @@ function Header() {
                     onClick={() => {
                         if (!isAdminPage) setIsSidebarOpen(true);
                     }}
-                    // disabled={isAdmin}
+                // disabled={isAdmin}
                 >
                     <HiMenu />
                 </button>
@@ -244,8 +244,8 @@ function Header() {
                                                     // 獲取發送者資料
                                                     const sender =
                                                         senderUsers[
-                                                            notification
-                                                                .SenderID
+                                                        notification
+                                                            .SenderID
                                                         ];
                                                     const senderName =
                                                         sender?.Name ||
@@ -294,15 +294,15 @@ function Header() {
                                                                     <span className="text-xs text-gray-400 mt-1 block">
                                                                         {notification.TimeStamp
                                                                             ? new Date(
-                                                                                  notification.TimeStamp
-                                                                              ).toLocaleString()
+                                                                                notification.TimeStamp
+                                                                            ).toLocaleString()
                                                                             : "未知時間"}
                                                                         {notification.Status ===
                                                                             "unread" && (
-                                                                            <span className="ml-2 text-red-500 font-bold">
-                                                                                ●
-                                                                            </span>
-                                                                        )}
+                                                                                <span className="ml-2 text-red-500 font-bold">
+                                                                                    ●
+                                                                                </span>
+                                                                            )}
                                                                     </span>
                                                                 </p>
                                                             </div>
@@ -337,7 +337,10 @@ function Header() {
                         {isLoggedIn && user ? (
                             <button
                                 className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition"
-                                onClick={() => navigate("/Profile")}
+                                onClick={() => {
+                                    if (!isAdmin) return;
+                                    navigate("/Profile")
+                                }}
                             >
                                 {/* ... 現有的頭像/使用者名稱邏輯 ... */}
                                 <div className="w-10 h-10 bg-white-700 rounded-full flex items-center justify-center text-xl font-bold">
