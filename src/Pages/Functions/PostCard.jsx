@@ -5,6 +5,7 @@ import DetailPost from './DetailPost.jsx';
 import { Routes, Route, Link } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function PostCard({ postData, isAdmin }) {
     const navigate = useNavigate();
@@ -43,9 +44,15 @@ function PostCard({ postData, isAdmin }) {
 
 
     return (
-        <article className='postCard m-4' onClick={() => navigate(`${dst}`, { state: { post: postData } })}>
-            <div
-                className="
+        <motion.div
+            whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(0,0,0,0.15)" }}
+            transition={{ type: "spring", stiffness: 300, damping: 22 }}
+            className="bg-white rounded-3xl border border-gray-100 cursor-pointer p-4"
+        >
+            {/* className='postCard m-4' */}
+            <article className="space-y-3" onClick={() => navigate(`${dst}`, { state: { post: postData } })}>
+                <div
+                    className="
                     w-full 
                     h-40              /* 調高外框高度，可依需求改成 h-44 h-48 */
                     rounded-xl 
@@ -54,51 +61,51 @@ function PostCard({ postData, isAdmin }) {
                     overflow-hidden   /* 超出就裁掉，不會蓋到下面文字 */
                     mb-3
                 "
-            >
-                <img
-                    src={postData?.image_url || "https://placehold.co/400x250?text=Demo+Image&font=roboto"}
-                    alt="demo"
-                    className="
+                >
+                    <img
+                        src={postData?.image_url || "https://placehold.co/400x250?text=Demo+Image&font=roboto"}
+                        alt="demo"
+                        className="
                         w-full 
                         h-full 
                         object-contain  /* 等比例縮放，塞在框內，多餘留灰底 */
                         rounded-xl
                     "
-                />
-            </div>
-
-            <div className="space-y-3 text-sm text-center font-bold">
-                {postData.starting_point.Name} {"→"} {postData.destination.Name}
-            </div>
-
-            <div className="space-y-3 text-xs">
-                {postData.notes}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                    <span
-                        key={tag}
-                        className="rounded-lg bg-gray-100 px-1.5 py-0.5 text-[8px] font-medium text-gray-700"
-                    >
-                        {tag}
-                    </span>
-                ))}
-            </div>
-
-            <div className="flex items-center h-5">
-                <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
-                    <img
-                        src={driver?.AvatarURL || "https://placehold.co/80x80"}
-                        alt="driver"
-                        className="h-full w-full object-cover"
                     />
                 </div>
-                <p className="text-xs">{driver?.Name || "載入中…"}</p>
 
-                {Admin && (
-                    <p
-                        className={`
+                <div className="space-y-3 text-sm text-center font-bold">
+                    {postData.starting_point.Name} {"→"} {postData.destination.Name}
+                </div>
+
+                <div className="space-y-3 text-xs">
+                    {postData.notes}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                        <span
+                            key={tag}
+                            className="rounded-lg bg-gray-100 px-1.5 py-0.5 text-[8px] font-medium text-gray-700"
+                        >
+                            {tag}
+                        </span>
+                    ))}
+                </div>
+
+                <div className="flex items-center h-5">
+                    <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
+                        <img
+                            src={driver?.AvatarURL || "https://placehold.co/80x80"}
+                            alt="driver"
+                            className="h-full w-full object-cover"
+                        />
+                    </div>
+                    <p className="text-xs">{driver?.Name || "載入中…"}</p>
+
+                    {Admin && (
+                        <p
+                            className={`
                         text-xs 
                         p-1 
                         rounded 
@@ -106,23 +113,24 @@ function PostCard({ postData, isAdmin }) {
                         text-white 
                         font-semibold 
                         ${postData?.status === "open"
-                                ? "bg-green-500"
-                                : postData?.status === "matched"
-                                    ? "bg-amber-500" // 亮橘色
-                                    : postData?.status === "closed"
-                                        ? "bg-red-500"
-                                        : "bg-gray-400" // 預設/載入中 顏色
-                            }
+                                    ? "bg-green-500"
+                                    : postData?.status === "matched"
+                                        ? "bg-amber-500" // 亮橘色
+                                        : postData?.status === "closed"
+                                            ? "bg-red-500"
+                                            : "bg-gray-400" // 預設/載入中 顏色
+                                }
                     `}
-                    >
-                        {postData?.status || "載入中…"}
-                    </p>
-                )}
-            </div>
-            <div className="flex items-center justify-between text-gray-500">
-            </div>
+                        >
+                            {postData?.status || "載入中…"}
+                        </p>
+                    )}
+                </div>
+                <div className="flex items-center justify-between text-gray-500">
+                </div>
 
-        </article>
+            </article>
+        </motion.div>
     );
 }
 
