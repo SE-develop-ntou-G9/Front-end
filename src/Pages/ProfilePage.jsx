@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 function ProfilePage() {
     const navigate = useNavigate();
     const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();
+    const [showAvatarPreview, setShowAvatarPreview] = useState(false);
+    const [zoom, setZoom] = useState(1);
 
     useEffect(() => {
         console.group("ProfilePage 載入");
@@ -116,6 +118,7 @@ function ProfilePage() {
 
                             <motion.div
                                 className="w-20 h-20 bg-gray-700 rounded-full overflow-hidden flex items-center justify-center"
+                                onClick={() => setShowAvatarPreview(true)}
                                 initial={{ scale: 0.8, opacity: 0, filter: "blur(6px)" }}
                                 animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
                                 transition={{ delay: 0.1, duration: 0.4 }}
@@ -212,8 +215,64 @@ function ProfilePage() {
                         </div>
                     </>
                 )}
+
             </AnimatePresence >
+            <AnimatePresence>
+                {showAvatarPreview && user?.AvatarURL && (
+                    <motion.div
+                        className="fixed inset-0 z-50 bg-black/70 overflow-auto"
+                        style={{ overscrollBehavior: "contain" }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => {
+                            setZoom(1);
+                            setShowAvatarPreview(false);
+                        }}
+                    >
+
+                        <div className="min-h-screen flex items-center justify-center p-10">
+                            <motion.img
+                                src={user.AvatarURL}
+                                alt="Avatar Preview"
+                                className="rounded-2xl shadow-2xl cursor-zoom-in select-none"
+                                style={{
+                                    width: "60vw",
+                                    maxWidth: "600px",
+                                    transform: `scale(${zoom})`,
+                                    transformOrigin: "center center",
+                                    transition: "transform 0.12s ease-out",
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                onWheelCapture={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+
+                                    setZoom(prev => {
+                                        const delta = e.deltaY > 0 ? -0.15 : 0.15;
+                                        return Math.min(Math.max(prev + delta, 0.5), 4);
+                                    });
+                                }}
+                            />
+                        </div>
+
+
+                        <button
+                            className="fixed top-6 right-6 text-white text-3xl hover:opacity-80"
+                            onClick={() => {
+                                setZoom(1);
+                                setShowAvatarPreview(false);
+                            }}
+                        >
+                            ✕
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+
         </motion.div>
+
     );
 }
 
