@@ -1,18 +1,20 @@
 import { motion, AnimatePresence } from "framer-motion";
 
-function PassengerPopover({ passenger, onClose }) {
+function PassengerPopover({ passenger, position, onClose }) {
     if (!passenger) return null;
 
     return (
         <AnimatePresence>
             <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 8 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 8 }}
-                transition={{ duration: 0.18 }}
-                className="absolute z-50 top-8 left-0 w-64 bg-white rounded-xl shadow-xl border p-4"
+                style={{
+                    top: position.top,
+                    left: position.left,
+                }}
+                id="passenger-popover"
+                className="fixed z-50 w-64 bg-white rounded-xl shadow-xl border p-4"
                 onClick={(e) => e.stopPropagation()}
             >
+
                 <div className="flex items-center gap-3">
                     <img
                         src={

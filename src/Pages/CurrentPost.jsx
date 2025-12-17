@@ -24,6 +24,7 @@ function CurrentPost() {
     const { sendNotification } = useUserNotify();
     const [activePassengerId, setActivePassengerId] = useState(null);
     const [activePostId, setActivePostId] = useState(null);
+    const [popoverPos, setPopoverPos] = useState(null);
 
 
     const listVariants = {
@@ -90,6 +91,22 @@ function CurrentPost() {
             console.error("Posts fetch error:", err);
         }
     }
+    useEffect(() => {
+        function handleClickOutside(e) {
+            if (!activePostId) return;
+
+            const popover = document.getElementById("passenger-popover");
+            if (popover && !popover.contains(e.target)) {
+                setActivePostId(null);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [activePostId]);
+
 
     // useEffect(() => {
     //     if (myPosts.length > 0) {
@@ -213,11 +230,14 @@ function CurrentPost() {
         >
             {posts.map(post => (
                 <motion.div
-                    key={post.id}
-                    variants={itemVariants}
-                    whileHover={{ y: -6, scale: 1.01 }}
+                    whileHover={
+                        activePostId === post.id
+                            ? undefined
+                            : { y: -6, scale: 1.01 }
+                    }
                     className="relative"
                 >
+
                     <div className="absolute right-3 top-3 z-10">
                         <StatusBadge status={post.status} />
                     </div>
@@ -232,10 +252,18 @@ function CurrentPost() {
                                     if (!post.client_id || post.client_id === "unknown") return;
                                     if (!clientMap[post.client_id]) return;
 
+                                    const rect = e.currentTarget.getBoundingClientRect();
+
+                                    setPopoverPos({
+                                        top: rect.bottom + 8,
+                                        left: rect.left,
+                                    });
+
                                     setActivePostId(
                                         activePostId === post.id ? null : post.id
                                     );
                                 }}
+
 
                             >
                                 <img
@@ -254,11 +282,24 @@ function CurrentPost() {
 
                             {/*  浮動小卡ㄎㄚ */}
                             {activePostId === post.id && (
+                                // <div
+                                //     className="fixed inset-0 z-40"
+                                //     onClick={(e) => {
+                                //         if (e.target === e.currentTarget) {
+                                //             setActivePostId(null);
+                                //         }
+                                //     }}
+                                // >
+
                                 <PassengerPopover
                                     passenger={clientMap[post.client_id]}
+                                    position={popoverPos}
                                     onClose={() => setActivePostId(null)}
                                 />
+
+                                // </div>
                             )}
+
 
                         </div>
                     )}
@@ -283,8 +324,9 @@ function CurrentPost() {
                         </div>
                     )}
                 </motion.div>
-            ))}
-        </motion.div>
+            ))
+            }
+        </motion.div >
     );
     function EmptyState({ text }) {
         return (

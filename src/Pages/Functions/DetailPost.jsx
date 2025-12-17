@@ -132,7 +132,8 @@ function DetailPost() {
                 if (!res.ok) throw new Error("取得使用者資料失敗");
                 const data = await res.json();
                 setDriver(data);
-                console.log(data);
+                // console.log(User_id);
+                // console.log("DriverDATA: " + data.Phone);
             } catch (err) {
                 console.error("❌ 載入車主資料失敗:", err);
             }
