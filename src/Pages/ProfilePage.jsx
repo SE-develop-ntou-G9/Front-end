@@ -10,11 +10,11 @@ function ProfilePage() {
     const [zoom, setZoom] = useState(1);
 
     useEffect(() => {
-        console.group("ProfilePage 載入");
-        console.log("isLoggedIn:", isLoggedIn);
-        console.log("user:", user);
-        console.log("driver:", driver);
-        console.log("userRole:", userRole);
+        // console.group("ProfilePage 載入");
+        // console.log("isLoggedIn:", isLoggedIn);
+        // console.log("user:", user);
+        // console.log("driver:", driver);
+        // console.log("userRole:", userRole);
         console.groupEnd();
     }, []);
 
