@@ -23,6 +23,7 @@ function CurrentPost() {
     const [loading, setLoading] = useState(true);
     const { sendNotification } = useUserNotify();
     const [activePassengerId, setActivePassengerId] = useState(null);
+    const [activePostId, setActivePostId] = useState(null);
 
 
     const listVariants = {
@@ -227,12 +228,15 @@ function CurrentPost() {
                                 className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setActivePassengerId(
-                                        activePassengerId === post.client_id
-                                            ? null
-                                            : post.client_id
+
+                                    if (!post.client_id || post.client_id === "unknown") return;
+                                    if (!clientMap[post.client_id]) return;
+
+                                    setActivePostId(
+                                        activePostId === post.id ? null : post.id
                                     );
                                 }}
+
                             >
                                 <img
                                     src={
@@ -249,12 +253,13 @@ function CurrentPost() {
                             </div>
 
                             {/*  浮動小卡ㄎㄚ */}
-                            {activePassengerId === post.client_id && (
+                            {activePostId === post.id && (
                                 <PassengerPopover
                                     passenger={clientMap[post.client_id]}
-                                    onClose={() => setActivePassengerId(null)}
+                                    onClose={() => setActivePostId(null)}
                                 />
                             )}
+
                         </div>
                     )}
 

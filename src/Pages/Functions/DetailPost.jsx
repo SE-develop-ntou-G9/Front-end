@@ -19,10 +19,9 @@ function DetailPost() {
 
     // 控制圖片放大
     const [isImageOpen, setIsImageOpen] = useState(false);
-
     const { state } = useLocation();
-    const postData = state?.post;
 
+    const postData = state?.post;
     if (!postData) return (
         <div className="flex justify-center items-center h-screen text-gray-500">
             <p>沒有收到貼文資料</p>
@@ -32,9 +31,99 @@ function DetailPost() {
     const tags = [];
     if (postData.helmet) tags.push("提供安全帽");
     if (postData.leave) tags.push("中途下車");
-
     const [driver, setDriver] = useState(null);
     const User_id = postData.driver_id;
+    const [client, setClient] = useState(null);
+
+
+    async function acceptPost() {
+        await fetch(
+            `https://ntouber-post.zeabur.app/api/posts/driver_posts/${postData.id}`,
+            {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "closed" })
+            }
+        );
+
+        if (postData.client_id && user?.ID) {
+            const message = `您的共乘請求 ${postData.starting_point.Name} > ${postData.destination.Name}
+已被車主 ${user.Name || "已匹配"} 接受！請去「我的貼文」查看 :)`;
+
+            await sendNotification({
+                receiverId: postData.client_id,
+                senderId: user.ID,
+                message,
+            });
+        }
+
+        alert("已接受共乘，貼文已關閉！");
+        navigate("/current-post");
+    }
+
+    async function rejectPost() {
+        await fetch(
+            `https://ntouber-post.zeabur.app/api/posts/driver_posts/${postData.id}`,
+            {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    client_id: "unknown",
+                    status: "open",
+                })
+            }
+        );
+
+        if (postData.client_id && user?.ID) {
+            const message = `很抱歉，您的共乘請求 ${postData.starting_point.Name} > ${postData.destination.Name}
+被車主 ${user.Name || "拒絕"} 拒絕了，貼文已重新開放。`;
+
+            await sendNotification({
+                receiverId: postData.client_id,
+                senderId: user.ID,
+                message,
+            });
+        }
+
+        alert("你已拒絕共乘，貼文已重新開放！");
+        navigate("/current-post");
+    }
+    useEffect(() => {
+        if (!postData.client_id || postData.client_id === "unknown") {
+            setClient(null);
+            return;
+        }
+
+        async function fetchClient() {
+            try {
+                const res = await fetch(
+                    `https://ntouber-user.zeabur.app/v1/users/${postData.client_id}`
+                );
+                if (!res.ok) throw new Error("取得乘客資料失敗");
+                const data = await res.json();
+                setClient(data);
+            } catch (err) {
+                console.error("❌ 載入乘客資料失敗:", err);
+            }
+        }
+
+        fetchClient();
+    }, [postData.client_id]);
+    const postStatusMap = {
+        open: {
+            text: "尚未匹配",
+            className: "text-gray-500",
+        },
+        matched: {
+            text: "等待車主確認",
+            className: "text-yellow-600",
+        },
+        closed: {
+            text: "已確認",
+            className: "text-green-600",
+        },
+    };
+
 
     useEffect(() => {
         async function fetchDriver() {
@@ -67,6 +156,8 @@ function DetailPost() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [showDriverCard]);
+
+
 
     const handleRequest = async () => {
         const postParams = new URLSearchParams({
@@ -275,6 +366,56 @@ function DetailPost() {
                             {postData.description || "暫無備註"}
                         </p>
                     </div>
+                    {/* 車主Use Only：乘客Info */}
+                    {userRole === "車主" && user?.ID === postData.driver_id && (
+                        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                            <h3 className="text-lg font-bold text-gray-800">乘客請求</h3>
+
+                            {!client && (
+                                <p className="text-sm text-gray-400">目前尚無乘客請求</p>
+                            )}
+
+                            {client && (
+                                <div className="flex items-center gap-4 border rounded-lg p-4">
+                                    <img
+                                        src={client?.AvatarURL || "https://placehold.co/80x80"}
+                                        className="w-12 h-12 rounded-full object-cover"
+                                    />
+                                    <div className="flex-1">
+                                        <p className="font-semibold">{client?.Name}</p>
+                                        <p className="text-sm text-gray-500">{"電話號碼 : " + client?.PhoneNumber}</p>
+                                        <p className="text-sm text-gray-500">{"Email : " + client?.Email}</p>
+                                        <p
+                                            className={`text-xs ${postStatusMap[postData.status]?.className || "text-gray-400"
+                                                }`}
+                                        >
+                                            狀態：{postStatusMap[postData.status]?.text || "未知狀態"}
+                                        </p>
+
+                                    </div>
+
+                                    {postData.status === "matched" && (
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={acceptPost}
+                                                className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+                                            >
+                                                ✔ 確認
+                                            </button>
+                                            <button
+                                                onClick={rejectPost}
+                                                className="px-3 py-1.5 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
+                                            >
+                                                ✖ 拒絕
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+
 
                     {/* 按鈕 */}
                     <div className="flex items-center justify-end gap-3 pt-4">
@@ -345,7 +486,6 @@ function DetailPost() {
         </div>
     );
 }
-
 // 輔助組件
 const InfoItem = ({ icon, label, value }) => (
     <div className="flex items-start gap-3">
