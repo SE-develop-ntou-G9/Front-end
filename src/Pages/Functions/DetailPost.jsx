@@ -265,56 +265,38 @@ function DetailPost() {
                         點擊放大
                     </div>
 
-                    {/* 司機資訊 
-                        修改點：
-                        1. 移除了 pointer-events-none
-                        2. 加入 cursor-default 避免顯示放大鏡
-                        3. 加入 onClick stopPropagation 阻止冒泡
-                    */}
                     <div
                         ref={driverCardRef}
-                        className="absolute bottom-4 left-4 flex items-center space-x-3 text-white z-10"
-                        onClick={(e) => e.stopPropagation()}  // 防止被外部點擊關閉
+                        className="absolute bottom-4 left-4 z-10 flex items-center gap-3 cursor-pointer"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowDriverCard(prev => !prev);
+                        }}
                     >
-                        <div
-                            className="absolute bottom-4 left-4 flex items-center space-x-3 text-white cursor-default z-10"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowDriverCard(prev => !prev);
-                            }}
-                        >
-                            <div className="h-12 w-12 rounded-full border-2 border-white overflow-hidden shadow-md">
-                                <img
-                                    src={driver?.AvatarURL || "https://placehold.co/80x80"}
-                                    alt="driver"
-                                    className="h-full w-full object-cover"
-                                />
-                            </div>
-                            {showDriverCard && (
-                                <DriverPopover
-                                    driver={driver}
-                                    onClose={() => setShowDriverCard(false)}
-                                />
-                            )}
-                            <div>
-                                <p className="text-sm font-medium opacity-80">駕駛</p>
-                                <p className="text-lg font-bold leading-none">{driver?.Name || "載入中..."}</p>
-                            </div>
+                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md bg-white">
+                            <img
+                                src={driver?.AvatarURL || "https://placehold.co/80x80"}
+                                alt="driver avatar"
+                                className="w-full h-full object-cover"
+                            />
                         </div>
 
-                        {/* Tags (保持不互動) */}
-                        <div className="absolute bottom-4 right-4 flex flex-wrap gap-2 justify-end pointer-events-none">
-                            {tags.map((tag) => (
-                                <span
-                                    key={tag}
-                                    className="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full text-xs font-medium shadow-sm"
-                                >
-                                    {tag}
-                                </span>
-                            ))}
+                        <div className="flex flex-col leading-tight text-white">
+                            <span className="text-xs opacity-80">駕駛</span>
+                            <span className="text-base font-semibold whitespace-nowrap">
+                                {driver?.Name || "載入中..."}
+                            </span>
                         </div>
+
+                        {showDriverCard && (
+                            <DriverPopover
+                                driver={driver}
+                                onClose={() => setShowDriverCard(false)}
+                            />
+                        )}
                     </div>
                 </div>
+
 
                 {/* 內容區塊 */}
                 <div className="p-6 md:p-8 space-y-8">

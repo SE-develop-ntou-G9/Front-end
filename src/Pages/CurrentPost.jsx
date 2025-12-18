@@ -74,8 +74,8 @@ function CurrentPost() {
     }
 
     async function fetchPosts() {
+        setLoading(true);
         try {
-            setLoading(true);
             const url = `https://ntouber-post.zeabur.app/api/posts/search/${user.ID}`;
             const res = await fetch(url);
 
@@ -86,11 +86,14 @@ function CurrentPost() {
             posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             setMyPosts(posts);
-            setLoading(false);
         } catch (err) {
             console.error("Posts fetch error:", err);
+            setMyPosts([]);
+        } finally {
+            setLoading(false);
         }
     }
+
     useEffect(() => {
         function handleClickOutside(e) {
             if (!activePostId) return;
@@ -394,7 +397,7 @@ function CurrentPost() {
                                 ))}
                             </div>
                         ) : driverPosts.length === 0 ? (
-                            <EmptyState text="目前沒有車主貼文喔!!!" />
+                            <EmptyState text="目    前沒有車主貼文喔!!!" />
                         ) : (
                             renderPosts(driverPosts)
                         )}
