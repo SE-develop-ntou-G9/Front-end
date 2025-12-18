@@ -397,7 +397,7 @@ function CurrentPost() {
                                 ))}
                             </div>
                         ) : driverPosts.length === 0 ? (
-                            <EmptyState text="目    前沒有車主貼文喔!!!" />
+                            <EmptyState text="目前沒有車主貼文喔!!!" />
                         ) : (
                             renderPosts(driverPosts)
                         )}
