@@ -149,9 +149,7 @@ export default function AdminDrivers() {
 
                                 <div className="flex space-x-2">
                                     <button
-                                        onClick={() =>
-                                            handleBlacklist(d)
-                                        }
+                                        onClick={() => handleBlacklist(d)}
                                         className="
                                         px-3 py-1 
                                         bg-yellow-500 hover:bg-yellow-600 
