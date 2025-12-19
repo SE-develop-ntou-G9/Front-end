@@ -5,6 +5,7 @@ import { HiMenu } from "react-icons/hi";
 import { IoNotificationsOutline, IoCloseCircle } from "react-icons/io5";
 import { useUser } from "./contexts/UserContext.jsx";
 import { fetchUserById } from "./Pages/hooks/useUserFetcher.jsx";
+import { useUserNotify } from "./Pages/hooks/useUserNotify.jsx";
 
 const BASE_URL = "https://ntouber-user.zeabur.app/v1";
 
@@ -12,6 +13,7 @@ function Header() {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, isLoggedIn, userRole, isAdmin } = useUser();
+    const { readed } = useUserNotify();
     const isAdminPage =
         location.pathname.startsWith("/admin") ||
         location.pathname.startsWith("/AdminDetailPost");
@@ -23,6 +25,28 @@ function Header() {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false); // 控制通知選單顯示
     const notificationRef = useRef(null); // 用於判斷點擊是否在通知選單外部
     const [senderUsers, setSenderUsers] = useState({});
+
+    useEffect(() => {
+        const markAllAsRead = async () => {
+            // 找出所有狀態為 unread 的通知
+            const unreadNotifications = notifications.filter(n => n.Status === "unread");
+            
+            if (unreadNotifications.length > 0) {
+                // 批次對後端發送 PATCH 請求
+                const promises = unreadNotifications.map(n => readed(n.ID));
+                await Promise.all(promises);
+
+                // 4. 同步更新本地狀態，讓 UI 的「未讀紅點」或樣式立即消失
+                setNotifications(prev => 
+                    prev.map(n => n.Status === "unread" ? { ...n, Status: "read" } : n)
+                );
+            }
+        };
+
+        if (isNotificationOpen) {
+            markAllAsRead();
+        }
+    }, [isNotificationOpen]); // 只有在選單開關切換時觸發
 
     const fetchNotifications = async (userId) => {
         // console.log("嘗試獲取通知，userId:", userId);
@@ -48,7 +72,7 @@ function Header() {
             // console.log("data:", data);
             if (data != null) {
                 const fetchedNotifications = data.notifications || data || [];
-                setNotifications(fetchedNotifications);
+                setNotifications(fetchedNotifications.reverse());
 
                 const senderIds = [
                     ...new Set(fetchedNotifications.map((n) => n.SenderID)),
@@ -280,7 +304,7 @@ function Header() {
                                                                     )}
                                                                 </div>
 
-                                                                <p className="text-sm flex-1 mr-2 leading-relaxed">
+                                                                <p className="text-sm flex-1 mr-2 leading-relaxed whitespace-pre-line">
                                                                     <span className="font-semibold block">
                                                                         {/* 顯示發送者名稱 */}
                                                                         {
