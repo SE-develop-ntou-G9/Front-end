@@ -16,9 +16,9 @@ export default function useAdminDriverActions(setDrivers, navigate) {
     const { updateDriver } = useUser();
     const getAvatarURL = {}
     const handleDriverDelete = async (driver) => {
-        // ... (刪除邏輯與錯誤處理保持不變)
         const userId = driver.userID;
         const userName = driver.name || "未知駕駛";
+        console.log(driver);
         if (!window.confirm(`確定要刪除駕駛: ${userName} 嗎？此操作不可逆！`)) {
             return;
         }
@@ -26,7 +26,6 @@ export default function useAdminDriverActions(setDrivers, navigate) {
         try {
             console.log(`開始併行刪除駕駛 ${userName} 及其相關資料...`);
 
-            // 這裡不再需要刪除 userAPI 的資料，只刪除駕駛和貼文相關資料
             const requests = [
                 fetch(`${driverAPI}/delete/${userId}`, { method: "DELETE" }),
                 fetch(`${postAPI}/${userId}`, { method: "DELETE" }),
@@ -84,7 +83,6 @@ export default function useAdminDriverActions(setDrivers, navigate) {
                 throw new Error(`至少有一個關鍵刪除操作失敗:\n${errorMessage}`);
             }
 
-            // 只使用 setDrivers 更新列表 (這裡的 setDrivers 肯定有值)
             if (setDrivers) { 
                 setDrivers((prevDrivers) =>
                     prevDrivers.filter((d) => d.userID !== userId)
@@ -146,9 +144,8 @@ export default function useAdminDriverActions(setDrivers, navigate) {
         }
     }, [setDrivers, navigate]);
 
-    const handleBlacklist = useCallback((userId) => {
-        alert(`黑名單功能：用戶 ${userId}`);
-        console.log("還沒做")
+    const handleBlacklist = useCallback((driver) => {
+        handleDriverDelete(driver);
     }, []);
 
     return { handleDriverDelete, handleBlacklist, handleVerify };

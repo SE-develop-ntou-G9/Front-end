@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAdminDriverActions from "../hooks/useAdminDriverActions"; 
-import useAdminUserActions from "../hooks/useAdminUserActions"; 
 import { fetchUserById } from "../hooks/useUserFetcher.jsx";
 
 const Avatar = ({ user }) => (
@@ -46,8 +45,8 @@ export default function AdminDetailDriver() {
         );
     }
 
-    const { handleDelete } = useAdminDriverActions(null, navigate);
-    const { handleBlacklist } = useAdminUserActions(null, navigate);
+    const { handleDriverDelete, handleBlacklist } = useAdminDriverActions(null, navigate);
+    
 
     return (
         <div className="min-h-screen bg-gray-50 p-4">
@@ -102,7 +101,7 @@ export default function AdminDetailDriver() {
                 {/* 管理操作按鈕 */}
                 <div className="mt-6 flex space-x-3">
                     <button
-                        onClick={() => handleBlacklist(driverData.userID)} 
+                        onClick={() => handleBlacklist(driverData)} 
                         className="
                             flex-1 
                             px-3 py-2 
@@ -115,7 +114,7 @@ export default function AdminDetailDriver() {
                         加入黑名單
                     </button>
                     <button
-                        onClick={() => handleDelete(driverData.userID)}
+                        onClick={() => handleDriverDelete(driverData)}
                         className="
                             flex-1 
                             px-3 py-2 

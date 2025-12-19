@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiArrowRight } from "react-icons/hi";
+import DriverClass from "../../models/DriverClass";
 import { useLocation } from "react-router-dom";
-import PostClass from "../../models/PostClass.jsx";
 import dayjs from "dayjs";
+import useAdminDriverActions from "../hooks/useAdminDriverActions"; 
 import { useUser } from "../../contexts/UserContext.jsx";
 
 function AdminDetailPost() {
@@ -13,7 +14,7 @@ function AdminDetailPost() {
         //     console.group("ProfilePage 載入");
         //     console.log("isLoggedIn:", isLoggedIn);
         //     console.log("user:", user);
-        //     console.log("driver:", driver);
+        
         //     console.log("userRole:", userRole);
         //     console.groupEnd();
         // }, []);
@@ -27,11 +28,47 @@ function AdminDetailPost() {
         if (postData.helmet) tags.push("自備安全帽");
         if (postData.leave) tags.push("中途下車");
         // console.log("postData.id", postData.id);
-        
+
+        const [User, setUser] = useState(null);
         const [driver, setDriver] = useState(null);
+         
         const User_id = postData.driver_id;
+        const { handleDriverDelete, handleBlacklist } = useAdminDriverActions(null, navigate);
+
         useEffect(() => {
             async function fetchDriver() {
+                try {
+                    const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${User_id}`);
+    
+                    if (!res.ok) throw new Error("取得使用者資料失敗");
+    
+                    const data = await res.json();
+                    console.log(data);
+           
+                    const driverInstance = new DriverClass({
+                        userID: data.user_id,          // 後端 user_id -> 前端 userID
+                        name: data.driver_name,        // 後端 driver_name -> 前端 name
+                        contactInfo: data.contact_info,
+                        scooterType: data.scooter_type,
+                        plateNum: data.plate_num,
+                        driverLicense: data.driver_license,
+                        status: data.status
+                    });
+                    setDriver(driverInstance);
+    
+                    console.log(driverInstance);
+    
+                } catch (err) {
+                    console.error("❌ 載入車主資料失敗:", err);
+                }
+            }
+    
+            // console.log(postData.image_url);
+            fetchDriver();
+        }, [User_id]);
+
+        useEffect(() => {
+            async function fetchUser() {
                 try {
                     const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${User_id}`);
     
@@ -40,55 +77,18 @@ function AdminDetailPost() {
                     const data = await res.json();
     
     
-                    setDriver(data);
+                    setUser(data);
     
-                    console.log(data);
+                    // console.log(data);
     
                 } catch (err) {
                     console.error("❌ 載入車主資料失敗:", err);
                 }
             }
     
-            console.log(postData.image_url);
-            fetchDriver();
+            // console.log(postData.image_url);
+            fetchUser();
         }, [User_id]);
-    
-        const handleRequest = async () => {
-            if (!isLoggedIn || !user) {
-                alert("請先登入再發送請求");
-                return;
-            }
-    
-            const params = new URLSearchParams({
-    
-                post_id: postData.id,
-                client_id: user.ID,
-    
-            });
-    
-            const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
-            console.log("發送請求 URL:", url);
-    
-            try {
-                console.log(postData.timestamp);
-                const res = await fetch(url, {
-                    method: "PATCH",
-                });
-    
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) {
-                    console.error("發送請求失敗：", data);
-                    throw new Error(data.message || `API 錯誤 (${res.status})`);
-    
-                }
-    
-                console.log("發送請求成功：", data);
-                alert("已發送請求給車主！");
-            } catch (err) {
-                console.error("發送請求發生錯誤：", err);
-                alert(`發送請求失敗：${err.message}`);
-            }
-        };
     
     const handleDelete = async () => {
 
@@ -176,7 +176,7 @@ function AdminDetailPost() {
       
                       <div className="space-y-3 text-xs">
       
-                          手機: {driver?.PhoneNumber}
+                          手機: {User?.PhoneNumber}
                       </div>
       
                       <div className="space-y-3 text-xs">
@@ -210,12 +210,12 @@ function AdminDetailPost() {
                       <div className="flex items-center h-5">
                           <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
                               <img
-                                  src={driver?.AvatarURL || "https://placehold.co/80x80"}
+                                  src={User?.AvatarURL || "https://placehold.co/80x80"}
                                   alt="driver"
                                   className="h-full w-full object-cover"
                               />
                           </div>
-                          <p className="text-xs">{driver?.Name || "載入中…"}</p>
+                          <p className="text-xs">{User?.Name || "載入中…"}</p>
                       </div>
                       
                 
@@ -223,6 +223,7 @@ function AdminDetailPost() {
 
                     {/* 封鎖駕駛 */}
                     <button
+                        onClick={() => driver && handleBlacklist(driver)}
                         className="
                             flex-1 
                             bg-black 
