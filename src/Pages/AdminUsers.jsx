@@ -6,8 +6,6 @@ import useAdminUserActions from "../Pages/hooks/useAdminUserActions";
 
 const uAPI = "https://ntouber-user.zeabur.app/v1/users";
 
-// del user post 待實作
-
 export default function AdminUsers() {
     const navigate = useNavigate();
     const [users, setUser] = useState([]);
