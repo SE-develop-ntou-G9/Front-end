@@ -52,7 +52,36 @@ export function useUserNotify() {
             return false;
         }
     };
+    
+    /**
+     * 將指定通知標記為已讀
+     * @param {string} id - 通知 ID
+     */
+    const readed = async (id) => {
+        if (!id) return false;
 
-    // 這裡回傳一個物件，包含我們可以從 Hook 外部呼叫的函式
-    return { sendNotification };
+        try {
+            const url = `${BASE_URL}/notifications/${id}`;
+            const response = await fetch(url, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    Status: "read" // 將狀態更新為 read
+                }),
+            });
+
+            if (!response.ok) {
+                console.error(`更新通知 ${id} 狀態失敗`);
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error("更新通知已讀時發生網路錯誤:", error);
+            return false;
+        }
+    };
+
+    return { sendNotification, readed };
 }
