@@ -32,8 +32,8 @@ function DriverPopover({ driver, onClose }) {
                 <div className="mt-3 space-y-1 text-sm text-gray-700">
                     <p>📧 {driver.Email || "未提供 Email"}</p>
                     <p>📞 {driver.PhoneNumber || "未提供電話"}</p>
-                    <p>🏍️ 車型：{driver.vehicle_info || "未提供"}</p>
-                    <p>🔢 車牌：{driver.plate_num || "未提供"}</p>
+                    {/* <p>🏍️ 車型：{driver.scooter_type || "未提供車型"}</p>
+                    <p>🔢 車牌：{driver.plate_num || "未提供車牌"}</p> */}
                 </div>
 
                 <button

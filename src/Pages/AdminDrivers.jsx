@@ -3,6 +3,7 @@ import DriverClass from "../models/DriverClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions";
+
 import { fetchUserById } from "./hooks/useUserFetcher.jsx";
 
 const API = "https://ntouber-user.zeabur.app/v1/drivers";
@@ -148,9 +149,7 @@ export default function AdminDrivers() {
 
                                 <div className="flex space-x-2">
                                     <button
-                                        onClick={() =>
-                                            handleBlacklist(d.userID)
-                                        }
+                                        onClick={() => handleBlacklist(d)}
                                         className="
                                         px-3 py-1 
                                         bg-yellow-500 hover:bg-yellow-600 

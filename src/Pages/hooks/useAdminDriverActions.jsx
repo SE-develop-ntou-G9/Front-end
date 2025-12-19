@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext.jsx";
 const driverAPI = "https://ntouber-user.zeabur.app/v1/drivers";
 const postAPI = "https://ntouber-post.zeabur.app/api/posts/delete/driver";
@@ -12,13 +12,12 @@ const adminBlackAPI = "https://ntouber-admin.zeabur.app/admin/blacklist"; // 如
  * @returns {object} 包含 handleDriverDelete 和 handleBlacklist 函數的物件。
  */
 export default function useAdminDriverActions(setDrivers, navigate) {
-    
     const { updateDriver } = useUser();
-    const getAvatarURL = {}
+    const getAvatarURL = {};
     const handleDriverDelete = async (driver) => {
-        // ... (刪除邏輯與錯誤處理保持不變)
         const userId = driver.userID;
         const userName = driver.name || "未知駕駛";
+        console.log(driver);
         if (!window.confirm(`確定要刪除駕駛: ${userName} 嗎？此操作不可逆！`)) {
             return;
         }
@@ -26,7 +25,6 @@ export default function useAdminDriverActions(setDrivers, navigate) {
         try {
             console.log(`開始併行刪除駕駛 ${userName} 及其相關資料...`);
 
-            // 這裡不再需要刪除 userAPI 的資料，只刪除駕駛和貼文相關資料
             const requests = [
                 fetch(`${driverAPI}/delete/${userId}`, { method: "DELETE" }),
                 fetch(`${postAPI}/${userId}`, { method: "DELETE" }),
@@ -38,10 +36,7 @@ export default function useAdminDriverActions(setDrivers, navigate) {
             const failedRequests = [];
 
             results.forEach((result, index) => {
-                const endpoint = [
-                    "駕駛資料刪除",
-                    "貼文資料刪除",
-                ][index];
+                const endpoint = ["駕駛資料刪除", "貼文資料刪除"][index];
 
                 if (result.status === "fulfilled") {
                     const response = result.value;
@@ -50,8 +45,7 @@ export default function useAdminDriverActions(setDrivers, navigate) {
                         console.log(
                             `✅ [${endpoint}] 成功 (Status: ${response.status})`
                         );
-                    }
-                    else if (response.status === 404) {
+                    } else if (response.status === 404) {
                         console.warn(
                             `⚠️ [${endpoint}] 警告：收到 404，視為目標已不存在，操作成功。`
                         );
@@ -84,8 +78,7 @@ export default function useAdminDriverActions(setDrivers, navigate) {
                 throw new Error(`至少有一個關鍵刪除操作失敗:\n${errorMessage}`);
             }
 
-            // 只使用 setDrivers 更新列表 (這裡的 setDrivers 肯定有值)
-            if (setDrivers) { 
+            if (setDrivers) {
                 setDrivers((prevDrivers) =>
                     prevDrivers.filter((d) => d.userID !== userId)
                 );
@@ -102,53 +95,62 @@ export default function useAdminDriverActions(setDrivers, navigate) {
             alert(`刪除失敗：${err.message}`);
         }
     };
-    
+
     /**
      * 處理車主/待審核車主的審核操作 (通過或拒絕)
      */
-    const handleVerify = useCallback(async (driverData, newStatus) => {
-        const action = newStatus ;
-        if (!window.confirm(`確定要對用戶: ${driverData.name} 執行 ${action} 操作嗎？`)) {
-            return;
-        }
+    const handleVerify = useCallback(
+        async (driverData, newStatus) => {
+            const action = newStatus;
+            if (
+                !window.confirm(
+                    `確定要對用戶: ${driverData.name} 執行 ${action} 操作嗎？`
+                )
+            ) {
+                return;
+            }
 
-        try {
-            let successDriver = true;
-            const driverUpdateData = {
+            try {
+                let successDriver = true;
+                const driverUpdateData = {
                     user_id: driverData.userID,
                     driver_name: driverData.name,
                     contact_info: driverData.contactInfo,
-                    scooter_type: driverData.scooterType ,
+                    scooter_type: driverData.scooterType,
                     plate_num: driverData.plateNum.toUpperCase(),
-                    driver_license: driverData.driverLicense, 
-                    status: newStatus
+                    driver_license: driverData.driverLicense,
+                    status: newStatus,
+                };
+                successDriver = await updateDriver(driverUpdateData);
+                if (!successDriver) {
+                    // const errorData = await res.json();
+                    // throw new Error(`${action}失敗 (${res.status}): ${errorData.error || '未知錯誤'}`);
+                    alert("更新失敗");
+                }
+
+                // 成功後，從列表中移除 (因為狀態變了)
+                if (setDrivers) {
+                    setDrivers((prevDrivers) =>
+                        prevDrivers.filter((d) => d.userID !== userId)
+                    );
+                }
+                console.log(
+                    `用戶 ${driverData.userID} 狀態更新為 ${newStatus}`
+                );
+                alert(`${action}成功！`);
+
+                // 審核成功或失敗後，導回列表
+                if (navigate) navigate(-1);
+            } catch (err) {
+                console.error(`${action}失敗：`, err);
+                alert(`${action}失敗：${err.message}`);
             }
-            successDriver = await updateDriver(driverUpdateData);
-            if (!successDriver) {
-                // const errorData = await res.json();
-                // throw new Error(`${action}失敗 (${res.status}): ${errorData.error || '未知錯誤'}`);
-                alert("更新失敗");
-            }
+        },
+        [setDrivers, navigate]
+    );
 
-            // 成功後，從列表中移除 (因為狀態變了)
-            if (setDrivers) {
-                setDrivers(prevDrivers => prevDrivers.filter(d => d.userID !== userId));
-            }
-            console.log(`用戶 ${driverData.userID} 狀態更新為 ${newStatus}`);
-            alert(`${action}成功！`);
-
-            // 審核成功或失敗後，導回列表
-            if (navigate) navigate(-1);
-
-        } catch (err) {
-            console.error(`${action}失敗：`, err);
-            alert(`${action}失敗：${err.message}`);
-        }
-    }, [setDrivers, navigate]);
-
-    const handleBlacklist = useCallback((userId) => {
-        alert(`黑名單功能：用戶 ${userId}`);
-        console.log("還沒做")
+    const handleBlacklist = useCallback((driver) => {
+        handleDriverDelete(driver);
     }, []);
 
     return { handleDriverDelete, handleBlacklist, handleVerify };
