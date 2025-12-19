@@ -48,7 +48,7 @@ function Header() {
             // console.log("data:", data);
             if (data != null) {
                 const fetchedNotifications = data.notifications || data || [];
-                setNotifications(fetchedNotifications);
+                setNotifications(fetchedNotifications.reverse());
 
                 const senderIds = [
                     ...new Set(fetchedNotifications.map((n) => n.SenderID)),
@@ -280,7 +280,7 @@ function Header() {
                                                                     )}
                                                                 </div>
 
-                                                                <p className="text-sm flex-1 mr-2 leading-relaxed">
+                                                                <p className="text-sm flex-1 mr-2 leading-relaxed whitespace-pre-line">
                                                                     <span className="font-semibold block">
                                                                         {/* 顯示發送者名稱 */}
                                                                         {
