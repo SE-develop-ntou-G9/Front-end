@@ -48,7 +48,8 @@ function DetailPost() {
 
         if (postData.client_id && user?.ID) {
             const message = `您的共乘請求 ${postData.starting_point.Name} > ${postData.destination.Name}
-已被車主 ${user.Name || "已匹配"} 接受！請去「我的貼文」查看 :)`;
+            已被車主 ${user.Name || "已匹配"} 接受！
+            請去「我的貼文」查看 :)`;
 
             await sendNotification({
                 receiverId: postData.client_id,
@@ -76,7 +77,8 @@ function DetailPost() {
 
         if (postData.client_id && user?.ID) {
             const message = `很抱歉，您的共乘請求 ${postData.starting_point.Name} > ${postData.destination.Name}
-被車主 ${user.Name || "拒絕"} 拒絕了，貼文已重新開放。`;
+            被車主 ${user.Name || "拒絕"} 拒絕了。
+            貼文已重新開放。`;
 
             await sendNotification({
                 receiverId: postData.client_id,
@@ -210,7 +212,9 @@ function DetailPost() {
 
             console.log("發送請求成功：", data);
             const senderName = user?.Name || "某位用戶";
-            const message = `${senderName} 向您的行程 ${newPostData.starting_point.Name} > ${newPostData.destination.Name} 發送了共乘請求。請去"我的貼文"查看:)`;
+            const message = `${senderName} 向您的行程:
+            ${newPostData.starting_point.Name} > ${newPostData.destination.Name} 發送了共乘請求。
+            請去"我的貼文"查看 :)`;
             //  console.log("driver_id",newPostData.driver_id);
             //  console.log("user?.ID",user?.ID);
 

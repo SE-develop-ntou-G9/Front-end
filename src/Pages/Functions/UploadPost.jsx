@@ -3,7 +3,7 @@ import { useUser } from "../../contexts/UserContext.jsx";
 import PostClass from "../../models/PostClass";
 import cityDistrictMap from "../../models/Cities";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion"; // 引入動畫庫以符合 EditPostPage 風格
+import { motion } from "framer-motion";
 
 // 統一的輸入框樣式
 const inputClass =
@@ -38,7 +38,7 @@ function UploadPost() {
     const navigate = useNavigate();
     const { user, driver } = useUser();
     
-    // 圖片狀態 (新增 previewUrl 以符合美化需求)
+    // 圖片狀態
     const [imageFile, setImageFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState("");
 
@@ -86,13 +86,18 @@ function UploadPost() {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+
+        // --- 限制 notes (貼文簡述) 字數 < 20 ---
+        if (name === "notes" && value.length > 20) {
+            return;
+        }
+
         setPost({
             ...post,
             [name]: type === "checkbox" ? checked : value,
         });
     };
 
-    // 新增圖片處理函數 (含預覽)
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -124,7 +129,7 @@ function UploadPost() {
                 throw new Error(data.message || `API 錯誤（${r.status})`);
             }
             
-            const postId = data; // 假設回傳直接是 ID 字串，依原邏輯保留
+            const postId = data; 
 
             if (imageFile && postId) {
                 const formData = new FormData();
@@ -139,7 +144,6 @@ function UploadPost() {
                 if (!imgRes.ok) {
                     const imgData = await imgRes.json().catch(() => ({}));
                     console.error("圖片上傳失敗：", imgData);
-                    // 不拋出錯誤，讓貼文發布算成功，僅圖片失敗
                 }
             }
 
@@ -195,7 +199,7 @@ function UploadPost() {
                             )}
 
                             <label className="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-3 py-2 rounded-lg cursor-pointer hover:bg-black transition">
-                                {previewUrl ? "更換圖片" : "選擇圖片"}
+                                {previewUrl ? "更換圖片(上限5MB)" : "選擇圖片(上限5MB)"}
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -206,59 +210,192 @@ function UploadPost() {
                         </div>
                     </div>
 
-                    {/* ===== 出發地名稱 ===== */}
+                    {/* ===== 出發地名稱 (限 10 字) ===== */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            出發地名稱
-                        </label>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="block text-sm font-semibold text-gray-700">
+                                出發地名稱
+                            </label>
+                            <span className={`text-xs ${post.starting_point.Name.length === 10 ? 'text-red-500' : 'text-gray-400'}`}>
+                                {post.starting_point.Name.length}/10
+                            </span>
+                        </div>
                         <input
                             type="text"
                             value={post.starting_point.Name}
-                            onChange={(e) => updateNestedField("starting_point", "Name", e.target.value)}
+                            onChange={(e) => {
+                                if (e.target.value.length <= 10) {
+                                    updateNestedField("starting_point", "Name", e.target.value);
+                                }
+                            }}
                             className={inputClass}
                             placeholder="例如：海大校門口"
                             required
                         />
                     </div>
 
-                    {/* ===== 出發地址 (使用美化後的元件) ===== */}
-                    <AddressEditor
-                        label="出發地址"
-                        address={startAddress}
-                        setAddress={setStartAddress}
-                    />
-
-                    {/* ===== 目的地名稱 ===== */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            目的地名稱
+                    {/* ===== 出發地址 (路名與門牌 限 20 字) ===== */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                            出發地址
                         </label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                            <select
+                                className={inputClass}
+                                value={startAddress.city}
+                                onChange={(e) =>
+                                    setStartAddress({
+                                        city: e.target.value,
+                                        district: "",
+                                        street: startAddress.street,
+                                    })
+                                }
+                            >
+                                <option value="">選擇縣市</option>
+                                {Object.keys(cityDistrictMap).map((city) => (
+                                    <option key={city} value={city}>{city}</option>
+                                ))}
+                            </select>
+
+                            <select
+                                className={inputClass}
+                                value={startAddress.district}
+                                onChange={(e) =>
+                                    setStartAddress({ ...startAddress, district: e.target.value })
+                                }
+                                disabled={!startAddress.city}
+                            >
+                                <option value="">選擇鄉鎮市區</option>
+                                {(cityDistrictMap[startAddress.city] || []).map((d) => (
+                                    <option key={d} value={d}>{d}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* 路名與門牌輸入框 (含字數統計) */}
+                        <div>
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs text-gray-500 font-medium ml-1">詳細地址 (路名/門牌)</span>
+                                <span className={`text-xs ${startAddress.street.length === 20 ? 'text-red-500' : 'text-gray-400'}`}>
+                                    {startAddress.street.length}/20
+                                </span>
+                            </div>
+                            <input
+                                className={inputClass}
+                                placeholder="例如：北寧路2號"
+                                value={startAddress.street}
+                                onChange={(e) => {
+                                    if (e.target.value.length <= 20) {
+                                        setStartAddress({ ...startAddress, street: e.target.value })
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* ===== 目的地名稱 (限 10 字) ===== */}
+                    <div>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="block text-sm font-semibold text-gray-700">
+                                目的地名稱
+                            </label>
+                            <span className={`text-xs ${post.destination.Name.length === 10 ? 'text-red-500' : 'text-gray-400'}`}>
+                                {post.destination.Name.length}/10
+                            </span>
+                        </div>
                         <input
                             type="text"
                             value={post.destination.Name}
-                            onChange={(e) => updateNestedField("destination", "Name", e.target.value)}
+                            onChange={(e) => {
+                                if (e.target.value.length <= 10) {
+                                    updateNestedField("destination", "Name", e.target.value);
+                                }
+                            }}
                             className={inputClass}
                             placeholder="例如：台北車站"
                             required
                         />
                     </div>
 
-                    {/* ===== 目的地地址 (使用美化後的元件) ===== */}
-                    <AddressEditor
-                        label="目的地地址"
-                        address={destAddress}
-                        setAddress={setDestAddress}
-                    />
-
-                    {/* ===== 集合地點 ===== */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            集合地點
+                    {/* ===== 目的地地址 (路名與門牌 限 20 字) ===== */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                            目的地地址
                         </label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                            <select
+                                className={inputClass}
+                                value={destAddress.city}
+                                onChange={(e) =>
+                                    setDestAddress({
+                                        city: e.target.value,
+                                        district: "",
+                                        street: destAddress.street,
+                                    })
+                                }
+                            >
+                                <option value="">選擇縣市</option>
+                                {Object.keys(cityDistrictMap).map((city) => (
+                                    <option key={city} value={city}>{city}</option>
+                                ))}
+                            </select>
+
+                            <select
+                                className={inputClass}
+                                value={destAddress.district}
+                                onChange={(e) =>
+                                    setDestAddress({ ...destAddress, district: e.target.value })
+                                }
+                                disabled={!destAddress.city}
+                            >
+                                <option value="">選擇鄉鎮市區</option>
+                                {(cityDistrictMap[destAddress.city] || []).map((d) => (
+                                    <option key={d} value={d}>{d}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* 路名與門牌輸入框 (含字數統計) */}
+                        <div>
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs text-gray-500 font-medium ml-1">詳細地址 (路名/門牌)</span>
+                                <span className={`text-xs ${destAddress.street.length === 20 ? 'text-red-500' : 'text-gray-400'}`}>
+                                    {destAddress.street.length}/20
+                                </span>
+                            </div>
+                            <input
+                                className={inputClass}
+                                placeholder="例如：北平西路3號"
+                                value={destAddress.street}
+                                onChange={(e) => {
+                                    if (e.target.value.length <= 20) {
+                                        setDestAddress({ ...destAddress, street: e.target.value })
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* ===== 集合地點 (限 10 字) ===== */}
+                    <div>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="block text-sm font-semibold text-gray-700">
+                                集合地點
+                            </label>
+                            <span className={`text-xs ${post.meet_point.Name.length === 10 ? 'text-red-500' : 'text-gray-400'}`}>
+                                {post.meet_point.Name.length}/10
+                            </span>
+                        </div>
                         <input
                             type="text"
                             value={post.meet_point.Name}
-                            onChange={(e) => updateNestedField("meet_point", "Name", e.target.value)}
+                            onChange={(e) => {
+                                if (e.target.value.length <= 10) {
+                                    updateNestedField("meet_point", "Name", e.target.value);
+                                }
+                            }}
                             className={inputClass}
                             placeholder="例如：7-11 門口"
                             required
@@ -280,21 +417,26 @@ function UploadPost() {
                         />
                     </div>
 
-                    {/* ===== 貼文簡述 ===== */}
+                    {/* ===== 貼文簡述 (限 20 字) ===== */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            貼文簡述
-                        </label>
+                        <div className="flex justify-between items-center mb-1">
+                            <label className="block text-sm font-semibold text-gray-700">
+                                貼文簡述
+                            </label>
+                            <span className={`text-xs ${post.notes.length === 20 ? 'text-red-500' : 'text-gray-400'}`}>
+                                {post.notes.length}/20
+                            </span>
+                        </div>
                         <textarea
                             name="notes"
                             value={post.notes}
                             onChange={handleChange}
-                            className={`${inputClass} min-h-[70px]`}
-                            placeholder="簡短說明這趟共乘"
+                            className={`${inputClass} min-h-[70px] resize-none`}
+                            placeholder="簡短說明這趟共乘 (限20字)"
                         />
                     </div>
 
-                    {/* ===== 備註 ===== */}
+                    {/* ===== 備註 (無限制) ===== */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
                             備註
@@ -304,11 +446,11 @@ function UploadPost() {
                             value={post.description}
                             onChange={handleChange}
                             className={`${inputClass} min-h-[90px]`}
-                            placeholder="可補充其他注意事項"
+                            placeholder="可補充其他注意事項 (不限字數)"
                         />
                     </div>
 
-                    {/* ===== 其他設定 (美化的 Checkbox) ===== */}
+                    {/* ===== 其他設定 ===== */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                             其他設定
@@ -361,59 +503,6 @@ function UploadPost() {
                 </form>
             </div>
         </motion.div>
-    );
-}
-
-// 抽離出的地址編輯器元件 (與 EditPostPage 風格一致)
-function AddressEditor({ label, address, setAddress }) {
-    return (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-                {label}
-            </label>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <select
-                    className={inputClass}
-                    value={address.city}
-                    onChange={(e) =>
-                        setAddress({
-                            city: e.target.value,
-                            district: "",
-                            street: address.street,
-                        })
-                    }
-                >
-                    <option value="">選擇縣市</option>
-                    {Object.keys(cityDistrictMap).map((city) => (
-                        <option key={city} value={city}>{city}</option>
-                    ))}
-                </select>
-
-                <select
-                    className={inputClass}
-                    value={address.district}
-                    onChange={(e) =>
-                        setAddress({ ...address, district: e.target.value })
-                    }
-                    disabled={!address.city}
-                >
-                    <option value="">選擇鄉鎮市區</option>
-                    {(cityDistrictMap[address.city] || []).map((d) => (
-                        <option key={d} value={d}>{d}</option>
-                    ))}
-                </select>
-            </div>
-
-            <input
-                className={`${inputClass} mt-3`}
-                placeholder="路名與門牌"
-                value={address.street}
-                onChange={(e) =>
-                    setAddress({ ...address, street: e.target.value })
-                }
-            />
-        </div>
     );
 }
 
