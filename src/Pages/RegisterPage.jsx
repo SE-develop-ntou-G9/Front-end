@@ -3,6 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext.jsx";
 import UserClass from "../models/UserClass";
 import { motion, AnimatePresence } from "framer-motion";
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
+
 function RegisterPage() {
     const navigate = useNavigate();
     const { user: loggedUser, refreshUserData, driver } = useUser();
@@ -33,8 +42,11 @@ function RegisterPage() {
         const formData = new FormData();
         formData.append("image", file);
 
-        const res = await fetch("https://ntouber-user.zeabur.app/v1/images/license", {
+        const res = await fetch("https://ntouber-gateway.zeabur.app/v1/images/license", {
             method: "POST",
+            headers: {
+                ...authHeader(),
+            },
             body: formData,
         });
 
@@ -79,18 +91,18 @@ function RegisterPage() {
         console.log("送到後端的資料：", payload);
 
         if (driver?.status === "rejected") {
-            endpoint = "https://ntouber-user.zeabur.app/v1/drivers/mod";
+            endpoint = "https://ntouber-gateway.zeabur.app/v1/drivers/mod";
             method = "PUT";
             payload.driver_id = driver.ID;  // 🔥 若後端需要 driver_id 記得加
         } else {
             // 新增申請
-            endpoint = "https://ntouber-user.zeabur.app/v1/users/driver";
+            endpoint = "https://ntouber-gateway.zeabur.app/v1/users/driver";
             method = "POST";
         }
         try {
             const res = await fetch(endpoint, {
                 method: method,
-                headers: { "Content-Type": "application/json" },
+                headers: { ...authHeader(), "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
 

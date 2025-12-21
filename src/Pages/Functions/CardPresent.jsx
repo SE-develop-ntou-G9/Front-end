@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import PostCard from "./PostCard";
 import PostClass from "../../models/PostClass";
 
-const API = "https://ntouber-post.zeabur.app/api/posts/all";
+const API = "https://ntouber-gateway.zeabur.app/api/posts/all";
 
-export default function CardPresent({post,isAdmin}) {
+export default function CardPresent({ post, isAdmin }) {
 
     return (
         <div className="grid grid-cols-2 gap-4">
@@ -15,7 +15,7 @@ export default function CardPresent({post,isAdmin}) {
                     <PostCard
                         key={p.id}
                         postData={p}
-                        isAdmin= {isAdmin}
+                        isAdmin={isAdmin}
                     />
                 ))
             )}

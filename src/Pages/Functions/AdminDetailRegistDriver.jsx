@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import useAdminDriverActions from "../hooks/useAdminDriverActions"; 
+import useAdminDriverActions from "../hooks/useAdminDriverActions";
 import { fetchUserById } from "../hooks/useUserFetcher.jsx";
 
 const Avatar = ({ user }) => (
@@ -22,8 +22,8 @@ const Avatar = ({ user }) => (
 export default function AdminDetailRegistDriver() {
     const navigate = useNavigate();
     const { state } = useLocation();
-    
-    const driverData = state?.driver; 
+
+    const driverData = state?.driver;
     const [driverUser, setDriverUser] = useState(null);
 
     useEffect(() => {
@@ -50,7 +50,7 @@ export default function AdminDetailRegistDriver() {
 
     return (
         <div className="min-h-screen bg-gray-50 p-4">
-            
+
             <button
                 className="text-sm text-gray-600 mt-3 mb-6"
                 onClick={() => navigate(-1)}
@@ -59,9 +59,9 @@ export default function AdminDetailRegistDriver() {
             </button>
 
             <h2 className="text-xl font-bold mb-4">待審核車主詳細資料 - {driverData.name}</h2>
-            
+
             <div className="bg-white p-6 rounded-lg shadow space-y-3">
-                
+
                 {/* 基本資訊顯示與 AdminDetailDriver 相似 */}
                 <div className="flex items-center space-x-4">
                     <div className="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center text-xs">
@@ -73,36 +73,36 @@ export default function AdminDetailRegistDriver() {
                     </div>
                 </div>
 
-                <hr className="my-3"/>
+                <hr className="my-3" />
 
                 {/* 駕駛資訊 */}
                 <p className="text-sm">
-                    <span className="font-semibold w-24 inline-block">聯絡資訊:</span> 
+                    <span className="font-semibold w-24 inline-block">聯絡資訊:</span>
                     {driverData.contactInfo || "未提供"}
                 </p>
                 <p className="text-sm">
-                    <span className="font-semibold w-24 inline-block">車型:</span> 
+                    <span className="font-semibold w-24 inline-block">車型:</span>
                     {driverData.scooterType || "未提供"}
                 </p>
                 <p className="text-sm">
-                    <span className="font-semibold w-24 inline-block">車牌號碼:</span> 
+                    <span className="font-semibold w-24 inline-block">車牌號碼:</span>
                     {driverData.plateNum || "未提供"}
                 </p>
                 <p className="text-sm">
-                    <span className="font-semibold w-24 inline-block">駕駛執照:</span> 
+                    <span className="font-semibold w-24 inline-block">駕駛執照:</span>
                     <a href={driverData.driverLicense} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                         查看圖片 (點擊)
                     </a>
                 </p>
                 <p className="text-sm">
-                    <span className="font-semibold w-24 inline-block">審核狀態:</span> 
+                    <span className="font-semibold w-24 inline-block">審核狀態:</span>
                     <span className="text-orange-500 font-bold">{driverData.status}</span>
                 </p>
 
                 {/*  審核操作按鈕 */}
                 <div className="mt-6 flex space-x-3">
                     <button
-                        onClick={() => handleVerify(driverData, 'verified')} 
+                        onClick={() => handleVerify(driverData, 'verified')}
                         className="
                             flex-1 
                             px-3 py-2 

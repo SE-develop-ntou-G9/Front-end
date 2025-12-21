@@ -7,13 +7,19 @@ import { useUser } from "../contexts/UserContext.jsx";
 // import { useNavigate } from "react-router-dom";
 import CardPresent from "./Functions/CardPresent";
 
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
 
-const API = "https://ntouber-post.zeabur.app/api/posts/allpost";
+const API = "https://ntouber-gateway.zeabur.app/api/posts/allpost";
 
 function AdminPage() {
     const [post, setPost] = useState([]);
     const [openCount, setOpenCount] = useState(null);
-	const [matchedCount, setMatchedCount] = useState(null);
+    const [matchedCount, setMatchedCount] = useState(null);
     const navigate = useNavigate();
     const { userRole, isAdmin } = useUser();
     // console.log("Admin:", isAdmin);
@@ -21,18 +27,30 @@ function AdminPage() {
     useEffect(() => {
         async function fetchPosts() {
             try {
-                const r = await fetch(API, { method: "GET" });
+                const r = await fetch(API, {
+                    headers: {
+                        ...authHeader(),
+                    }, method: "GET"
+                });
                 const [rOpen, rMatched] = await Promise.all([
-					fetch("https://ntouber-post.zeabur.app/api/posts/count/open", { method: "GET" }),
-					fetch("https://ntouber-post.zeabur.app/api/posts/count/matched", { method: "GET" }),
-				]);
+                    fetch("https://ntouber-gateway.zeabur.app/api/posts/count/open", {
+                        headers: {
+                            ...authHeader(),
+                        }, method: "GET"
+                    }),
+                    fetch("https://ntouber-gateway.zeabur.app/api/posts/count/matched", {
+                        headers: {
+                            ...authHeader(),
+                        }, method: "GET"
+                    }),
+                ]);
                 if (!r.ok) {
                     throw new Error(`API 錯誤 (${r.status})`);
                 }
-                if (!rOpen.ok){
-                     throw new Error(`開放數量 API 錯誤 (${rOpen.status})`);
+                if (!rOpen.ok) {
+                    throw new Error(`開放數量 API 錯誤 (${rOpen.status})`);
                 }
-				if (!rMatched.ok){ 
+                if (!rMatched.ok) {
                     throw new Error(`已匹配數量 API 錯誤 (${rMatched.status})`);
                 }
 
@@ -41,13 +59,13 @@ function AdminPage() {
                 setPost(mapped);
 
                 const openData = await rOpen.json();
-				const matchedData = await rMatched.json();
+                const matchedData = await rMatched.json();
 
-				const open = typeof openData === "number" ? openData : openData?.count;
-				const matched = typeof matchedData === "number" ? matchedData : matchedData?.count;
+                const open = typeof openData === "number" ? openData : openData?.count;
+                const matched = typeof matchedData === "number" ? matchedData : matchedData?.count;
 
-				setOpenCount(Number.isFinite(open) ? open : 0);
-				setMatchedCount(Number.isFinite(matched) ? matched : 0);
+                setOpenCount(Number.isFinite(open) ? open : 0);
+                setMatchedCount(Number.isFinite(matched) ? matched : 0);
             } catch (err) {
                 console.error("抓取貼文失敗：", err);
             }
@@ -165,9 +183,9 @@ function AdminPage() {
                         >
                             黑名單列表
                         </button>
-                        </div>
+                    </div>
 
-                        <div className="bg-white rounded-xl border shadow-sm p-4 mb-4">
+                    <div className="bg-white rounded-xl border shadow-sm p-4 mb-4">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-semibold text-gray-900">貼文統計</p>

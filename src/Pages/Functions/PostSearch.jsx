@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { HiSwitchVertical, HiSearch } from "react-icons/hi";
 import { FaMapMarkerAlt, FaRegCircle, FaRegCalendarAlt } from "react-icons/fa";
 
-const API_BASE = "https://ntouber-post.zeabur.app/api/posts";
+const API_BASE = "https://ntouber-gateway.zeabur.app/api/posts";
 
 const PostSearch = ({ onResult, resetTrigger, onSearchStart }) => {
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
     const [meetTime, setMeetTime] = useState("");
     const isSearchDisabled = !from.trim() && !to.trim() && !meetTime;
-    
+
 
     useEffect(() => {
         // 判斷 > 0 是為了避免網頁剛載入時就執行 (看需求，通常沒差)
@@ -28,7 +28,7 @@ const PostSearch = ({ onResult, resetTrigger, onSearchStart }) => {
 
     const handleSearch = async () => {
         if (onSearchStart) {
-            onSearchStart(); 
+            onSearchStart();
         }
         const params = new URLSearchParams();
 
@@ -43,7 +43,12 @@ const PostSearch = ({ onResult, resetTrigger, onSearchStart }) => {
         const url = `${API_BASE}/search?${params.toString()}`;
 
         try {
-            const r = await fetch(url);
+            const r = await fetch(url,
+                {
+                    headers: {
+                        ...authHeader(),
+                    },
+                });
             const data = await r.json();
             console.log("搜尋結果：", data);
 
@@ -121,10 +126,10 @@ const PostSearch = ({ onResult, resetTrigger, onSearchStart }) => {
                             onClick={handleSearch}
                             disabled={isSearchDisabled}
                             className={`p-3 rounded-full transition-all duration-300 shadow-md flex items-center justify-center
-                                ${isSearchDisabled 
+                                ${isSearchDisabled
                                     ? "bg-gray-100 text-gray-300 cursor-not-allowed"  // Disabled 樣式
                                     : "p-3 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 active:scale-95 transition shadow-md"
-                                    }
+                                }
                             `}
                             title="搜尋"
                         >

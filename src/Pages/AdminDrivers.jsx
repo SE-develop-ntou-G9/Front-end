@@ -3,10 +3,17 @@ import DriverClass from "../models/DriverClass";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions";
-
 import { fetchUserById } from "./hooks/useUserFetcher.jsx";
 
-const API = "https://ntouber-user.zeabur.app/v1/drivers";
+const API = "https://ntouber-gateway.zeabur.app/v1/drivers";
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 
 const Avatar = ({ user }) => (
     <div className="w-10 h-10 rounded-full flex-shrink-0">
@@ -34,7 +41,12 @@ export default function AdminDrivers() {
     useEffect(() => {
         async function fetchDrivers() {
             try {
-                const r = await fetch(`${API}/getAll`, { method: "GET" });
+                const r = await fetch(`${API}/getAll`, {
+                    headers: {
+                        ...authHeader(),
+                    },
+                    method: "GET"
+                });
                 if (!r.ok) {
                     throw new Error(`API 錯誤 (${r.status})`);
                 }
@@ -149,7 +161,9 @@ export default function AdminDrivers() {
 
                                 <div className="flex space-x-2">
                                     <button
-                                        onClick={() => handleBlacklist(d)}
+                                        onClick={() =>
+                                            handleBlacklist(d.userID)
+                                        }
                                         className="
                                         px-3 py-1 
                                         bg-yellow-500 hover:bg-yellow-600 

@@ -25,7 +25,12 @@ function PostCard({ postData, isAdmin }) {
     useEffect(() => {
         async function fetchDriver() {
             try {
-                const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${User_id}`);
+                const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/users/${User_id}`,
+                    {
+                        headers: {
+                            ...authHeader(),
+                        },
+                    });
 
                 if (!res.ok) throw new Error("取得使用者資料失敗");
 

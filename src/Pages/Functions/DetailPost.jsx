@@ -8,6 +8,13 @@ import { MdEdit, MdSend, MdTwoWheeler, MdClose } from "react-icons/md";
 import { useUserNotify } from "../hooks/useUserNotify.jsx";
 import DriverPopover from "../../components/DriverPopover.jsx";
 
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 function DetailPost() {
     const driverCardRef = useRef(null);
 
@@ -38,10 +45,10 @@ function DetailPost() {
 
     async function acceptPost() {
         await fetch(
-            `https://ntouber-post.zeabur.app/api/posts/driver_posts/${postData.id}`,
+            `https://ntouber-gateway.zeabur.app/api/posts/driver_posts/${postData.id}`,
             {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", ...authHeader(), },
                 body: JSON.stringify({ status: "closed" })
             }
         );
@@ -64,10 +71,10 @@ function DetailPost() {
 
     async function rejectPost() {
         await fetch(
-            `https://ntouber-post.zeabur.app/api/posts/driver_posts/${postData.id}`,
+            `https://ntouber-gateway.zeabur.app/api/posts/driver_posts/${postData.id}`,
             {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", ...authHeader() },
                 body: JSON.stringify({
                     client_id: "unknown",
                     status: "open",
@@ -99,7 +106,12 @@ function DetailPost() {
         async function fetchClient() {
             try {
                 const res = await fetch(
-                    `https://ntouber-user.zeabur.app/v1/users/${postData.client_id}`
+                    `https://ntouber-gateway.zeabur.app/v1/users/${postData.client_id}`,
+                    {
+                        headers: {
+                            ...authHeader(),
+                        },
+                    }
                 );
                 if (!res.ok) throw new Error("取得乘客資料失敗");
                 const data = await res.json();
@@ -130,7 +142,12 @@ function DetailPost() {
     useEffect(() => {
         async function fetchDriver() {
             try {
-                const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${User_id}`);
+                const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/users/${User_id}`,
+                    {
+                        headers: {
+                            ...authHeader(),
+                        },
+                    });
                 if (!res.ok) throw new Error("取得使用者資料失敗");
                 const data = await res.json();
                 setDriver(data);
@@ -166,7 +183,7 @@ function DetailPost() {
         const postParams = new URLSearchParams({
             post_id: postData.id,
         });
-        const postUrl = `https://ntouber-post.zeabur.app/api/posts/getpost/${postData.id}`;
+        const postUrl = `https://ntouber-gateway.zeabur.app/api/posts/getpost/${postData.id}`;
 
         try {
             const postRes = await fetch(postUrl, { method: "GET" });
@@ -199,7 +216,7 @@ function DetailPost() {
                 return;
             };
 
-            const url = `https://ntouber-post.zeabur.app/api/posts/request?${params.toString()}`;
+            const url = `https://ntouber-gateway.zeabur.app/api/posts/request?${params.toString()}`;
             setIsSubmitting(true);
 
             const res = await fetch(url, { method: "PATCH" });
