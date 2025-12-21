@@ -25,7 +25,9 @@ function CurrentPost() {
     const [activePassengerId, setActivePassengerId] = useState(null);
     const [activePostId, setActivePostId] = useState(null);
     const [popoverPos, setPopoverPos] = useState(null);
-
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false); 
+    const [rejectReason, setRejectReason] = useState("");             
+    const [postToReject, setPostToReject] = useState(null);           
 
     const listVariants = {
         hidden: { opacity: 0 },
@@ -110,14 +112,6 @@ function CurrentPost() {
         };
     }, [activePostId]);
 
-
-    // useEffect(() => {
-    //     if (myPosts.length > 0) {
-    //         console.log("所有貼文資料 myPosts:", myPosts);
-    //     }
-    // }, [myPosts]);
-
-
     useEffect(() => {
         if (user?.ID) fetchPosts();
     }, [user]);
@@ -183,7 +177,11 @@ function CurrentPost() {
         });
 
         if (post.client_id && user.ID) {
-            const message = `您的共乘請求 ${post.starting_point.Name} > ${post.destination.Name} 已被車主 ${user.Name || '已匹配'} 接受！請去"我的貼文"查看:)`;
+            const message = `行程通知: 您的共乘請求已被接受！
+            行程：${post.starting_point.Name} > ${post.destination.Name}
+            車主：${user.Name}
+            請去"我的貼文"查看:)`;
+           
 
             await sendNotification({
                 receiverId: post.client_id, // 接收方: 乘客 ID
@@ -198,8 +196,11 @@ function CurrentPost() {
 
 
 
-    async function rejectPost(post) {
-        await fetch(`https://ntouber-post.zeabur.app/api/posts/driver_posts/${post.id}`, {
+async function rejectPost(post, reason) {
+    const previousClientId = post.client_id;
+
+    try {
+        const res = await fetch(`https://ntouber-post.zeabur.app/api/posts/driver_posts/${post.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -208,19 +209,29 @@ function CurrentPost() {
             })
         });
 
-        if (post.client_id && user.ID) {
-            const message = `很抱歉，您的共乘請求 ${post.starting_point.Name} > ${post.destination.Name} 被車主 ${user.Name || '拒絕'} 拒絕了，貼文已重新開放。`;
+        if (!res.ok) throw new Error("更新貼文狀態失敗");
 
+        if (res.ok && previousClientId && user.ID) {
+            const message = `行程通知: 您的共乘請求已被拒絕。
+            行程：${post.starting_point.Name} > ${post.destination.Name}
+            車主：${user.Name} 拒絕理由：
+            ${reason || "未提供特定理由"}`;
+            
             await sendNotification({
-                receiverId: post.client_id, // 接收方: 乘客 ID
-                senderId: user.ID,            // 發送方: 車主/目前用戶 ID
+                receiverId: previousClientId,
+                senderId: user.ID,
                 message: message,
             });
         }
 
-        alert("你已拒絕共乘，貼文已重新開放！");
+        alert("已拒絕共乘請求，理由已傳送給乘客。");
         fetchPosts();
+        
+    } catch (error) {
+        console.error("拒絕請求失敗:", error);
+        alert("操作失敗，請稍後再試。");
     }
+}
 
 
     const renderPosts = (posts) => (
@@ -318,11 +329,14 @@ function CurrentPost() {
                             >
                                 ✔ 接受
                             </button>
-                            <button
-                                onClick={() => rejectPost(post)}
+                           <button
+                                onClick={() => {
+                                    setPostToReject(post);      // 設定目前要處理的貼文
+                                    setIsRejectModalOpen(true); // 打開彈窗
+                                }}
                                 className="flex-1 bg-red-500 text-white py-2 rounded-lg shadow hover:bg-red-600 transition"
                             >
-                                ✖ 拒絕
+                                ✖ 拒絕請求
                             </button>
                         </div>
                     )}
@@ -397,7 +411,7 @@ function CurrentPost() {
                                 ))}
                             </div>
                         ) : driverPosts.length === 0 ? (
-                            <EmptyState text="目    前沒有車主貼文喔!!!" />
+                            <EmptyState text="目前沒有車主貼文喔!!!" />
                         ) : (
                             renderPosts(driverPosts)
                         )}
@@ -426,6 +440,56 @@ function CurrentPost() {
                         )}
 
                     </motion.div>
+                )}
+            </AnimatePresence>
+            {/* 拒絕理由彈窗 */}
+            <AnimatePresence>
+                {isRejectModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+                        >
+                            <h3 className="text-lg font-bold text-gray-800 mb-2">請輸入拒絕理由</h3>
+                            <p className="text-sm text-gray-500 mb-4">這項理由將會傳送給發起請求的乘客。</p>
+                            
+                            <textarea
+                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition resize-none h-32"
+                                placeholder="例如：行程臨時有變、車位已滿..."
+                                value={rejectReason}
+                                onChange={(e) => setRejectReason(e.target.value)}
+                            />
+
+                            <div className="flex space-x-3 mt-6">
+                                <button
+                                    className="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition"
+                                    onClick={() => {
+                                        setIsRejectModalOpen(false);
+                                        setRejectReason("");
+                                    }}
+                                >
+                                    取消
+                                </button>
+                                <button
+                                    className={`flex-1 py-2.5 rounded-xl font-medium transition ${
+                                        rejectReason.trim() 
+                                        ? "bg-red-500 text-white hover:bg-red-600" 
+                                        : "bg-red-200 text-white cursor-not-allowed"
+                                    }`}
+                                    disabled={!rejectReason.trim()}
+                                    onClick={() => {
+                                        rejectPost(postToReject, rejectReason);
+                                        setIsRejectModalOpen(false);
+                                        setRejectReason("");
+                                    }}
+                                >
+                                    確認拒絕
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 
