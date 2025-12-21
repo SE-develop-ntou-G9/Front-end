@@ -3,6 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
+
 function ProfilePage() {
     const navigate = useNavigate();
     const { user, driver, isLoggedIn, userRole, loading, logout } = useUser();

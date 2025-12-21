@@ -11,7 +11,16 @@ import PostSearch from "./Functions/PostSearch";
 import PageMotion from "../components/PageMotion";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API = "https://ntouber-post.zeabur.app/api/posts/all";
+const API = "https://ntouber-gateway.zeabur.app/api/posts/all";
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
+
 function GuestPage({ setIsLoggedIn, isLoggedIn }) {
     const [post, setPost] = useState([]);
     const { user, userRole, isAdmin } = useUser();
@@ -23,7 +32,12 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
         async function fetchPosts() {
             try {
                 setLoadingPosts(true);
-                const r = await fetch(API, { method: "GET" });
+                const r = await fetch(API, {
+                    headers: {
+                        ...authHeader(),
+                    },
+                    method: "GET"
+                });
                 if (!r.ok) {
                     throw new Error(`API 錯誤 (${r.status})`);
                 }
@@ -35,7 +49,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
                 setPost(mapped);
             } catch (err) {
                 console.error("抓取貼文失敗：", err);
-            }finally {
+            } finally {
                 setLoadingPosts(false);
             }
         }
@@ -93,7 +107,7 @@ function GuestPage({ setIsLoggedIn, isLoggedIn }) {
 
     const handleRefresh = () => {
         setRefreshKey(prev => prev + 1);// 修改 Key，強迫 useEffect 重跑
-        
+
         setIsRefreshing(true);
         setTimeout(() => setIsRefreshing(false), 800);
     };

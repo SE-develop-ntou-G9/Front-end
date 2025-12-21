@@ -7,7 +7,15 @@ import { useUser } from "./contexts/UserContext.jsx";
 import { fetchUserById } from "./Pages/hooks/useUserFetcher.jsx";
 import { useUserNotify } from "./Pages/hooks/useUserNotify.jsx";
 
-const BASE_URL = "https://ntouber-user.zeabur.app/v1";
+const BASE_URL = "https://ntouber-gateway.zeabur.app/v1";
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 
 function Header() {
     const location = useLocation();
@@ -30,14 +38,14 @@ function Header() {
         const markAllAsRead = async () => {
             // 找出所有狀態為 unread 的通知
             const unreadNotifications = notifications.filter(n => n.Status === "unread");
-            
+
             if (unreadNotifications.length > 0) {
                 // 批次對後端發送 PATCH 請求
                 const promises = unreadNotifications.map(n => readed(n.ID));
                 await Promise.all(promises);
 
                 // 4. 同步更新本地狀態，讓 UI 的「未讀紅點」或樣式立即消失
-                setNotifications(prev => 
+                setNotifications(prev =>
                     prev.map(n => n.Status === "unread" ? { ...n, Status: "read" } : n)
                 );
             }
@@ -58,6 +66,7 @@ function Header() {
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
+                    ...authHeader(),
                     "Content-Type": "application/json",
                 },
             });
@@ -79,7 +88,12 @@ function Header() {
                 ].filter((id) => id && !senderUsers[id]); // 過濾掉已有的 ID
 
                 senderIds.forEach(async (id) => {
-                    const senderData = await fetchUserById(id);
+                    const senderData = await fetchUserById(id,
+                        {
+                            headers: {
+                                ...authHeader(),
+                            },
+                        });
                     if (senderData) {
                         // 更新 senderUsers 狀態
                         setSenderUsers((prev) => ({
@@ -129,6 +143,7 @@ function Header() {
             const response = await fetch(url, {
                 method: "DELETE",
                 headers: {
+                    ...authHeader(),
                     "Content-Type": "application/json",
                 },
             });
@@ -156,6 +171,7 @@ function Header() {
             const response = await fetch(url, {
                 method: "DELETE",
                 headers: {
+                    ...authHeader(),
                     "Content-Type": "application/json",
                 },
             });

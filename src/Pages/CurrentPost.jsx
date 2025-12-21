@@ -5,6 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useUserNotify } from "./hooks/useUserNotify.jsx";
 import PassengerPopover from "../components/PassengerPopover.jsx";
 
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 function SkeletonCard() {
     return (
         <div className="p-4 bg-white rounded-xl shadow animate-pulse space-y-3">
@@ -25,9 +32,9 @@ function CurrentPost() {
     const [activePassengerId, setActivePassengerId] = useState(null);
     const [activePostId, setActivePostId] = useState(null);
     const [popoverPos, setPopoverPos] = useState(null);
-    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false); 
-    const [rejectReason, setRejectReason] = useState("");             
-    const [postToReject, setPostToReject] = useState(null);           
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    const [rejectReason, setRejectReason] = useState("");
+    const [postToReject, setPostToReject] = useState(null);
 
     const listVariants = {
         hidden: { opacity: 0 },
@@ -54,7 +61,12 @@ function CurrentPost() {
     async function fetchClientInfo(clientId) {
         try {
             const res = await fetch(
-                `https://ntouber-user.zeabur.app/v1/users/${clientId}`
+                `https://ntouber-gateway.zeabur.app/v1/users/${clientId}`,
+                {
+                    headers: {
+                        ...authHeader(),
+                    },
+                }
             );
             if (!res.ok) throw new Error("取得使用者失敗");
 
@@ -78,8 +90,13 @@ function CurrentPost() {
     async function fetchPosts() {
         setLoading(true);
         try {
-            const url = `https://ntouber-post.zeabur.app/api/posts/search/${user.ID}`;
-            const res = await fetch(url);
+            const url = `https://ntouber-gateway.zeabur.app/api/posts/search/${user.ID}`;
+            const res = await fetch(url,
+                {
+                    headers: {
+                        ...authHeader(),
+                    },
+                });
 
             if (!res.ok) throw new Error("搜尋貼文失敗");
 
@@ -170,9 +187,9 @@ function CurrentPost() {
     };
 
     async function acceptPost(post) {
-        await fetch(`https://ntouber-post.zeabur.app/api/posts/driver_posts/${post.id}`, {
+        await fetch(`https://ntouber-gateway.zeabur.app/api/posts/driver_posts/${post.id}`, {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
+            headers: { ...authHeader(), "Content-Type": "application/json" },
             body: JSON.stringify({ status: "closed" })
         });
 
@@ -181,7 +198,7 @@ function CurrentPost() {
             行程：${post.starting_point.Name} > ${post.destination.Name}
             車主：${user.Name}
             請去"我的貼文"查看:)`;
-           
+
 
             await sendNotification({
                 receiverId: post.client_id, // 接收方: 乘客 ID
@@ -196,42 +213,42 @@ function CurrentPost() {
 
 
 
-async function rejectPost(post, reason) {
-    const previousClientId = post.client_id;
+    async function rejectPost(post, reason) {
+        const previousClientId = post.client_id;
 
-    try {
-        const res = await fetch(`https://ntouber-post.zeabur.app/api/posts/driver_posts/${post.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                client_id: "unknown",
-                status: "open",
-            })
-        });
+        try {
+            const res = await fetch(`https://ntouber-gateway.zeabur.app/api/posts/driver_posts/${post.id}`, {
+                method: "PATCH",
+                headers: { ...authHeader(), "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    client_id: "unknown",
+                    status: "open",
+                })
+            });
 
-        if (!res.ok) throw new Error("更新貼文狀態失敗");
+            if (!res.ok) throw new Error("更新貼文狀態失敗");
 
-        if (res.ok && previousClientId && user.ID) {
-            const message = `行程通知: 您的共乘請求已被拒絕。
+            if (res.ok && previousClientId && user.ID) {
+                const message = `行程通知: 您的共乘請求已被拒絕。
             行程：${post.starting_point.Name} > ${post.destination.Name}
             車主：${user.Name} 拒絕理由：
             ${reason || "未提供特定理由"}`;
-            
-            await sendNotification({
-                receiverId: previousClientId,
-                senderId: user.ID,
-                message: message,
-            });
-        }
 
-        alert("已拒絕共乘請求，理由已傳送給乘客。");
-        fetchPosts();
-        
-    } catch (error) {
-        console.error("拒絕請求失敗:", error);
-        alert("操作失敗，請稍後再試。");
+                await sendNotification({
+                    receiverId: previousClientId,
+                    senderId: user.ID,
+                    message: message,
+                });
+            }
+
+            alert("已拒絕共乘請求，理由已傳送給乘客。");
+            fetchPosts();
+
+        } catch (error) {
+            console.error("拒絕請求失敗:", error);
+            alert("操作失敗，請稍後再試。");
+        }
     }
-}
 
 
     const renderPosts = (posts) => (
@@ -329,7 +346,7 @@ async function rejectPost(post, reason) {
                             >
                                 ✔ 接受
                             </button>
-                           <button
+                            <button
                                 onClick={() => {
                                     setPostToReject(post);      // 設定目前要處理的貼文
                                     setIsRejectModalOpen(true); // 打開彈窗
@@ -446,7 +463,7 @@ async function rejectPost(post, reason) {
             <AnimatePresence>
                 {isRejectModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                        <motion.div 
+                        <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
@@ -454,7 +471,7 @@ async function rejectPost(post, reason) {
                         >
                             <h3 className="text-lg font-bold text-gray-800 mb-2">請輸入拒絕理由</h3>
                             <p className="text-sm text-gray-500 mb-4">這項理由將會傳送給發起請求的乘客。</p>
-                            
+
                             <textarea
                                 className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition resize-none h-32"
                                 placeholder="例如：行程臨時有變、車位已滿..."
@@ -473,11 +490,10 @@ async function rejectPost(post, reason) {
                                     取消
                                 </button>
                                 <button
-                                    className={`flex-1 py-2.5 rounded-xl font-medium transition ${
-                                        rejectReason.trim() 
-                                        ? "bg-red-500 text-white hover:bg-red-600" 
+                                    className={`flex-1 py-2.5 rounded-xl font-medium transition ${rejectReason.trim()
+                                        ? "bg-red-500 text-white hover:bg-red-600"
                                         : "bg-red-200 text-white cursor-not-allowed"
-                                    }`}
+                                        }`}
                                     disabled={!rejectReason.trim()}
                                     onClick={() => {
                                         rejectPost(postToReject, rejectReason);

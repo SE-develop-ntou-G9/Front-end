@@ -2,6 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 const UserContext = createContext();
 
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 export const useUser = () => {
     const context = useContext(UserContext);
     if (!context) {
@@ -68,7 +75,12 @@ export const UserProvider = ({ children }) => {
             setLoading(true);
 
             // 不帶 Authorization header，因為後端 CORS 不允許
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`);
+            const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/users/${userId}`,
+                {
+                    headers: {
+                        ...authHeader(),
+                    },
+                });
 
             if (!res.ok) {
                 throw new Error("取得使用者資料失敗");
@@ -104,7 +116,12 @@ export const UserProvider = ({ children }) => {
     // 檢查車主&admin狀態（不帶 Authorization header）
     const checkDriverStatus = async (userId) => {
         try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/drivers/user/${userId}`);
+            const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/drivers/user/${userId}`,
+                {
+                    headers: {
+                        ...authHeader(),
+                    },
+                });
 
             if (res.ok) {
                 const driverData = await res.json();
@@ -147,7 +164,12 @@ export const UserProvider = ({ children }) => {
 
     const checkAdminStatus = async (userId) => {
         try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`);
+            const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/users/${userId}`,
+                {
+                    headers: {
+                        ...authHeader(),
+                    },
+                });
 
             if (res.ok) {
                 const Data = await res.json();
@@ -187,7 +209,12 @@ export const UserProvider = ({ children }) => {
 
             const googleAvatar = userData.AvatarURL;
 
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userData.id}`);
+            const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/users/${userData.id}`,
+                {
+                    headers: {
+                        ...authHeader(),
+                    },
+                });
             const dbUser = res.ok ? await res.json() : {};
 
             const finalAvatar =
@@ -227,10 +254,10 @@ export const UserProvider = ({ children }) => {
     // 更新使用者資料（不帶 Authorization header）
     const updateUser = async (updateData) => {
         try {
-            const res = await fetch("https://ntouber-user.zeabur.app/v1/users/mod", {
+            const res = await fetch("https://ntouber-gateway.zeabur.app/v1/users/mod", {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json", ...authHeader(),
                 },
                 body: JSON.stringify(updateData),
             });
@@ -253,10 +280,10 @@ export const UserProvider = ({ children }) => {
     // 升級為車主（不帶 Authorization header）
     const upgradeToDriver = async (driverData) => {
         try {
-            const res = await fetch("https://ntouber-user.zeabur.app/v1/drivers", {
+            const res = await fetch("https://ntouber-gateway.zeabur.app/v1/drivers", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json", ...authHeader(),
                 },
                 body: JSON.stringify(driverData),
             });
@@ -276,10 +303,10 @@ export const UserProvider = ({ children }) => {
 
     const updateDriver = async (driverData) => {
         try {
-            const res = await fetch("https://ntouber-user.zeabur.app/v1/drivers/mod", {
+            const res = await fetch("https://ntouber-gateway.zeabur.app/v1/drivers/mod", {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json", ...authHeader(),
                 },
                 body: JSON.stringify(driverData),
             });

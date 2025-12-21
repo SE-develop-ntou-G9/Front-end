@@ -2,8 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 import DriverClass from "../models/DriverClass";
-import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions"; 
+import useAdminDriverActions from "../Pages/hooks/useAdminDriverActions";
 import { fetchUserById } from "./hooks/useUserFetcher.jsx";
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
 
 const Avatar = ({ user }) => (
     <div className="w-10 h-10 rounded-full flex-shrink-0">
@@ -21,7 +28,7 @@ const Avatar = ({ user }) => (
     </div>
 );
 
-const API = "https://ntouber-user.zeabur.app/v1/drivers";
+const API = "https://ntouber-gateway.zeabur.app/v1/drivers";
 
 export default function AdminRegistDrivers() {
     const navigate = useNavigate();
@@ -33,14 +40,18 @@ export default function AdminRegistDrivers() {
     useEffect(() => {
         async function fetchDrivers() {
             try {
-                const r = await fetch(`${API}/getAll`, { method: "GET" });
+                const r = await fetch(`${API}/getAll`, {
+                    headers: {
+                        ...authHeader(),
+                    }, method: "GET"
+                });
                 if (!r.ok) {
                     throw new Error(`API 錯誤 (${r.status})`);
                 }
 
                 const data = await r.json();
                 const mapped = data.map(driver => new DriverClass(driver));
-                
+
                 // 篩選出待審核 (checking) 的車主
                 const checkingDrivers = mapped.filter(d => d.status == "checking");
                 const rDrivers = mapped.filter(c => c.status == "rejected");
@@ -50,7 +61,7 @@ export default function AdminRegistDrivers() {
 
                 const allDriverIds = [...new Set([...checkingDrivers, ...rDrivers].map(d => d.userID))];
                 allDriverIds.forEach(async (id) => {
-                    if (!userMap[id]) { 
+                    if (!userMap[id]) {
                         const userData = await fetchUserById(id);
                         if (userData) {
                             setUserMap(prev => ({ ...prev, [id]: userData }));
@@ -103,9 +114,9 @@ export default function AdminRegistDrivers() {
                     {drivers.map((d) => {
                         const user = userMap[d.userID];
                         return (
-                        <div
-                            key={d.userID} // <--- 修正 key
-                            className="
+                            <div
+                                key={d.userID} // <--- 修正 key
+                                className="
                                 bg-white 
                                 rounded-lg 
                                 p-4 
@@ -117,9 +128,9 @@ export default function AdminRegistDrivers() {
                                 justify-between 
                                 items-center
                             "
-                        >
-                            {/*  點擊導航到詳細審核頁面 */}
-                            <div 
+                            >
+                                {/*  點擊導航到詳細審核頁面 */}
+                                <div
                                     className="flex-1 cursor-pointer flex items-center space-x-3"
                                     onClick={() => navigate("/admin/DetailRegistDriver", { state: { driver: d } })}
                                 >
@@ -128,8 +139,8 @@ export default function AdminRegistDrivers() {
                                         <p className="font-medium">用戶名：{d.name}</p>
                                         <p className="mt-1 text-gray-600 text-xs">車型：{d.scooterType} / 車牌：{d.plateNum}</p>
                                     </div>
-                            </div>   
-                        </div>
+                                </div>
+                            </div>
                         )
                     })}
                 </div>
@@ -137,7 +148,7 @@ export default function AdminRegistDrivers() {
                     <h2 className="text-base font-bold text-gray-900">重新審核車主 ({drivers.length})</h2>
                     <p className="text-xs text-gray-500 mt-0.5">查看重新申請車主資格的使用者</p>
                 </div> */}
-               
+
             </div>
         </div>
     );

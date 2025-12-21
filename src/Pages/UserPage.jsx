@@ -10,7 +10,15 @@ import PostSearch from "./Functions/PostSearch.jsx";
 import PageMotion from "../components/PageMotion";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API = "https://ntouber-post.zeabur.app/api/posts/all";
+const API = "https://ntouber-gateway.zeabur.app/api/posts/all";
+
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
 
 function UserPage() {
     const [post, setPost] = useState([]);
@@ -25,7 +33,11 @@ function UserPage() {
         async function fetchPosts() {
             try {
                 setLoadingPosts(true);
-                const r = await fetch(API, { method: "GET" });
+                const r = await fetch(API, {
+                    headers: {
+                        ...authHeader(),
+                    }, method: "GET"
+                });
                 if (!r.ok) {
                     throw new Error(`API 錯誤 (${r.status})`);
                 }
@@ -95,8 +107,13 @@ function UserPage() {
 
         async function fetchMyHistory() {
             try {
-                const url = `https://ntouber-post.zeabur.app/api/posts/search/${user.ID}`;
-                const res = await fetch(url);
+                const url = `https://ntouber-gateway.zeabur.app/api/posts/search/${user.ID}`;
+                const res = await fetch(url,
+                    {
+                        headers: {
+                            ...authHeader(),
+                        },
+                    });
 
                 if (!res.ok) throw new Error("搜尋歷史紀錄失敗");
 

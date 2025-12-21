@@ -13,7 +13,7 @@
 //     this.helmet = helmet;                // 是否有安全帽
 //     this.contact_info = contact_info;    // 聯絡方式
 //     this.leave = leave;                  // 是否中途下車
-    
+
 //   }
 // }
 
@@ -35,38 +35,38 @@ export default class PostClass {
         leave,
         image_url
     }) {
-    this.id = id;
-    this.driver_id = driver_id;
-    this.vehicle_info = vehicle_info;
-    this.status = status;
-    this.timestamp = timestamp;
-    this.image_url = image_url;
+        this.id = id;
+        this.driver_id = driver_id;
+        this.vehicle_info = vehicle_info;
+        this.status = status;
+        this.timestamp = timestamp;
+        this.image_url = image_url;
 
-    // 巢狀起點物件
-    this.starting_point = {
-        Name: starting_point?.Name ?? "",
-        Address: starting_point?.Address ?? ""
-    };
+        // 巢狀起點物件
+        this.starting_point = {
+            Name: starting_point?.Name ?? "",
+            Address: starting_point?.Address ?? ""
+        };
 
-    // 巢狀目的地物件
-    this.destination = {
-        Name: destination?.Name ?? "",
-        Address: destination?.Address ?? ""
-    };
+        // 巢狀目的地物件
+        this.destination = {
+            Name: destination?.Name ?? "",
+            Address: destination?.Address ?? ""
+        };
 
-    // 可選的 meet_point（後端有可能只有 Name）
-    this.meet_point = {
-        Name: meet_point?.Name ?? "",
-    };
+        // 可選的 meet_point（後端有可能只有 Name）
+        this.meet_point = {
+            Name: meet_point?.Name ?? "",
+        };
 
-    this.departure_time = departure_time;
-    this.notes = notes;
-    this.description = description;
-    this.helmet = helmet;
+        this.departure_time = departure_time;
+        this.notes = notes;
+        this.description = description;
+        this.helmet = helmet;
 
-    // 巢狀聯絡資訊
-    this.contact_info = contact_info || {};
+        // 巢狀聯絡資訊
+        this.contact_info = contact_info || {};
 
-    this.leave = leave;
-  }
+        this.leave = leave;
+    }
 }
