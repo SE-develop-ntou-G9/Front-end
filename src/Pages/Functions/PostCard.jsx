@@ -7,6 +7,13 @@ import { useUser } from "../../contexts/UserContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 function PostCard({ postData, isAdmin }) {
     const navigate = useNavigate();
     if (!postData) return null;

@@ -6,6 +6,13 @@ import PostClass from "../../models/PostClass.jsx";
 import dayjs from "dayjs";
 import { useUser } from "../../contexts/UserContext.jsx";
 
+const authHeader = () => {
+	const token = localStorage.getItem("jwtToken");
+	return token
+		? { Authorization: `Bearer ${token}` }
+		: {};
+};
+
 function AdminDetailPost() {
     const { user, isLoggedIn, userRole, loading, logout } = useUser();
     // useEffect(() => {

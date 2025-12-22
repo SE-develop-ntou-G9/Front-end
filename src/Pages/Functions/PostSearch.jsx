@@ -2,6 +2,13 @@ import React, { useState, useEffect } from "react";
 import { HiSwitchVertical, HiSearch } from "react-icons/hi";
 import { FaMapMarkerAlt, FaRegCircle, FaRegCalendarAlt } from "react-icons/fa";
 
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 const API_BASE = "https://ntouber-gateway.zeabur.app/api/posts";
 
 const PostSearch = ({ onResult, resetTrigger, onSearchStart }) => {

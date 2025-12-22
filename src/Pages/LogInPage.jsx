@@ -5,8 +5,10 @@ import { useUser } from "../contexts/UserContext.jsx";
 import { jwtDecode } from "jwt-decode";
 import { motion } from "framer-motion";
 
-const authHeader = () => {
-    const token = localStorage.getItem("jwtToken");
+const authHeader = (tokenOverride = null) => {
+    // 👇 修改成這樣：如果有傳 tokenOverride 就用它，沒有才去讀 localStorage
+    const token = tokenOverride || localStorage.getItem("jwtToken");
+    
     return token
         ? { Authorization: `Bearer ${token}` }
         : {};
@@ -16,11 +18,12 @@ function LoginPage() {
     const navigate = useNavigate();
     const { login, refreshUserData } = useUser();
 
-    async function isBlacklisted(userId) {
+    async function isBlacklisted(userId, token) {
         try {
+            console.log(authHeader());
             const res = await fetch("https://ntouber-gateway.zeabur.app/admin/blacklist", {
                 headers: {
-                    ...authHeader(),
+                    ...authHeader(token),
                 },
                 method: "GET"
             });
@@ -52,21 +55,23 @@ function LoginPage() {
                 body: JSON.stringify({ credential })
             });
             console.log(res);
-
+            console.log(credential);
             if (!res.ok) throw new Error("驗證 Google 失敗");
 
             const data = await res.json();
-            // console.log("後端回傳：", data);
+            console.log("後端回傳：", data);
             const user = data.user;
             const token = data.token;
 
-            const blocked = await isBlacklisted(user.id);
+            const blocked = await isBlacklisted(user.id, token);
             if (blocked) {
                 alert("此帳號已被加入黑名單，無法登入。");
                 return;
             }
 
-            const fullUser = await fetchFullUserInfo(user.id);
+            console.log(token);
+
+            const fullUser = await fetchFullUserInfo(user.id, token);
 
             const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
@@ -104,12 +109,12 @@ function LoginPage() {
         }
     };
 
-    async function fetchFullUserInfo(userId) {
+    async function fetchFullUserInfo(userId, token) {
         try {
             const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/users/${userId}`,
                 {
                     headers: {
-                        ...authHeader(),
+                        ...authHeader(token),
                     },
                 });
 
