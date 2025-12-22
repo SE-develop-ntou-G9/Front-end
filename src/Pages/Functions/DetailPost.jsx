@@ -7,6 +7,11 @@ import { HiArrowRight, HiOutlineLocationMarker, HiOutlineCalendar, HiOutlinePhon
 import { MdEdit, MdSend, MdTwoWheeler, MdClose } from "react-icons/md";
 import { useUserNotify } from "../hooks/useUserNotify.jsx";
 import DriverPopover from "../../components/DriverPopover.jsx";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const authHeader = () => {
     const token = localStorage.getItem("jwtToken");
@@ -330,7 +335,7 @@ function DetailPost() {
                             <span>{postData.destination.Name}</span>
                         </div>
                         <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">
-                            {dayjs(postData.departure_time).format("YYYY/MM/DD HH:mm")} 出發
+                            {dayjs.utc(postData.departure_time).tz("Asia/Taipei").format("YYYY/MM/DD HH:mm")} 出發
                         </span>
                     </div>
 

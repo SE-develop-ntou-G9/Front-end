@@ -434,8 +434,8 @@ function UploadPost() {
                             <label className="block text-sm font-semibold text-gray-700">
                                 貼文簡述
                             </label>
-                            <span className={`text-xs ${post.notes.length === 20 ? 'text-red-500' : 'text-gray-400'}`}>
-                                {post.notes.length}/20
+                            <span className={`text-xs ${(post.notes || "").length === 20 ? 'text-red-500' : 'text-gray-400'}`}>
+                                {(post.notes || "").length}/20
                             </span>
                         </div>
                         <textarea
