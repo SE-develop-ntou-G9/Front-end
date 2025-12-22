@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom"; 
-const userAPI = "https://ntouber-user.zeabur.app/v1/users";
-const driverAPI = "https://ntouber-user.zeabur.app/v1/drivers"; 
-const postAPI = "https://ntouber-post.zeabur.app/api/posts/delete/driver"; 
-const clientAPI = "https://ntouber-post.zeabur.app/api/posts/unmatch/client";
-const adminBlackAPI = "https://ntouber-admin.zeabur.app/admin/blacklist";
+import { useNavigate } from "react-router-dom";
+const userAPI = "https://ntouber-gateway.zeabur.app/v1/users";
+const driverAPI = "https://ntouber-gateway.zeabur.app/v1/drivers";
+const postAPI = "https://ntouber-gateway.zeabur.app/api/posts/delete/driver";
+const clientAPI = "https://ntouber-gateway.zeabur.app/api/posts/unmatch/client";
+const adminBlackAPI = "https://ntouber-gateway.zeabur.app/admin/blacklist";
 
 /**
  * 專門處理管理員對一般用戶（User）的操作（刪除、黑名單）。
@@ -11,6 +11,15 @@ const adminBlackAPI = "https://ntouber-admin.zeabur.app/admin/blacklist";
  * @param {Function} navigate - (可選) 用於導航的 navigate 函數。
  * @returns {object} 包含 handleUserDelete 和 handleBlacklist 函數的物件。
  */
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
+
 export default function useAdminUserActions(setUser, navigate) {
 
     const handleUserDelete = async (user) => {
@@ -27,10 +36,30 @@ export default function useAdminUserActions(setUser, navigate) {
             console.log(`開始併行刪除用戶 ${userName} 及其相關資料...`);
 
             const requests = [
-                fetch(`${userAPI}/delete/${userId}`, { method: "DELETE" }),
-                fetch(`${driverAPI}/delete/${userId}`, { method: "DELETE" }),
-                fetch(`${postAPI}/${userId}`, { method: "DELETE" }),
-                fetch(`${clientAPI}/${userId}`, { method: "PATCH" }),
+                fetch(`${userAPI}/delete/${userId}`, {
+                    headers: {
+                        ...authHeader(),
+                    },
+                    method: "DELETE"
+                }),
+                fetch(`${driverAPI}/delete/${userId}`, {
+                    headers: {
+                        ...authHeader(),
+                    },
+                    method: "DELETE"
+                }),
+                fetch(`${postAPI}/${userId}`, {
+                    headers: {
+                        ...authHeader(),
+                    },
+                    method: "DELETE"
+                }),
+                fetch(`${clientAPI}/${userId}`, {
+                    headers: {
+                        ...authHeader(),
+                    },
+                    method: "PATCH"
+                }),
             ];
 
             const results = await Promise.allSettled(requests);
@@ -106,24 +135,23 @@ export default function useAdminUserActions(setUser, navigate) {
         }
     };
 
-    const handleUserBlacklist = async (user,reason) => {
+    const handleUserBlacklist = async (user, reason) => {
         const userId = user.ID;
         const userName = user.userName || "未知用戶";
         try {
             const r = await fetch(adminBlackAPI, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", ...authHeader(), },
                 body: JSON.stringify({
                     userId: userId,
-                    reason: reason, 
+                    reason: reason,
                 }),
             });
 
             if (!r.ok) {
                 const errorData = await r.json();
                 throw new Error(
-                    `加入黑名單失敗 (${r.status}): ${
-                        errorData.error || "未知錯誤"
+                    `加入黑名單失敗 (${r.status}): ${errorData.error || "未知錯誤"
                     }`
                 );
             }
@@ -147,13 +175,15 @@ export default function useAdminUserActions(setUser, navigate) {
         try {
             const r = await fetch(`${adminBlackAPI}/${userId}`, {
                 method: "DELETE",
+                headers: {
+                    ...authHeader(),
+                },
             });
 
             if (!r.ok) {
                 const errorData = await r.json().catch(() => ({}));
                 throw new Error(
-                    `移除黑名單失敗 (${r.status}): ${
-                        errorData.error || "未知錯誤"
+                    `移除黑名單失敗 (${r.status}): ${errorData.error || "未知錯誤"
                     }`
                 );
             }
@@ -173,9 +203,9 @@ export default function useAdminUserActions(setUser, navigate) {
         }
     };
 
-    return { 
-        handleUserDelete, 
-        handleUserBlacklist, 
+    return {
+        handleUserDelete,
+        handleUserBlacklist,
         handleUserDeleteFromBlacklist
     };
 }

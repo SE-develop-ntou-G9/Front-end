@@ -7,6 +7,13 @@ import { useUser } from "../../contexts/UserContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 function PostCard({ postData, isAdmin }) {
     const navigate = useNavigate();
     if (!postData) return null;
@@ -25,7 +32,12 @@ function PostCard({ postData, isAdmin }) {
     useEffect(() => {
         async function fetchDriver() {
             try {
-                const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${User_id}`);
+                const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/users/${User_id}`,
+                    {
+                        headers: {
+                            ...authHeader(),
+                        },
+                    });
 
                 if (!res.ok) throw new Error("取得使用者資料失敗");
 

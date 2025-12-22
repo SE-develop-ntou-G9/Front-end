@@ -4,7 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { HiSearch } from "react-icons/hi";
 import useAdminUserActions from "../Pages/hooks/useAdminUserActions";
 
-const uAPI = "https://ntouber-user.zeabur.app/v1/users";
+const uAPI = "https://ntouber-gateway.zeabur.app/v1/users";
+
+// del user post 待實作
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 
 export default function AdminUsers() {
     const navigate = useNavigate();
@@ -13,11 +22,15 @@ export default function AdminUsers() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [blacklistReason, setBlacklistReason] = useState('');
     const { handleUserDelete, handleUserBlacklist } = useAdminUserActions(setUser);
-    
+
     useEffect(() => {
         async function fetchUsers() {
             try {
-                const r = await fetch(`${uAPI}/getAll`, { method: "GET" });
+                const r = await fetch(`${uAPI}/getAll`, {
+                    headers: {
+                        ...authHeader(),
+                    }, method: "GET"
+                });
                 if (!r.ok) {
                     throw new Error(`API 錯誤 (${r.status})`);
                 }
@@ -36,7 +49,7 @@ export default function AdminUsers() {
     // 處理確認黑名單
     const handleConfirmBlacklist = async () => {
         if (!blacklistReason.trim()) {
-            alert('請務必填寫加入黑名單的理由！'); 
+            alert('請務必填寫加入黑名單的理由！');
             return;
         }
         await handleUserBlacklist(userData, blacklistReason.trim());
@@ -44,7 +57,7 @@ export default function AdminUsers() {
         setBlacklistReason('');
         setTmpUser(null);
     };
-    
+
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -88,7 +101,7 @@ export default function AdminUsers() {
 
                     {users.map((u) => (
                         <div
-                            key={u.ID} 
+                            key={u.ID}
                             className="
                                 bg-white 
                                 rounded-lg 
@@ -104,24 +117,24 @@ export default function AdminUsers() {
                                 items-center    // 使內容垂直居中
                             "
                         >
-                            <div 
-                                className="flex items-center space-x-3 cursor-pointer" 
+                            <div
+                                className="flex items-center space-x-3 cursor-pointer"
                                 onClick={() => navigate("/admin/DetailUser", { state: { user: u } })}
                             >
-                                
-                                <img 
-                                    src={u.avatarUrl || '預設圖片路徑'} 
+
+                                <img
+                                    src={u.avatarUrl || '預設圖片路徑'}
                                     alt={u.userName}
                                     className="h-10 w-10 rounded-full object-cover"
                                 />
-                                
+
                                 <p className="font-medium">{u.userName}</p>
                             </div>
-                            
+
                             <div className="flex space-x-2">
-                                
+
                                 <button
-                                    onClick={() => {setIsModalOpen(true);setTmpUser(u)}} 
+                                    onClick={() => { setIsModalOpen(true); setTmpUser(u) }}
                                     className="
                                         px-3 py-1 
                                         bg-yellow-500 hover:bg-yellow-600 
@@ -132,7 +145,7 @@ export default function AdminUsers() {
                                 >
                                     加入黑名單
                                 </button>
-                                
+
                                 {/* 2.2 刪除按鈕 */}
                                 <button
                                     onClick={() => handleUserDelete(u)}
@@ -152,12 +165,12 @@ export default function AdminUsers() {
                 </div>
 
             </div>
-             {/*黑名單理由輸入彈窗*/}
+            {/*黑名單理由輸入彈窗*/}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
                         <h3 className="text-lg font-bold mb-4">加入黑名單：輸入理由</h3>
-                        
+
                         <div className="mb-4">
                             <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
                                 用戶 {userData.userName} (ID: {userData.ID})
@@ -171,12 +184,12 @@ export default function AdminUsers() {
                                 onChange={(e) => setBlacklistReason(e.target.value)}
                             />
                         </div>
-                        
+
                         <div className="flex justify-end space-x-3">
                             <button
                                 onClick={() => {
                                     setIsModalOpen(false);
-                                    setBlacklistReason(''); 
+                                    setBlacklistReason('');
                                     setTmpUser(null);
                                 }}
                                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"

@@ -5,13 +5,28 @@ import { useUser } from "../contexts/UserContext.jsx";
 import { jwtDecode } from "jwt-decode";
 import { motion } from "framer-motion";
 
+const authHeader = (tokenOverride = null) => {
+    // 👇 修改成這樣：如果有傳 tokenOverride 就用它，沒有才去讀 localStorage
+    const token = tokenOverride || localStorage.getItem("jwtToken");
+    
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
 function LoginPage() {
     const navigate = useNavigate();
     const { login, refreshUserData } = useUser();
 
-    async function isBlacklisted(userId) {
+    async function isBlacklisted(userId, token) {
         try {
-            const res = await fetch("https://ntouber-admin.zeabur.app/admin/blacklist", { method: "GET" });
+            console.log(authHeader());
+            const res = await fetch("https://ntouber-gateway.zeabur.app/admin/blacklist", {
+                headers: {
+                    ...authHeader(token),
+                },
+                method: "GET"
+            });
             if (!res.ok) throw new Error(`黑名單 API 錯誤 (${res.status})`);
             const list = await res.json();
 
@@ -32,33 +47,38 @@ function LoginPage() {
             const googleUser = jwtDecode(credential);
             const googlePicture = googleUser.picture;
 
+            // console.log(credential);
 
-            const res = await fetch("https://ntouber-user.zeabur.app/v1/auth/google", {
+            const res = await fetch("https://ntouber-gateway.zeabur.app/v1/auth/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ credential })
             });
-
+            console.log(res);
+            console.log(credential);
             if (!res.ok) throw new Error("驗證 Google 失敗");
 
             const data = await res.json();
+            console.log("後端回傳：", data);
             const user = data.user;
+            const token = data.token;
 
-            const blocked = await isBlacklisted(user.id);
+            const blocked = await isBlacklisted(user.id, token);
             if (blocked) {
                 alert("此帳號已被加入黑名單，無法登入。");
                 return;
             }
 
-            const fullUser = await fetchFullUserInfo(user.id);
+            console.log(token);
+
+            const fullUser = await fetchFullUserInfo(user.id, token);
 
             const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
             await login({
                 ...user,
                 AvatarURL: fullUser.AvatarURL || googlePicture || DEFAULT_AVATAR
-            });
-
+            }, token);
 
             if (!fullUser) {
                 alert("無法取得使用者資料");
@@ -89,9 +109,14 @@ function LoginPage() {
         }
     };
 
-    async function fetchFullUserInfo(userId) {
+    async function fetchFullUserInfo(userId, token) {
         try {
-            const res = await fetch(`https://ntouber-user.zeabur.app/v1/users/${userId}`);
+            const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/users/${userId}`,
+                {
+                    headers: {
+                        ...authHeader(token),
+                    },
+                });
 
             if (!res.ok) {
                 console.error("取得使用者資料失敗", await res.text());

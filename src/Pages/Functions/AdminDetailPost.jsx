@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiArrowRight } from "react-icons/hi";
-import DriverClass from "../../models/DriverClass";
 import { useLocation } from "react-router-dom";
+import PostClass from "../../models/PostClass.jsx";
 import dayjs from "dayjs";
-import useAdminDriverActions from "../hooks/useAdminDriverActions";
 import { useUser } from "../../contexts/UserContext.jsx";
+
+const authHeader = () => {
+	const token = localStorage.getItem("jwtToken");
+	return token
+		? { Authorization: `Bearer ${token}` }
+		: {};
+};
 
 function AdminDetailPost() {
     const { user, isLoggedIn, userRole, loading, logout } = useUser();
@@ -14,7 +20,7 @@ function AdminDetailPost() {
     //     console.group("ProfilePage 載入");
     //     console.log("isLoggedIn:", isLoggedIn);
     //     console.log("user:", user);
-
+    //     console.log("driver:", driver);
     //     console.log("userRole:", userRole);
     //     console.groupEnd();
     // }, []);
@@ -29,72 +35,79 @@ function AdminDetailPost() {
     if (postData.leave) tags.push("中途下車");
     // console.log("postData.id", postData.id);
 
-    const [User, setUser] = useState(null);
     const [driver, setDriver] = useState(null);
-
     const User_id = postData.driver_id;
-    const { handleDriverDelete, handleBlacklist } = useAdminDriverActions(
-        null,
-        navigate
-    );
-
     useEffect(() => {
         async function fetchDriver() {
             try {
-                const res = await fetch(
-                    `https://ntouber-user.zeabur.app/v1/drivers/user/${User_id}`
-                );
+                const res = await fetch(`https://ntouber-gateway.zeabur.app/v1/users/${User_id}`,
+                    {
+                        headers: {
+                            ...authHeader(),
+                        },
+                    });
 
                 if (!res.ok) throw new Error("取得使用者資料失敗");
 
                 const data = await res.json();
+
+
+                setDriver(data);
+
                 console.log(data);
 
-                const driverInstance = new DriverClass({
-                    userID: data.user_id, // 後端 user_id -> 前端 userID
-                    name: data.driver_name, // 後端 driver_name -> 前端 name
-                    contactInfo: data.contact_info,
-                    scooterType: data.scooter_type,
-                    plateNum: data.plate_num,
-                    driverLicense: data.driver_license,
-                    status: data.status,
-                });
-                setDriver(driverInstance);
-
-                console.log(driverInstance);
             } catch (err) {
                 console.error("❌ 載入車主資料失敗:", err);
             }
         }
 
-        // console.log(postData.image_url);
+        console.log(postData.image_url);
         fetchDriver();
     }, [User_id]);
 
-    useEffect(() => {
-        async function fetchUser() {
-            try {
-                const res = await fetch(
-                    `https://ntouber-user.zeabur.app/v1/users/${User_id}`
-                );
-
-                if (!res.ok) throw new Error("取得使用者資料失敗");
-
-                const data = await res.json();
-
-                setUser(data);
-
-                // console.log(data);
-            } catch (err) {
-                console.error("❌ 載入車主資料失敗:", err);
-            }
+    const handleRequest = async () => {
+        if (!isLoggedIn || !user) {
+            alert("請先登入再發送請求");
+            return;
         }
 
-        // console.log(postData.image_url);
-        fetchUser();
-    }, [User_id]);
+        const params = new URLSearchParams({
+
+            post_id: postData.id,
+            client_id: user.ID,
+
+        });
+
+        const url = `https://ntouber-gateway.zeabur.app/api/posts/request?${params.toString()}`;
+        console.log("發送請求 URL:", url);
+
+        try {
+            console.log(postData.timestamp);
+            const res = await fetch(url, {
+                method: "PATCH",
+                headers: {
+                    ...authHeader(),
+                },
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                console.error("發送請求失敗：", data);
+                throw new Error(data.message || `API 錯誤 (${res.status})`);
+
+            }
+
+            console.log("發送請求成功：", data);
+            alert("已發送請求給車主！");
+        } catch (err) {
+            console.error("發送請求發生錯誤：", err);
+            alert(`發送請求失敗：${err.message}`);
+        }
+    };
 
     const handleDelete = async () => {
+
+
         if (!postData || !postData.id) {
             console.error("無法取得貼文 ID 進行刪除。");
             console.log("postData.id:", postData.id);
@@ -102,21 +115,25 @@ function AdminDetailPost() {
             return;
         }
 
-        const isConfirmed = window.confirm(
-            `確定要刪除這篇貼文嗎？\n貼文 ID: ${postData.id}`
-        );
+
+        const isConfirmed = window.confirm(`確定要刪除這篇貼文嗎？\n貼文 ID: ${postData.id}`);
         if (!isConfirmed) {
             return;
         }
 
+
         const post_id = postData.id;
-        const url = `https://ntouber-post.zeabur.app/api/posts/delete/post/${post_id}`;
+        const url = `https://ntouber-gateway.zeabur.app/api/posts/delete/post/${post_id}`;
         console.log("發送刪除請求 URL:", url);
 
         try {
             const res = await fetch(url, {
                 method: "DELETE",
+                headers: {
+                    ...authHeader(),
+                },
             });
+
 
             const data = await res.json().catch(() => ({}));
 
@@ -130,54 +147,58 @@ function AdminDetailPost() {
 
             // 刪除成功後，導回上一頁或貼文列表頁面
             navigate(-1);
+
         } catch (err) {
             console.error("刪除貼文發生錯誤：", err);
             alert(`刪除貼文失敗：${err.message}`);
         }
     };
 
+
     return (
         <div className="flex justify-center">
-            <article className="postCard m-4 w-3/4">
+            <article className='postCard m-4 w-3/4'>
                 {/* <div className="flex h-50 items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400"> */}
                 <div className="w-full bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden h-64 mb-4">
                     <img
-                        src={
-                            postData?.image_url ||
-                            "https://placehold.co/200x150?text=Demo+Image&font=roboto"
-                        }
+                        src={postData?.image_url || "https://placehold.co/200x150?text=Demo+Image&font=roboto"}
                         alt="demo"
                         className="max-w-full max-h-full object-contain rounded-xl"
                     />
                 </div>
                 {/* </div> */}
                 <div className="space-y-3 text-sm text-center font-bold">
-                    {postData.starting_point.Name} {"→"}{" "}
-                    {postData.destination.Name}
+
+                    {postData.starting_point.Name} {"→"} {postData.destination.Name}
                 </div>
 
                 <div className="space-y-3 text-xs">
+
                     起點: {postData.starting_point.Address}
                 </div>
 
                 <div className="space-y-3 text-xs">
+
                     終點: {postData.destination.Address}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    集合時間:{" "}
-                    {dayjs(postData.departure_time).format("YYYY-MM-DD HH:mm")}
+
+                    集合時間: {dayjs(postData.departure_time).format("YYYY-MM-DD HH:mm")}
                 </div>
 
                 <div className="space-y-3 text-xs">
+
                     集合地點: {postData.meet_point.Name}
                 </div>
 
                 <div className="space-y-3 text-xs">
-                    手機: {User?.PhoneNumber}
+
+                    手機: {driver?.PhoneNumber}
                 </div>
 
                 <div className="space-y-3 text-xs">
+
                     車型: {postData.vehicle_info}
                 </div>
 
@@ -188,6 +209,7 @@ function AdminDetailPost() {
                 <div className="space-y-3 text-xs">
                     備註:
                     <div className="border border-gray-400 rounded-md p-4">
+
                         {postData.description}
                     </div>
                 </div>
@@ -206,20 +228,19 @@ function AdminDetailPost() {
                 <div className="flex items-center h-5">
                     <div className="mr-1 h-5 w-5 overflow-hidden rounded-full bg-gray-100 font">
                         <img
-                            src={
-                                User?.AvatarURL || "https://placehold.co/80x80"
-                            }
+                            src={driver?.AvatarURL || "https://placehold.co/80x80"}
                             alt="driver"
                             className="h-full w-full object-cover"
                         />
                     </div>
-                    <p className="text-xs">{User?.Name || "載入中…"}</p>
+                    <p className="text-xs">{driver?.Name || "載入中…"}</p>
                 </div>
 
+
                 <div className="mt-6 flex justify-between gap-4">
+
                     {/* 封鎖駕駛 */}
                     <button
-                        onClick={() => driver && handleBlacklist(driver)}
                         className="
                             flex-1 
                             bg-black 
@@ -256,9 +277,12 @@ function AdminDetailPost() {
                     >
                         刪除貼文
                     </button>
+
                 </div>
+
             </article>
         </div>
+
     );
 }
 
