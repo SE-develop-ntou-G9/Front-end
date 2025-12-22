@@ -1,12 +1,21 @@
 import { useState, useEffect } from "react";
 
-const userAPI = "https://ntouber-user.zeabur.app/v1/users";
+const userAPI = "https://ntouber-gateway.zeabur.app/v1/users";
 
 /**
  * 獲取單個用戶資訊的通用函式
  * @param {string} userId - 要查詢的用戶ID
  * @returns {Promise<Object>} - 用戶物件
  */
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
+
 export async function fetchUserById(userId) {
     if (!userId) return null;
 
@@ -20,6 +29,7 @@ export async function fetchUserById(userId) {
         const response = await fetch(`${userAPI}/${userId}`, {
             method: "GET",
             headers: {
+                ...authHeader(),
                 "Content-Type": "application/json",
             },
         });
@@ -31,7 +41,7 @@ export async function fetchUserById(userId) {
         }
 
         const userData = await response.json();
-        
+
         // 將獲取的用戶資料存入快取 
         localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
 

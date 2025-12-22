@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext.jsx";
-const driverAPI = "https://ntouber-user.zeabur.app/v1/drivers";
-const postAPI = "https://ntouber-post.zeabur.app/api/posts/delete/driver";
-const adminBlackAPI = "https://ntouber-admin.zeabur.app/admin/blacklist"; // 如果黑名單也針對駕駛，則保留
+const driverAPI = "https://ntouber-gateway.zeabur.app/v1/drivers";
+const postAPI = "https://ntouber-gateway.zeabur.app/api/posts/delete/driver";
+const adminBlackAPI = "https://ntouber-gateway.zeabur.app/admin/blacklist"; // 如果黑名單也針對駕駛，則保留
 
 /**
  * 專門處理管理員對駕駛（Driver）的操作（刪除、黑名單）。
@@ -11,6 +11,15 @@ const adminBlackAPI = "https://ntouber-admin.zeabur.app/admin/blacklist"; // 如
  * @param {Function} navigate - (可選) 用於導航的 navigate 函數。
  * @returns {object} 包含 handleDriverDelete 和 handleBlacklist 函數的物件。
  */
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
+
 export default function useAdminDriverActions(setDrivers, navigate) {
     const { updateDriver } = useUser();
     const getAvatarURL = {};
@@ -26,8 +35,18 @@ export default function useAdminDriverActions(setDrivers, navigate) {
             console.log(`開始併行刪除駕駛 ${userName} 及其相關資料...`);
 
             const requests = [
-                fetch(`${driverAPI}/delete/${userId}`, { method: "DELETE" }),
-                fetch(`${postAPI}/${userId}`, { method: "DELETE" }),
+                fetch(`${driverAPI}/delete/${userId}`, {
+                    headers: {
+                        ...authHeader(),
+                    },
+                    method: "DELETE"
+                }),
+                fetch(`${postAPI}/${userId}`, {
+                    headers: {
+                        ...authHeader(),
+                    },
+                    method: "DELETE"
+                }),
             ];
 
             const results = await Promise.allSettled(requests);

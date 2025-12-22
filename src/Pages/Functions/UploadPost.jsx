@@ -5,6 +5,14 @@ import cityDistrictMap from "../../models/Cities";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
+
 // 統一的輸入框樣式
 const inputClass =
     "w-full border border-gray-300 rounded-lg px-3 py-2 " +
@@ -37,7 +45,7 @@ function toApiJson(post, startAddress, destAddress, userName, vehicle_info) {
 function UploadPost() {
     const navigate = useNavigate();
     const { user, driver } = useUser();
-    
+
     // 圖片狀態
     const [imageFile, setImageFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState("");
@@ -71,7 +79,7 @@ function UploadPost() {
         street: "",
     });
 
-    const API = "https://ntouber-post.zeabur.app/api/posts/";
+    const API = "https://ntouber-gateway.zeabur.app/api/posts/";
     const [isSubmitting, setSubmitting] = useState(false);
 
     const updateNestedField = (parentKey, childKey, value) => {
@@ -120,7 +128,7 @@ function UploadPost() {
         try {
             const r = await fetch(API, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", ...authHeader() },
                 body: JSON.stringify(payload),
             });
 
@@ -128,16 +136,19 @@ function UploadPost() {
             if (!r.ok) {
                 throw new Error(data.message || `API 錯誤（${r.status})`);
             }
-            
-            const postId = data; 
+
+            const postId = data;
 
             if (imageFile && postId) {
                 const formData = new FormData();
                 formData.append("file", imageFile);
-                const uploadUrl = `https://ntouber-post.zeabur.app/api/posts/upload_image?post_id=${postId}`;
-                
+                const uploadUrl = `https://ntouber-gateway.zeabur.app/api/posts/upload_image?post_id=${postId}`;
+
                 const imgRes = await fetch(uploadUrl, {
                     method: "PATCH",
+                    headers: {
+                        ...authHeader(),
+                    },
                     body: formData,
                 });
 
@@ -152,7 +163,7 @@ function UploadPost() {
             setDestAddress({ city: "", district: "", street: "" });
             setImageFile(null);
             setPreviewUrl("");
-            
+
             alert("送出成功！");
             navigate("/");
 
@@ -179,7 +190,7 @@ function UploadPost() {
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-6 mt-6">
-                    
+
                     {/* ===== 圖片上傳區塊 ===== */}
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -423,8 +434,8 @@ function UploadPost() {
                             <label className="block text-sm font-semibold text-gray-700">
                                 貼文簡述
                             </label>
-                            <span className={`text-xs ${post.notes.length === 20 ? 'text-red-500' : 'text-gray-400'}`}>
-                                {post.notes.length}/20
+                            <span className={`text-xs ${(post.notes || "").length === 20 ? 'text-red-500' : 'text-gray-400'}`}>
+                                {(post.notes || "").length}/20
                             </span>
                         </div>
                         <textarea

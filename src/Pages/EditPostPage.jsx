@@ -20,6 +20,14 @@ function splitTaiwanAddress(address = "") {
     return { city, district, street };
 }
 
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
+
 const inputClass =
     "w-full border border-gray-300 rounded-lg px-3 py-2 " +
     "focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none transition";
@@ -67,8 +75,13 @@ function EditPostPage() {
         async function fetchPost() {
             try {
                 const res = await fetch(
-                    `https://ntouber-post.zeabur.app/api/posts/getpost/${postId}`
-                );
+                    `https://ntouber-gateway.zeabur.app/api/posts/getpost/${postId}`
+                    ,
+                    {
+                        headers: {
+                            ...authHeader(),
+                        },
+                    });
                 if (!res.ok) throw new Error("取得貼文失敗");
 
                 const data = await res.json();
@@ -175,10 +188,10 @@ function EditPostPage() {
             };
 
             const res = await fetch(
-                `https://ntouber-post.zeabur.app/api/posts/driver_posts/${postId}`,
+                `https://ntouber-gateway.zeabur.app/api/posts/driver_posts/${postId}`,
                 {
                     method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { ...authHeader(), "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 }
             );
@@ -191,9 +204,12 @@ function EditPostPage() {
                 formData.append("file", imageFile);
 
                 const imgRes = await fetch(
-                    `https://ntouber-post.zeabur.app/api/posts/upload_image?post_id=${postId}`,
+                    `https://ntouber-gateway.zeabur.app/api/posts/upload_image?post_id=${postId}`,
                     {
                         method: "PATCH",
+                        headers: {
+                            ...authHeader(),
+                        },
                         body: formData,
                     }
                 );

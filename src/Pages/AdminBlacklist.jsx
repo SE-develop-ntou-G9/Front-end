@@ -1,21 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAdminUserActions from "../Pages/hooks/useAdminUserActions"; 
+import useAdminUserActions from "../Pages/hooks/useAdminUserActions";
 
-const BL_API = "https://ntouber-admin.zeabur.app/admin/blacklist";
-const USER_API = "https://ntouber-user.zeabur.app/v1/users";
+const BL_API = "https://ntouber-gateway.zeabur.app/admin/blacklist";
+const USER_API = "https://ntouber-gateway.zeabur.app/v1/users";
+
+const authHeader = () => {
+	const token = localStorage.getItem("jwtToken");
+	return token
+		? { Authorization: `Bearer ${token}` }
+		: {};
+};
 
 
 export default function AdminBlacklist() {
 	const navigate = useNavigate();
 	const [blacklist, setBlacklist] = useState([]);
-    
-    // 取得新的操作函數。這裡不需要傳入 setUser 或 navigate。
-    const { handleUserDeleteFromBlacklist } = useAdminUserActions();
+
+	// 取得新的操作函數。這裡不需要傳入 setUser 或 navigate。
+	const { handleUserDeleteFromBlacklist } = useAdminUserActions();
 	useEffect(() => {
 		async function fetchBlacklist() {
 			try {
-				const r = await fetch(BL_API, { method: "GET" });
+				const r = await fetch(BL_API, {
+					headers: {
+						...authHeader(),
+					}, method: "GET"
+				});
 				if (!r.ok) throw new Error(`API 錯誤 (${r.status})`);
 				const data = await r.json();
 				const list = Array.isArray(data) ? data : [];
@@ -26,7 +37,12 @@ export default function AdminBlacklist() {
 				await Promise.all(
 					uniqueUserIds.map(async (id) => {
 						try {
-							const ur = await fetch(`${USER_API}/${id}`, { method: "GET" });
+							const ur = await fetch(`${USER_API}/${id}`, {
+								headers: {
+									...authHeader(),
+								},
+								method: "GET"
+							});
 							if (!ur.ok) return;
 
 							const u = await ur.json();
@@ -112,19 +128,19 @@ export default function AdminBlacklist() {
 								<p className="font-medium">{b.userName}</p>
 							</div>
 
-                            {/* 新增從黑名單移除按鈕 */}
-                            <button
-                                onClick={() => handleUserDeleteFromBlacklist(b, setBlacklist)}
-                                className="
+							{/* 新增從黑名單移除按鈕 */}
+							<button
+								onClick={() => handleUserDeleteFromBlacklist(b, setBlacklist)}
+								className="
                                     px-3 py-1 
                                     bg-green-500 hover:bg-green-600 
                                     text-white text-xs 
                                     rounded-full 
                                     transition-colors
                                 "
-                            >
-                                移出黑名單
-                            </button>
+							>
+								移出黑名單
+							</button>
 
 						</div>
 					))}

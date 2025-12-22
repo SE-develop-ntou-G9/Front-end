@@ -2,6 +2,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext.jsx";
 import { motion, AnimatePresence } from "framer-motion";
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
+
+
 function EditProfilePage() {
     const navigate = useNavigate();
 
@@ -36,8 +45,11 @@ function EditProfilePage() {
         const formData = new FormData();
         formData.append("image", avatarFile);
 
-        const res = await fetch("https://ntouber-user.zeabur.app/v1/images/avatar", {
+        const res = await fetch("https://ntouber-gateway.zeabur.app/v1/images/avatar", {
             method: "POST",
+            headers: {
+                ...authHeader(),
+            },
             body: formData,
         });
 
