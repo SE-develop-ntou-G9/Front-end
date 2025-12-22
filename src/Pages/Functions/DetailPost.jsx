@@ -191,7 +191,7 @@ function DetailPost() {
         const postUrl = `https://ntouber-gateway.zeabur.app/api/posts/getpost/${postData.id}`;
 
         try {
-            const postRes = await fetch(postUrl, { method: "GET" });
+            const postRes = await fetch(postUrl, { method: "GET", headers: { "Content-Type": "application/json", ...authHeader() } });
             const newPostData = await postRes.json().catch(() => ({}));
 
             if (!postRes.ok) {
@@ -224,7 +224,7 @@ function DetailPost() {
             const url = `https://ntouber-gateway.zeabur.app/api/posts/request?${params.toString()}`;
             setIsSubmitting(true);
 
-            const res = await fetch(url, { method: "PATCH" });
+            const res = await fetch(url, { method: "PATCH", headers: { "Content-Type": "application/json", ...authHeader() } });
             const data = await res.json().catch(() => ({}));
 
             if (!res.ok) {
