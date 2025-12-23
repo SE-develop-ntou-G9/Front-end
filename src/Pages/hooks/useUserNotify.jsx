@@ -3,19 +3,10 @@
 import { useState } from "react";
 
 // 通知 API 的基礎 URL
-const BASE_URL = "https://ntouber-gateway.zeabur.app/v1";
-
-
-const authHeader = () => {
-    const token = localStorage.getItem("jwtToken");
-    return token
-        ? { Authorization: `Bearer ${token}` }
-        : {};
-};
-
+const BASE_URL = "https://ntouber-user.zeabur.app/v1";
 
 export function useUserNotify() {
-
+    
     /**
      * 發送通知給指定用戶
      * @param {string} receiverId - 接收通知的用戶ID (Post Driver ID)
@@ -36,14 +27,13 @@ export function useUserNotify() {
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
-                    ...authHeader(),
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    RecieverID: receiverId,
-                    SenderID: senderId,
-                    Message: message,
-                    Status: "unread",
+                    RecieverID: receiverId, 
+                    SenderID: senderId,     
+                    Message: message,      
+                    Status: "unread",  
                 }),
             });
 
@@ -62,7 +52,36 @@ export function useUserNotify() {
             return false;
         }
     };
+    
+    /**
+     * 將指定通知標記為已讀
+     * @param {string} id - 通知 ID
+     */
+    const readed = async (id) => {
+        if (!id) return false;
 
-    // 這裡回傳一個物件，包含我們可以從 Hook 外部呼叫的函式
-    return { sendNotification };
+        try {
+            const url = `${BASE_URL}/notifications/${id}`;
+            const response = await fetch(url, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    Status: "read" // 將狀態更新為 read
+                }),
+            });
+
+            if (!response.ok) {
+                console.error(`更新通知 ${id} 狀態失敗`);
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error("更新通知已讀時發生網路錯誤:", error);
+            return false;
+        }
+    };
+
+    return { sendNotification, readed };
 }

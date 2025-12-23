@@ -54,12 +54,12 @@ function LoginPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ credential })
             });
-            console.log(res);
-            console.log(credential);
+            // console.log(res);
+            // console.log(credential);
             if (!res.ok) throw new Error("驗證 Google 失敗");
 
             const data = await res.json();
-            console.log("後端回傳：", data);
+            // console.log("後端回傳：", data);
             const user = data.user;
             const token = data.token;
 
@@ -69,7 +69,7 @@ function LoginPage() {
                 return;
             }
 
-            console.log(token);
+            // console.log(token);
 
             const fullUser = await fetchFullUserInfo(user.id, token);
 
