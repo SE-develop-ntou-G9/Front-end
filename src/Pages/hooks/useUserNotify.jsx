@@ -3,7 +3,14 @@
 import { useState } from "react";
 
 // 通知 API 的基礎 URL
-const BASE_URL = "https://ntouber-user.zeabur.app/v1";
+const BASE_URL = "https://ntouber-gateway.zeabur.app/v1";
+
+const authHeader = () => {
+    const token = localStorage.getItem("jwtToken");
+    return token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+};
 
 export function useUserNotify() {
     
@@ -28,6 +35,7 @@ export function useUserNotify() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    ...authHeader(),
                 },
                 body: JSON.stringify({
                     RecieverID: receiverId, 
