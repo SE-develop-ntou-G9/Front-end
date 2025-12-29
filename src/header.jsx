@@ -28,7 +28,6 @@ function Header() {
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const sidebarRef = useRef(null);
-
     const [notifications, setNotifications] = useState([]); // 儲存通知列表
     const [isNotificationOpen, setIsNotificationOpen] = useState(false); // 控制通知選單顯示
     const notificationRef = useRef(null); // 用於判斷點擊是否在通知選單外部
@@ -378,7 +377,7 @@ function Header() {
                             <button
                                 className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition"
                                 onClick={() => {
-                                    if (!isAdmin) return;
+                                    if (isAdmin == "1") return;
                                     navigate("/Profile")
                                 }}
                             >
