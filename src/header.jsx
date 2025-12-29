@@ -212,7 +212,7 @@ function Header() {
         };
     }, [isSidebarOpen, isNotificationOpen]); // 監聽兩個狀態
 
-    const unreadCount = notifications.length;
+    const unreadCount = notifications.filter(n => n.Status === "unread").length;
 
     return (
         <>
