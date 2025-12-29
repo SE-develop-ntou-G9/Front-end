@@ -74,6 +74,7 @@ export function useUserNotify() {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    ...authHeader(),
                 },
                 body: JSON.stringify({
                     Status: "read" // 將狀態更新為 read
